@@ -1,0 +1,2 @@
+ com.xzf.framework.biz.context.config.ContextAutoConfiguration
+ com.xzf.framework.biz.context.config.FeignContextAutoConfiguration
