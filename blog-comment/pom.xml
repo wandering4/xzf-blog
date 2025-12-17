@@ -3,22 +3,19 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.xzf</groupId>
-        <artifactId>blog-user</artifactId>
+        <artifactId>xzf-blog</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.xzf.blog.user</groupId>
-    <artifactId>blog-user-api</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>blog-comment</artifactId>
+    <packaging>pom</packaging>
 
-    <name>blog-user-api</name>
+    <name>blog-comment</name>
+
+    <modules>
+        <module>blog-comment-api</module>
+        <module>blog-comment-biz</module>
+    </modules>
 
 
-
-    <dependencies>
-        <dependency>
-            <groupId>com.xzf</groupId>
-            <artifactId>blog-commons</artifactId>
-        </dependency>
-    </dependencies>
 </project>

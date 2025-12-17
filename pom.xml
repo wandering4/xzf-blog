@@ -17,10 +17,12 @@
         <module>blog-user</module>
         <module>blog-article</module>
         <module>blog-ai</module>
-        <module>blog-ai/blog-ai-api</module>
+        <module>blog-comment</module>
+        <module>blog-count</module>
     </modules>
 
     <properties>
+        <project.version>1.0-SNAPSHOT</project.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- JDK 版本 -->
         <java.version>17</java.version>
@@ -34,8 +36,8 @@
 
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
         <mybatis-generator-maven-plugin.version>1.3.5</mybatis-generator-maven-plugin.version>
-        <mysql-connector-java.version>8.0.29</mysql-connector-java.version>
-        <druid.version>1.2.20</druid.version>
+        <mysql-connector-java.version>8.0.21</mysql-connector-java.version>
+        <druid.version>1.2.18</druid.version>
         <hutool.version>5.8.11</hutool.version>
         <lombok.version>1.18.30</lombok.version>
         <guava.version>33.0.0-jre</guava.version>
@@ -88,15 +90,42 @@
             <dependency>
                 <groupId>com.xzf</groupId>
                 <artifactId>blog-commons</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 业务接口日志组件 -->
+            <dependency>
+                <groupId>com.xzf</groupId>
+                <artifactId>blog-spring-boot-starter-biz-operationlog</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 上下文组件 -->
+            <dependency>
+                <groupId>com.xzf</groupId>
+                <artifactId>blog-spring-boot-starter-biz-context</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- Jackson 组件 -->
+            <dependency>
+                <groupId>com.xzf</groupId>
+                <artifactId>blog-spring-boot-starter-jackson</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+
+            <dependency>
+                <groupId>com.xzf.blog.article</groupId>
+                <artifactId>blog-article-api</artifactId>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.xzf.blog.biz</groupId>
-                <artifactId>blog-article-biz</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <groupId>com.xzf.blog.user</groupId>
+                <artifactId>blog-user-api</artifactId>
+                <version>${project.version}</version>
             </dependency>
-
 
             <!--=============================================================================-->
             <!-- Rocket MQ 客户端 -->
@@ -104,6 +133,27 @@
                 <groupId>org.apache.rocketmq</groupId>
                 <artifactId>rocketmq-client</artifactId>
                 <version>${rocketmq-client.version}</version>
+            </dependency>
+
+            <!-- mysql驱动 -->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql-connector-java.version}</version>
+            </dependency>
+
+            <!-- Druid 数据库连接池 -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-3-starter</artifactId>
+                <version>${druid.version}</version>
+            </dependency>
+
+            <!-- MyBatis-Plus Starter -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>3.5.4.1</version>
             </dependency>
 
             <!-- Sa-Token 整合 Redis （使用 jackson 序列化方式） -->
