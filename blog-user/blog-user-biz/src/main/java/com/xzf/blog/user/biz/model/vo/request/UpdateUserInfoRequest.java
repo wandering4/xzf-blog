@@ -33,20 +33,12 @@ public class UpdateUserInfoRequest {
      */
     private String nickname;
 
-    /**
-     * 小红书 ID
-     */
-    private String accountId;
 
     /**
      * 性别
      */
     private Integer sex;
 
-    /**
-     * 生日
-     */
-    private LocalDate birthday;
 
     /**
      * 个人介绍

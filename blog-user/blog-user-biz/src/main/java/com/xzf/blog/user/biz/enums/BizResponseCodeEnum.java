@@ -10,10 +10,12 @@ import lombok.Getter;
 public enum BizResponseCodeEnum implements BaseExceptionInterface {
     NICK_NAME_VALID_FAIL("USER-20001", "昵称请设置2-24个字符，不能使用@《/等特殊字符"),
     ACCOUNT_ID_VALID_FAIL("USER-20002", "账号请设置6-15个字符，仅可使用英文（必须）、数字、下划线"),
-    UPLOAD_AVATAR_FAIL("USER-20003", "头像上传失败"),
-    USER_NOT_FOUND("USER-20004", "该用户不存在"),
-    CANT_UPDATE_OTHER_USER_PROFILE("USER-20005", "无权限修改用户信息"),
-    PICTURE_TOO_BIG("USER-20006", "图片过大，无法上传"),
+    SEX_VALID_FAIL("USER-20003", "性别错误"),
+    INTRODUCTION_VALID_FAIL("USER-20004", "个人简介请设置1-100个字符"),
+    UPLOAD_AVATAR_FAIL("USER-20005", "头像上传失败"),
+    USER_NOT_FOUND("USER-20006", "该用户不存在"),
+    CANT_UPDATE_OTHER_USER_PROFILE("USER-20007", "无权限修改用户信息"),
+    PICTURE_TOO_BIG("USER-20008", "图片过大，无法上传"),
 
     ;
 

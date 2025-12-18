@@ -13,8 +13,8 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("user")
-public class UserDO {
+@TableName("user_role_rel")
+public class UserRoleDO {
 
     /**
      * 主键id
@@ -22,34 +22,14 @@ public class UserDO {
     private Long id;
 
     /**
-     * 用户名称
+     * 用户id
      */
-    private String username;
+    private Long userId;
 
     /**
-     * 头像url
+     * 角色id
      */
-    private String avatarUrl;
-
-    /**
-     * 密码
-     */
-    private String password;
-
-    /**
-     * 手机号
-     */
-    private String phone;
-
-    /**
-     * 个人简介
-     */
-    private String introduction;
-
-    /**
-     * 性别（0：女性，1：男性）
-     */
-    private Integer sex;
+    private Long roleId;
 
     /**
      * 创建时间

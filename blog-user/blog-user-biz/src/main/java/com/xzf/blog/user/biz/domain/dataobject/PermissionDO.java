@@ -1,5 +1,7 @@
 package com.xzf.blog.user.biz.domain.dataobject;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,8 +15,8 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("user")
-public class UserDO {
+@TableName("permission")
+public class PermissionDO {
 
     /**
      * 主键id
@@ -22,34 +24,44 @@ public class UserDO {
     private Long id;
 
     /**
-     * 用户名称
+     * 父ID
      */
-    private String username;
+    private Long parentId;
 
     /**
-     * 头像url
+     * 权限名称
      */
-    private String avatarUrl;
+    private String name;
 
     /**
-     * 密码
+     * 类型(1：目录 2：菜单 3：按钮)
      */
-    private String password;
+    private Byte type;
 
     /**
-     * 手机号
+     * 菜单路由
      */
-    private String phone;
+    private String menuUrl;
 
     /**
-     * 个人简介
+     * 菜单图标
      */
-    private String introduction;
+    private String menuIcon;
 
     /**
-     * 性别（0：女性，1：男性）
+     * 管理系统中的显示顺序
      */
-    private Integer sex;
+    private Integer sort;
+
+    /**
+     * 权限标识
+     */
+    private String permissionKey;
+
+    /**
+     * 状态(0：启用；1：禁用)
+     */
+    private Byte status;
 
     /**
      * 创建时间
