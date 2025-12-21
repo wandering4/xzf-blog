@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  nacos:
+    image: nacos/nacos-server:v2.3.2
+    container_name: nacos
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+      - "9849:9849"
+    volumes:
+      - E:\docker\nacos\standalone\logs:/home/nacos/logs
+      - E:\docker\nacos\standalone\data:/home/nacos/data
+    environment:
+      - MODE=standalone
+      - NACOS_AUTH_ENABLE=false
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.0-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - E:\docker\redis\conf:/usr/local/etc/redis
+      - E:\docker\redis\data:/data
+    command: redis-server /usr/local/etc/redis/redis.conf
+    restart: unless-stopped

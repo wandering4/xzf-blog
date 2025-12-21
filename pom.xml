@@ -19,6 +19,7 @@
         <module>blog-ai</module>
         <module>blog-comment</module>
         <module>blog-count</module>
+        <module>blog-oss</module>
     </modules>
 
     <properties>
@@ -42,12 +43,13 @@
         <lombok.version>1.18.30</lombok.version>
         <guava.version>33.0.0-jre</guava.version>
         <transmittable-thread-local.version>2.14.2</transmittable-thread-local.version>
+        <rocketmq.version>2.2.3</rocketmq.version>
+        <rocketmq-client.version>4.9.4</rocketmq-client.version>
 
 
         <sa-token.version>1.38.0</sa-token.version>
         <minio.version>8.2.1</minio.version>
         <redisson.version>3.18.1</redisson.version>
-        <rocketmq-client.version>4.9.4</rocketmq-client.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
 
         <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
@@ -127,12 +129,25 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.xzf.blog.oss</groupId>
+                <artifactId>blog-oss-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!--=============================================================================-->
             <!-- Rocket MQ 客户端 -->
             <dependency>
                 <groupId>org.apache.rocketmq</groupId>
                 <artifactId>rocketmq-client</artifactId>
                 <version>${rocketmq-client.version}</version>
+            </dependency>
+
+            <!-- Rocket MQ -->
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-spring-boot-starter</artifactId>
+                <version>${rocketmq.version}</version>
             </dependency>
 
             <!-- mysql驱动 -->
@@ -165,7 +180,14 @@
 
             <dependency>
                 <groupId>cn.dev33</groupId>
-                <artifactId>sa-token-reactor-spring-boot3-starter</artifactId>
+                <artifactId>sa-token-reactor-spring-boot-starter</artifactId>
+                <version>${sa-token.version}</version>
+            </dependency>
+
+            <!-- Sa-Token 权限认证 -->
+            <dependency>
+                <groupId>cn.dev33</groupId>
+                <artifactId>sa-token-spring-boot-starter</artifactId>
                 <version>${sa-token.version}</version>
             </dependency>
 

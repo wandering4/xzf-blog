@@ -30,21 +30,22 @@ public class UserController {
 
     /**
      * 用户信息修改
-     *
      * @param updateUserInfoRequest
      * @return
      */
     @PostMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ApiOperationLog(description = "用户信息修改")
     public Response<?> updateUserInfo(@Validated UpdateUserInfoRequest updateUserInfoRequest) {
         return userService.updateUserInfo(updateUserInfoRequest);
     }
 
     /**
-     * 获取用户主页信息
+     * 获取用户详细信息
      *
      * @return
      */
     @PostMapping(value = "/profile")
+    @ApiOperationLog(description = "获取用户详细信息")
     public Response<FindUserProfileRspVO> findUserProfile(@Validated @RequestBody FindUserProfileReqVO findUserProfileReqVO) {
         return userService.findUserProfile(findUserProfileReqVO);
     }
@@ -56,7 +57,7 @@ public class UserController {
     @PostMapping("/findByPhone")
     @ApiOperationLog(description = "手机号查询用户信息")
     public Response<FindUserByPhoneRspDTO> findByPhone(@Validated @RequestBody FindUserByPhoneRequest findUserByPhoneRequest) {
-        return userService.findByPhone(findUserByPhoneRequest);
+        return Response.success(userService.findByPhone(findUserByPhoneRequest));
     }
 
 

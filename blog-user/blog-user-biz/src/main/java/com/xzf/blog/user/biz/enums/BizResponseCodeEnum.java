@@ -16,6 +16,12 @@ public enum BizResponseCodeEnum implements BaseExceptionInterface {
     USER_NOT_FOUND("USER-20006", "该用户不存在"),
     CANT_UPDATE_OTHER_USER_PROFILE("USER-20007", "无权限修改用户信息"),
     PICTURE_TOO_BIG("USER-20008", "图片过大，无法上传"),
+    VERIFICATION_CODE_SEND_FREQUENTLY("AUTH-20000", "请求太频繁，请3分钟后再试"),
+    VERIFICATION_CODE_ERROR("AUTH-20001", "验证码错误"),
+    LOGIN_FAILURE("AUTH-20002","登录失败"),
+    LOGIN_TYPE_ERROR("AUTH-20002", "登录类型错误"),
+    PHONE_OR_PASSWORD_ERROR("AUTH-20004", "手机号或密码错误"),
+    LOGIN_FAIL("AUTH-20005", "登录失败"),
 
     ;
 

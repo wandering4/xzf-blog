@@ -19,22 +19,17 @@ public class FindUserProfileRspVO {
     /**
      * 用户 ID
      */
-    private Long userId;
+    private Long id;
 
     /**
      * 头像
      */
-    private String avatar;
+    private String avatarUrl;
 
     /**
      * 昵称
      */
-    private String nickname;
-
-    /**
-     * 小红书 ID
-     */
-    private String accountId;
+    private String name;
 
     /**
      * 性别
@@ -42,43 +37,9 @@ public class FindUserProfileRspVO {
     private Integer sex;
 
     /**
-     * 岁数
-     */
-    private Integer age;
-
-    /**
      * 个人介绍
      */
     private String introduction;
 
-    /**
-     * 关注数
-     */
-    private String followingTotal;
-
-    /**
-     * 粉丝数
-     */
-    private String fansTotal;
-
-    /**
-     * 点赞与收藏总数
-     */
-    private String likeAndCollectTotal;
-
-    /**
-     * 当前发布笔记数
-     */
-    private String noteTotal;
-
-    /**
-     * 当前获得点赞数
-     */
-    private String likeTotal;
-
-    /**
-     * 当前获得的收藏数
-     */
-    private String collectTotal;
 
 }

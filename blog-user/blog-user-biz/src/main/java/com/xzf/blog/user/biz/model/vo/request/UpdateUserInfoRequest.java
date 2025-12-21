@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 
 /**
  * @date: 2024/4/13 18:17
@@ -21,7 +20,7 @@ import java.time.LocalDate;
 public class UpdateUserInfoRequest {
 
     @NotNull(message = "用户 ID 不能为空")
-    private Long userId;
+    private Long id;
 
     /**
      * 头像
@@ -45,8 +44,4 @@ public class UpdateUserInfoRequest {
      */
     private String introduction;
 
-    /**
-     * 背景图
-     */
-    private MultipartFile backgroundImg;
 }

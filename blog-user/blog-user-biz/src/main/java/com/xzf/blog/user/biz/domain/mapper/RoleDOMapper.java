@@ -2,6 +2,8 @@ package com.xzf.blog.user.biz.domain.mapper;
 
 import com.xzf.blog.user.biz.domain.dataobject.RoleDO;
 
+import java.util.List;
+
 public interface RoleDOMapper {
     int deleteByPrimaryKey(Long id);
 
@@ -14,4 +16,6 @@ public interface RoleDOMapper {
     int updateByPrimaryKeySelective(RoleDO record);
 
     int updateByPrimaryKey(RoleDO record);
+
+    List<RoleDO> selectEnabledList();
 }

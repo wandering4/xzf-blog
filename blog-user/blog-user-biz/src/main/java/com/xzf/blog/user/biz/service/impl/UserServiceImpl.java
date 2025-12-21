@@ -8,9 +8,9 @@ import com.xzf.blog.framework.commons.exception.BizException;
 import com.xzf.blog.framework.commons.response.Response;
 import com.xzf.blog.framework.commons.util.JsonUtils;
 import com.xzf.blog.framework.commons.util.ParamUtils;
+import com.xzf.blog.user.biz.constant.MQConstants;
 import com.xzf.blog.user.biz.constant.RedisKeyConstants;
 import com.xzf.blog.user.biz.constant.RoleConstants;
-import com.xzf.blog.user.biz.domain.dataobject.RoleDO;
 import com.xzf.blog.user.biz.domain.dataobject.UserDO;
 import com.xzf.blog.user.biz.domain.dataobject.UserRoleDO;
 import com.xzf.blog.user.biz.domain.mapper.RoleDOMapper;
@@ -21,6 +21,7 @@ import com.xzf.blog.user.biz.enums.SexEnum;
 import com.xzf.blog.user.biz.model.vo.request.FindUserProfileReqVO;
 import com.xzf.blog.user.biz.model.vo.request.UpdateUserInfoRequest;
 import com.xzf.blog.user.biz.model.vo.response.FindUserProfileRspVO;
+import com.xzf.blog.user.biz.rpc.OssRpcService;
 import com.xzf.blog.user.biz.service.UserService;
 import com.xzf.blog.user.dto.req.*;
 import com.xzf.blog.user.dto.resp.FindUserByIdResponse;
@@ -29,8 +30,13 @@ import com.xzf.framework.biz.context.holder.LoginUserContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.client.producer.SendCallback;
+import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,11 +55,8 @@ public class UserServiceImpl implements UserService {
     @Resource
     private UserDOMapper userDOMapper;
 
-//    @Resource
-//    private FileFeignApi fileFeignApi;
-
-//    @Resource
-//    private OssRpcService ossRpcService;
+    @Resource
+    private OssRpcService ossRpcService;
 
     @Resource
     private UserRoleDOMapper userRoleDOMapper;
@@ -62,8 +65,8 @@ public class UserServiceImpl implements UserService {
     private RoleDOMapper roleDOMapper;
 
 
-//    @Resource
-//    private RocketMQTemplate rocketMQTemplate;
+    @Resource
+    private RocketMQTemplate rocketMQTemplate;
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
@@ -82,7 +85,7 @@ public class UserServiceImpl implements UserService {
     public Response<?> updateUserInfo(UpdateUserInfoRequest updateUserInfoRequest) {
 
         // 被更新的用户 ID
-        Long userId = updateUserInfoRequest.getUserId();
+        Long userId = updateUserInfoRequest.getId();
         // 当前登录的用户 ID
         Long loginUserId = LoginUserContextHolder.getUserId();
 
@@ -100,9 +103,8 @@ public class UserServiceImpl implements UserService {
         // 头像
         MultipartFile avatarFile = updateUserInfoRequest.getAvatar();
         if (ObjectUtils.isNotEmpty(avatarFile)) {
-            //TODO:调用对象存储服务上传文件
-//            String avatar = ossRpcService.uploadFile(avatarFile);
-            String avatar = null;
+            // 调用对象存储服务上传文件
+            String avatar = ossRpcService.uploadFile(avatarFile);
             log.info("==> 调用 oss 服务成功，上传头像，url：{}", avatar);
 
             if (StringUtils.isBlank(avatar)) {
@@ -175,24 +177,24 @@ public class UserServiceImpl implements UserService {
      * @param userId
      */
     private void sendDelayDeleteUserRedisCacheMQ(Long userId) {
-//        Message<String> message = MessageBuilder.withPayload(String.valueOf(userId))
-//                .build();
-//
-//        rocketMQTemplate.asyncSend(MQConstants.TOPIC_DELAY_DELETE_USER_REDIS_CACHE, message,
-//                new SendCallback() {
-//                    @Override
-//                    public void onSuccess(SendResult sendResult) {
-//                        log.info("## 延时删除 Redis 用户缓存消息发送成功...");
-//                    }
-//
-//                    @Override
-//                    public void onException(Throwable e) {
-//                        log.error("## 延时删除 Redis 用户缓存消息发送失败...", e);
-//                    }
-//                },
-//                3000, // 超时时间
-//                1 // 延迟级别，1 表示延时 1s
-//        );
+        Message<String> message = MessageBuilder.withPayload(String.valueOf(userId))
+                .build();
+
+        rocketMQTemplate.asyncSend(MQConstants.TOPIC_DELAY_DELETE_USER_REDIS_CACHE, message,
+                new SendCallback() {
+                    @Override
+                    public void onSuccess(SendResult sendResult) {
+                        log.info("## 延时删除 Redis 用户缓存消息发送成功...");
+                    }
+
+                    @Override
+                    public void onException(Throwable e) {
+                        log.error("## 延时删除 Redis 用户缓存消息发送失败...", e);
+                    }
+                },
+                3000, // 超时时间
+                1 // 延迟级别，1 表示延时 1s
+        );
     }
 
     /**
@@ -217,7 +219,6 @@ public class UserServiceImpl implements UserService {
         }
 
         // 否则注册新用户
-
         UserDO userDO = UserDO.builder()
                 .phone(phone)
                 .username("momo") // 自动生成昵称
@@ -240,14 +241,6 @@ public class UserServiceImpl implements UserService {
                 .build();
         userRoleDOMapper.insert(userRoleDO);
 
-        RoleDO roleDO = roleDOMapper.selectByPrimaryKey(RoleConstants.COMMON_USER_ROLE_ID);
-
-        // 将该用户的角色 ID 存入 Redis 中
-        List<String> roles = new ArrayList<>(1);
-        roles.add(roleDO.getRoleKey());
-
-        String userRolesKey = RedisKeyConstants.buildUserRoleKey(userId);
-        redisTemplate.opsForValue().set(userRolesKey, JsonUtils.toJsonString(roles));
 
         return Response.success(userId);
     }
@@ -259,7 +252,7 @@ public class UserServiceImpl implements UserService {
      * @return
      */
     @Override
-    public Response<FindUserByPhoneRspDTO> findByPhone(FindUserByPhoneRequest findUserByPhoneRequest) {
+    public FindUserByPhoneRspDTO findByPhone(FindUserByPhoneRequest findUserByPhoneRequest) {
         String phone = findUserByPhoneRequest.getPhone();
 
         UserDO userDO = userDOMapper.selectByPhone(phone);
@@ -270,12 +263,10 @@ public class UserServiceImpl implements UserService {
         }
 
         // 构建返参
-        FindUserByPhoneRspDTO findUserByPhoneRspDTO = FindUserByPhoneRspDTO.builder()
+        return FindUserByPhoneRspDTO.builder()
                 .id(userDO.getId())
                 .password(userDO.getPassword())
                 .build();
-
-        return Response.success(findUserByPhoneRspDTO);
     }
 
     @Override
@@ -333,8 +324,8 @@ public class UserServiceImpl implements UserService {
         // 构建返参
         FindUserByIdResponse findUserByIdResponse = FindUserByIdResponse.builder()
                 .id(userDO.getId())
-                .nickName(userDO.getUsername())
-                .avatar(userDO.getAvatarUrl())
+                .userName(userDO.getUsername())
+                .avatarUrl(userDO.getAvatarUrl())
                 .introduction(userDO.getIntroduction())
                 .build();
 
@@ -417,8 +408,8 @@ public class UserServiceImpl implements UserService {
             findUserByIdRspDTOS2 = userDOS.stream()
                     .map(userDO -> FindUserByIdResponse.builder()
                             .id(userDO.getId())
-                            .nickName(userDO.getUsername())
-                            .avatar(userDO.getAvatarUrl())
+                            .userName(userDO.getUsername())
+                            .avatarUrl(userDO.getAvatarUrl())
                             .introduction(userDO.getIntroduction())
                             .build())
                     .collect(Collectors.toList());
@@ -496,9 +487,9 @@ public class UserServiceImpl implements UserService {
 
         // 构建返参 VO
         FindUserProfileRspVO findUserProfileRspVO = FindUserProfileRspVO.builder()
-                .userId(userDO.getId())
-                .avatar(userDO.getAvatarUrl())
-                .nickname(userDO.getUsername())
+                .id(userDO.getId())
+                .avatarUrl(userDO.getAvatarUrl())
+                .name(userDO.getUsername())
                 .sex(userDO.getSex())
                 .introduction(userDO.getIntroduction())
                 .build();

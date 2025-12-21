@@ -34,7 +34,7 @@ public interface UserService {
      * @param findUserByPhoneRequest
      * @return
      */
-    Response<FindUserByPhoneRspDTO> findByPhone(FindUserByPhoneRequest findUserByPhoneRequest);
+    FindUserByPhoneRspDTO findByPhone(FindUserByPhoneRequest findUserByPhoneRequest);
 
     /**
      * 更新密码

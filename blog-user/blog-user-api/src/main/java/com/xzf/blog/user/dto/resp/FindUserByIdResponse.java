@@ -19,12 +19,12 @@ public class FindUserByIdResponse {
     /**
      * 昵称
      */
-    private String nickName;
+    private String userName;
 
     /**
      * 头像
      */
-    private String avatar;
+    private String avatarUrl;
 
     /**
      * 简介
