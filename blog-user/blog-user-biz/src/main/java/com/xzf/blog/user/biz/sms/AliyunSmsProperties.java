@@ -1,4 +1,4 @@
-package com.xzf.blog.framework.commons.sms;
+package com.xzf.blog.user.biz.sms;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

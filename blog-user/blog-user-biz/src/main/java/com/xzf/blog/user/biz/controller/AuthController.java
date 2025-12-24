@@ -2,7 +2,6 @@ package com.xzf.blog.user.biz.controller;
 
 import com.xzf.blog.framework.commons.response.Response;
 import com.xzf.blog.user.biz.model.vo.request.SendVerificationCodeReqVO;
-import com.xzf.blog.user.biz.model.vo.request.UpdatePasswordReqVO;
 import com.xzf.blog.user.biz.model.vo.request.UserLoginRequest;
 import com.xzf.blog.user.biz.service.AuthService;
 import com.xzf.framework.biz.operationlog.aspect.ApiOperationLog;
@@ -23,6 +22,12 @@ public class AuthController {
     @Resource
     private AuthService authService;
 
+    @PostMapping("/verification/code/send")
+    @ApiOperationLog(description = "发送短信验证码")
+    public Response<?> send(@Validated @RequestBody SendVerificationCodeReqVO sendVerificationCodeReqVO) {
+        return authService.send(sendVerificationCodeReqVO);
+    }
+
     @PostMapping("/login")
     @ApiOperationLog(description = "用户登录/注册")
     public Response<String> loginAndRegister(@Validated @RequestBody UserLoginRequest userLoginRequest) {
@@ -35,16 +40,5 @@ public class AuthController {
         return authService.logout();
     }
 
-    @PostMapping("/password/update")
-    @ApiOperationLog(description = "修改密码")
-    public Response<?> updatePassword(@Validated @RequestBody UpdatePasswordReqVO updatePasswordReqVO) {
-        return authService.updatePassword(updatePasswordReqVO);
-    }
-
-    @PostMapping("/verification/code/send")
-    @ApiOperationLog(description = "发送短信验证码")
-    public Response<?> send(@Validated @RequestBody SendVerificationCodeReqVO sendVerificationCodeReqVO) {
-        return authService.send(sendVerificationCodeReqVO);
-    }
 
 }

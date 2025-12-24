@@ -19,6 +19,7 @@ import com.xzf.blog.user.biz.domain.mapper.UserRoleDOMapper;
 import com.xzf.blog.user.biz.enums.BizResponseCodeEnum;
 import com.xzf.blog.user.biz.enums.SexEnum;
 import com.xzf.blog.user.biz.model.vo.request.FindUserProfileReqVO;
+import com.xzf.blog.user.biz.model.vo.request.UpdatePasswordRequest;
 import com.xzf.blog.user.biz.model.vo.request.UpdateUserInfoRequest;
 import com.xzf.blog.user.biz.model.vo.response.FindUserProfileRspVO;
 import com.xzf.blog.user.biz.rpc.OssRpcService;
@@ -38,6 +39,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,6 +65,9 @@ public class UserServiceImpl implements UserService {
 
     @Resource
     private RoleDOMapper roleDOMapper;
+
+    @Resource
+    private PasswordEncoder passwordEncoder;
 
 
     @Resource
@@ -227,7 +232,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         // 添加入库
-        userDOMapper.insert(userDO);
+        userDOMapper.insertSelective(userDO);
 
         // 获取刚刚添加入库的用户 ID
         Long userId = userDO.getId();
@@ -270,14 +275,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Response<?> updatePassword(UpdateUserPasswordRequest updateUserPasswordRequest) {
+    public Response<?> updatePassword(UpdatePasswordRequest updatePasswordRequest) {
+
+        // 新密码
+        String newPassword = updatePasswordRequest.getNewPassword();
+        // 密码加密
+        String encodePassword = passwordEncoder.encode(newPassword);
 
         // 获取当前请求对应的用户 ID
         Long userId = LoginUserContextHolder.getUserId();
 
         UserDO userDO = UserDO.builder()
                 .id(userId)
-                .password(updateUserPasswordRequest.getEncodePassword())
+                .password(encodePassword)
                 .updateTime(LocalDateTime.now())
                 .build();
         userDOMapper.updateByPrimaryKeySelective(userDO);

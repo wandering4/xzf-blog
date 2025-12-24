@@ -41,22 +41,20 @@
     delete from user
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <insert id="insert" parameterType="com.xzf.blog.user.biz.domain.dataobject.UserDO">
-    insert into user (id, username, avatar_url, 
+  <insert id="insert" parameterType="com.xzf.blog.user.biz.domain.dataobject.UserDO" useGeneratedKeys="true"
+          keyProperty="id">
+    insert into user (username, avatar_url,
       `password`, phone, create_time, 
       update_time, introduction, sex
       )
-    values (#{id,jdbcType=BIGINT}, #{username,jdbcType=VARCHAR}, #{avatarUrl,jdbcType=VARCHAR}, 
+    values ( #{username,jdbcType=VARCHAR}, #{avatarUrl,jdbcType=VARCHAR},
       #{password,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP}, #{introduction,jdbcType=VARCHAR}, #{sex,jdbcType=TINYINT}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.xzf.blog.user.biz.domain.dataobject.UserDO">
+  <insert id="insertSelective" parameterType="com.xzf.blog.user.biz.domain.dataobject.UserDO" useGeneratedKeys="true" keyProperty="id">
     insert into user
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
       <if test="username != null">
         username,
       </if>
@@ -83,9 +81,6 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=BIGINT},
-      </if>
       <if test="username != null">
         #{username,jdbcType=VARCHAR},
       </if>

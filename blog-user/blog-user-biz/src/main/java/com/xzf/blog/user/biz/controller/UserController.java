@@ -2,6 +2,7 @@ package com.xzf.blog.user.biz.controller;
 
 import com.xzf.blog.framework.commons.response.Response;
 import com.xzf.blog.user.biz.model.vo.request.FindUserProfileReqVO;
+import com.xzf.blog.user.biz.model.vo.request.UpdatePasswordRequest;
 import com.xzf.blog.user.biz.model.vo.request.UpdateUserInfoRequest;
 import com.xzf.blog.user.biz.model.vo.response.FindUserProfileRspVO;
 import com.xzf.blog.user.biz.service.UserService;
@@ -27,6 +28,13 @@ public class UserController {
 
     @Resource
     private UserService userService;
+
+
+    @PostMapping("/password/update")
+    @ApiOperationLog(description = "修改密码")
+    public Response<?> updatePassword(@Validated @RequestBody UpdatePasswordRequest updatePasswordRequest) {
+        return userService.updatePassword(updatePasswordRequest);
+    }
 
     /**
      * 用户信息修改

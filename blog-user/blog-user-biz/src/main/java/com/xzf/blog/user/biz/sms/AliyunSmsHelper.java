@@ -1,4 +1,4 @@
-package com.xzf.blog.framework.commons.sms;
+package com.xzf.blog.user.biz.sms;
 
 import com.aliyun.dysmsapi20170525.Client;
 import com.aliyun.dysmsapi20170525.models.SendSmsRequest;
@@ -19,6 +19,7 @@ public class AliyunSmsHelper {
 
     /**
      * 发送短信
+     *
      * @param signName
      * @param templateCode
      * @param phone

@@ -71,3 +71,4 @@ rocketmq:
   consumer:
     group: blog_group
     pull-batch-size: 5 # 每次拉取的最大消息数
+

@@ -31,7 +31,7 @@ public class SaTokenConfig {
 //                    SaRouter.match("/auth/user/logout", r -> StpUtil.checkPermission("user"));
 //                    SaRouter.match("/auth/user/logout", r -> StpUtil.checkPermission("app:note:publish"));
 //                    SaRouter.match("/auth/user/logout",r->StpUtil.checkRole("admin"));
-                            SaRouter.match("/auth/logout", r -> StpUtil.checkRole("common_user"));
+//                            SaRouter.match("/auth/logout", r -> StpUtil.checkRole("common_user"));
 
 /*                    SaRouter.match("/user/**",r->StpUtil.checkPermission("user"));
                     SaRouter.match("/admin/**", r -> StpUtil.checkPermission("admin"));*/

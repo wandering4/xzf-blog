@@ -2,6 +2,7 @@ package com.xzf.blog.user.biz.service;
 
 import com.xzf.blog.framework.commons.response.Response;
 import com.xzf.blog.user.biz.model.vo.request.FindUserProfileReqVO;
+import com.xzf.blog.user.biz.model.vo.request.UpdatePasswordRequest;
 import com.xzf.blog.user.biz.model.vo.request.UpdateUserInfoRequest;
 import com.xzf.blog.user.biz.model.vo.response.FindUserProfileRspVO;
 import com.xzf.blog.user.dto.req.*;
@@ -39,10 +40,10 @@ public interface UserService {
     /**
      * 更新密码
      *
-     * @param updateUserPasswordRequest
+     * @param updatePasswordRequest
      * @return
      */
-    Response<?> updatePassword(UpdateUserPasswordRequest updateUserPasswordRequest);
+    Response<?> updatePassword(UpdatePasswordRequest updatePasswordRequest);
 
     /**
      * 根据用户 ID 查询用户信息

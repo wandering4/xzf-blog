@@ -4,34 +4,28 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: auth
-          uri: lb://blog-auth
-          predicates:
-            - Path=/auth/**
-          filters:
-            - StripPrefix=1
         - id: user
           uri: lb://blog-user
           predicates:
             - Path=/user/**
           filters:
             - StripPrefix=1
-        - id: note
-          uri: lb://blog-note
+        - id: auth
+          uri: lb://blog-user
           predicates:
-            - Path=/note/**
-          filters:
-            - StripPrefix=1
-        - id: user-relation
-          uri: lb://blog-user-relation
-          predicates:
-            - Path=/relation/**
+            - Path=/auth/**
           filters:
             - StripPrefix=1
         - id: comment
           uri: lb://blog-comment
           predicates:
             - Path=/comment/**
+          filters:
+            - StripPrefix=1
+        - id: article
+          uri: lb://blog-article
+          predicates:
+            - Path=/article/**
           filters:
             - StripPrefix=1
 

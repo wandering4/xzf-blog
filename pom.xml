@@ -45,7 +45,7 @@
         <transmittable-thread-local.version>2.14.2</transmittable-thread-local.version>
         <rocketmq.version>2.2.3</rocketmq.version>
         <rocketmq-client.version>4.9.4</rocketmq-client.version>
-
+        <minio.version>8.2.1</minio.version>
 
         <sa-token.version>1.38.0</sa-token.version>
         <minio.version>8.2.1</minio.version>
@@ -148,6 +148,13 @@
                 <groupId>org.apache.rocketmq</groupId>
                 <artifactId>rocketmq-spring-boot-starter</artifactId>
                 <version>${rocketmq.version}</version>
+            </dependency>
+
+            <!-- 对象存储 Minio -->
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>${minio.version}</version>
             </dependency>
 
             <!-- mysql驱动 -->

@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UpdatePasswordReqVO {
+public class UpdatePasswordRequest {
     @NotBlank(message = "新密码不能为空")
     private String newPassword;
 }

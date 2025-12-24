@@ -19,7 +19,7 @@ import javax.annotation.Resource;
 public class RateLimiterFilter implements GlobalFilter {
 
     @Value("${application.qps:10}")
-    private int qps=10;
+    private int qps = 10;
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;

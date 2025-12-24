@@ -33,7 +33,7 @@ public class UserLoginRequest {
     private String password;
 
     /**
-     * 登录类型：手机号验证码，或者是账号密码
+     * 登录类型：1：手机号验证码，2：账号密码
      */
     @NotNull(message = "登录类型不能为空")
     private Integer type;
