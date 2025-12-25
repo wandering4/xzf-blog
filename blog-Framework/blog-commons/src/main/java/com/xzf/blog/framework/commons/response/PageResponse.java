@@ -1,8 +1,10 @@
 package com.xzf.blog.framework.commons.response;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @description: 分页响应参数工具类
@@ -14,6 +16,24 @@ public class PageResponse<T> extends Response<List<T>> {
     private long totalCount; // 总数据量
     private long pageSize; // 每页展示的数据量
     private long totalPage; // 总页数
+
+    /**
+     * 成功响应
+     * @param page Mybatis Plus 提供的分页接口
+     * @param data
+     * @return
+     * @param <T>
+     */
+    public static <T> PageResponse<T> success(IPage page, List<T> data) {
+        PageResponse<T> response = new PageResponse<>();
+        response.setSuccess(true);
+        response.setPageNo(Objects.isNull(page) ? 1L : page.getCurrent());
+        response.setPageSize(Objects.isNull(page) ? 10L : page.getSize());
+        response.setTotalPage(Objects.isNull(page) ? 0L : page.getPages());
+        response.setTotalCount(Objects.isNull(page) ? 0L : page.getTotal());
+        response.setData(data);
+        return response;
+    }
 
     public static <T> PageResponse<T> success(List<T> data, long pageNo, long totalCount) {
         return success(data, pageNo, totalCount, 10);

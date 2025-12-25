@@ -16,7 +16,7 @@ import com.xzf.blog.user.biz.domain.dataobject.UserRoleDO;
 import com.xzf.blog.user.biz.domain.mapper.RoleDOMapper;
 import com.xzf.blog.user.biz.domain.mapper.UserDOMapper;
 import com.xzf.blog.user.biz.domain.mapper.UserRoleDOMapper;
-import com.xzf.blog.user.biz.enums.BizResponseCodeEnum;
+import com.xzf.blog.user.biz.exception.BizResponseCodeEnum;
 import com.xzf.blog.user.biz.enums.SexEnum;
 import com.xzf.blog.user.biz.model.vo.request.FindUserProfileReqVO;
 import com.xzf.blog.user.biz.model.vo.request.UpdatePasswordRequest;

@@ -59,6 +59,12 @@
             <artifactId>jackson-core</artifactId>
         </dependency>
 
+        <!-- Mybatis Plus -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+        </dependency>
+
         <!-- 解决 Jackson Java 8 新日期 API 的序列化问题 -->
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>

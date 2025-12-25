@@ -1,6 +1,5 @@
-package com.xzf.blog.user.biz.enums;
+package com.xzf.blog.user.biz.exception;
 
-import com.xzf.blog.framework.commons.enums.ResponseCodeEnum;
 import com.xzf.blog.framework.commons.exception.BaseExceptionInterface;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

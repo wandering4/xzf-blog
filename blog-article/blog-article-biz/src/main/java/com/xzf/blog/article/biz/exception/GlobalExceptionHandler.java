@@ -1,4 +1,4 @@
-package com.xzf.blog.user.biz.exception;
+package com.xzf.blog.article.biz.exception;
 
 import com.xzf.blog.framework.commons.enums.ResponseCodeEnum;
 import com.xzf.blog.framework.commons.exception.BizException;
@@ -94,18 +94,6 @@ public class GlobalExceptionHandler {
         return Response.fail(errorCode, errorMessage);
     }
 
-    /**
-     * 捕获图片过大异常
-     * @param request
-     * @param e
-     * @return
-     */
-    @ExceptionHandler({MaxUploadSizeExceededException.class})
-    @ResponseBody
-    public Response<Object> handlePictureTooBigException(HttpServletRequest request, Exception e) {
-        log.warn("{} picture too big, ", request.getRequestURI(), e);
-        return Response.fail(BizResponseCodeEnum.PICTURE_TOO_BIG);
-    }
 
     /**
      * 其他类型异常

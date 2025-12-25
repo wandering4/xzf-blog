@@ -64,11 +64,6 @@
             <version>${rocketmq.version}</version>
         </dependency>
 
-        <!-- MyBatis-Plus Starter -->
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-        </dependency>
 
         <!-- MySQL 驱动 -->
         <dependency>
