@@ -1,6 +1,6 @@
 package com.xzf.blog.article.biz.model.vo.article;
 
-import com.xzf.blog.article.biz.model.vo.tag.FindTagListRspVO;
+import com.xzf.blog.article.dto.response.tag.FindTagListRspVO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

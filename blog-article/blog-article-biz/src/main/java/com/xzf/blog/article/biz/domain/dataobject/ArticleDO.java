@@ -29,9 +29,11 @@ public class ArticleDO {
 
     private Byte status;
 
-    private Integer viewCount;
+    private Long viewCount;
 
     private Integer commentCount;
+
+    private Integer isTop;
 
     private String summary;
 
