@@ -13,7 +13,9 @@
     <name>${project.artifactId}</name>
     <description>上下文组件</description>
 
-
+    <properties>
+        <spring-boot.version>3.2.5</spring-boot.version>
+    </properties>
 
     <dependencies>
         <!--feign 核心依赖-->
