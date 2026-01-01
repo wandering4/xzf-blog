@@ -16,7 +16,6 @@
         <module>blog-Framework</module>
         <module>blog-user</module>
         <module>blog-article</module>
-        <module>blog-ai</module>
         <module>blog-comment</module>
         <module>blog-count</module>
         <module>blog-oss</module>
