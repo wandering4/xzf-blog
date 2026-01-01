@@ -4,7 +4,7 @@
 
     <groupId>com.xzf</groupId>
     <artifactId>xzf-blog</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${revision}</version>
 
     <name>xzf-blog</name>
 
@@ -22,7 +22,8 @@
     </modules>
 
     <properties>
-        <project.version>1.0-SNAPSHOT</project.version>
+        <!-- 项目版本号 -->
+        <revision>2.0-SNAPSHOT</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- JDK 版本 -->
         <java.version>17</java.version>
@@ -92,47 +93,47 @@
             <dependency>
                 <groupId>com.xzf</groupId>
                 <artifactId>blog-commons</artifactId>
-                <version>${project.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <!-- 业务接口日志组件 -->
             <dependency>
                 <groupId>com.xzf</groupId>
                 <artifactId>blog-spring-boot-starter-biz-operationlog</artifactId>
-                <version>${project.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <!-- 上下文组件 -->
             <dependency>
                 <groupId>com.xzf</groupId>
                 <artifactId>blog-spring-boot-starter-biz-context</artifactId>
-                <version>${project.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <!-- Jackson 组件 -->
             <dependency>
                 <groupId>com.xzf</groupId>
                 <artifactId>blog-spring-boot-starter-jackson</artifactId>
-                <version>${project.version}</version>
+                <version>${revision}</version>
             </dependency>
 
 
             <dependency>
                 <groupId>com.xzf.blog.article</groupId>
                 <artifactId>blog-article-api</artifactId>
-                <version>${project.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.xzf.blog.user</groupId>
                 <artifactId>blog-user-api</artifactId>
-                <version>${project.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.xzf.blog.oss</groupId>
                 <artifactId>blog-oss-api</artifactId>
-                <version>${project.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <!--=============================================================================-->
