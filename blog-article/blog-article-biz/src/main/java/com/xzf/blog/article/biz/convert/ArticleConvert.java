@@ -26,6 +26,7 @@ public interface ArticleConvert {
      * @return
      */
     @Mapping(target = "createDate", expression = "java(java.time.LocalDate.from(bean.getCreateTime()))")
+    @Mapping(target = "isTop", expression = "java(bean.getIsTop() == 1 ? Boolean.TRUE : Boolean.FALSE)")
     FindIndexArticlePageListRspVO convertDO2VO(ArticleDO bean);
 
     /**
