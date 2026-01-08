@@ -291,20 +291,20 @@ public class ArticleServiceImpl implements ArticleService {
     /**
      * 更新文章
      *
-     * @param updateArticleReqVO
+     * @param req
      * @return
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response updateArticle(UpdateArticleReqVO updateArticleReqVO) {
-        Long articleId = updateArticleReqVO.getId();
+    public Response updateArticle(UpdateArticleReqVO req) {
+        Long articleId = req.getId();
 
         // 1. VO 转 ArticleDO, 并更新
         ArticleDO articleDO = ArticleDO.builder()
                 .id(articleId)
-                .title(updateArticleReqVO.getTitle())
-                .cover(updateArticleReqVO.getCover())
-                .summary(updateArticleReqVO.getSummary())
+                .title(req.getTitle())
+                .cover(req.getCover())
+                .summary(req.getContent().substring(0,20))
                 .updateTime(LocalDateTime.now())
                 .build();
         int count = articleMapper.updateById(articleDO);
@@ -318,13 +318,13 @@ public class ArticleServiceImpl implements ArticleService {
         // 2. VO 转 ArticleContentDO，并更新
         ArticleContentDO articleContentDO = ArticleContentDO.builder()
                 .articleId(articleId)
-                .content(updateArticleReqVO.getContent())
+                .content(req.getContent())
                 .build();
         articleContentMapper.updateByArticleId(articleContentDO);
 
 
         // 3. 更新文章分类
-        Long categoryId = updateArticleReqVO.getCategoryId();
+        Long categoryId = req.getCategoryId();
 
         // 3.1 校验提交的分类是否真实存在
         CategoryDO categoryDO = categoryMapper.selectById(categoryId);
@@ -344,12 +344,27 @@ public class ArticleServiceImpl implements ArticleService {
         // 4. 保存文章关联的标签集合
         // 先删除该文章对应的标签
         articleTagRelMapper.deleteByArticleId(articleId);
-        List<String> publishTags = updateArticleReqVO.getTags();
+        List<String> publishTags = req.getTags();
         insertTags(articleId, publishTags);
 
         // 发布文章修改事件
 //        eventPublisher.publishEvent(new UpdateArticleEvent(this, articleId));
 
+        return Response.success();
+    }
+
+    @Override
+    public Response<?> updateArticleSummary(UpdateArticleSummaryRequest req) {
+        ArticleDO articleDO = ArticleDO.builder()
+                .id(req.getId())
+                .summary(req.getSummary())
+                .build();
+        int count = articleMapper.updateById(articleDO);
+        // 根据更新是否成功，来判断该文章是否存在
+        if (count == 0) {
+            log.warn("==> 该文章不存在, articleId: {}", req.getId());
+            throw new BizException(BizResponseCodeEnum.ARTICLE_NOT_FOUND);
+        }
         return Response.success();
     }
 

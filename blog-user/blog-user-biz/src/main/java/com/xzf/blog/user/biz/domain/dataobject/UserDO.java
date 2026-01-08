@@ -1,25 +1,22 @@
 package com.xzf.blog.user.biz.domain.dataobject;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.xzf.blog.framework.commons.domain.dataobject.BaseDO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("user")
-public class UserDO {
-
-    /**
-     * 主键id
-     */
-    private Long id;
+public class UserDO extends BaseDO {
 
     /**
      * 用户名称
@@ -50,15 +47,5 @@ public class UserDO {
      * 性别（0：女性，1：男性）
      */
     private Integer sex;
-
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
-
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
 
 }

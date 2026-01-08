@@ -49,11 +49,19 @@ public interface ArticleService {
     Response updateArticle(UpdateArticleReqVO updateArticleReqVO);
 
     /**
+     * 更新文章摘要
+     * @param req
+     * @return
+     */
+    Response<?> updateArticleSummary(UpdateArticleSummaryRequest req);
+
+    /**
      * 更新文章是否置顶
      *
      * @param updateArticleIsTopReqVO
      * @return
      */
     Response updateArticleIsTop(UpdateArticleIsTopReqVO updateArticleIsTopReqVO);
+
 
 }

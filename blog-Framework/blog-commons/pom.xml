@@ -19,12 +19,6 @@
 
     <dependencies>
 
-        <!-- Redis -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-
         <!-- 阿里云短信发送 -->
         <!--@Deprecated-->
         <dependency>
@@ -59,12 +53,6 @@
             <artifactId>jackson-core</artifactId>
         </dependency>
 
-        <!-- Mybatis Plus -->
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
-        </dependency>
-
         <!-- 解决 Jackson Java 8 新日期 API 的序列化问题 -->
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -74,6 +62,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-core</artifactId>
         </dependency>
 
         <!-- 入参校验 -->

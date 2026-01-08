@@ -1,0 +1,29 @@
+package com.xzf.blog.article.biz.service;
+
+import com.xzf.blog.article.dto.request.dashboard.FindDashboardPVStatisticsInfoRspVO;
+import com.xzf.blog.article.dto.request.dashboard.FindDashboardStatisticsInfoRspVO;
+import com.xzf.blog.framework.commons.response.Response;
+
+import java.time.LocalDate;
+import java.util.Map;
+
+public interface DashboardService {
+    /**
+     * 获取仪表盘基础统计信息
+     * @return
+     */
+    Response<FindDashboardStatisticsInfoRspVO> findDashboardStatistics();
+
+    /**
+     * 获取文章发布热点统计信息
+     * @return
+     */
+    Response<Map<LocalDate, Long>> findDashboardPublishArticleStatistics();
+
+    /**
+     * 获取文章最近一周 PV 访问量统计信息
+     * @return
+     */
+    Response<FindDashboardPVStatisticsInfoRspVO> findDashboardPVStatistics();
+
+}

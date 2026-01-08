@@ -56,6 +56,12 @@ public class ArticleController {
         return articleService.updateArticle(updateArticleReqVO);
     }
 
+    @PostMapping("/updateSummary")
+    @ApiOperationLog(description = "更新摘要")
+    public Response<?> updateArticleSummary(@RequestBody @Validated UpdateArticleSummaryRequest req) {
+        return articleService.updateArticleSummary(req);
+    }
+
     @PostMapping("/isTop/update")
     @ApiOperationLog(description = "文章置顶")
     public Response updateArticleIsTop(@RequestBody @Validated UpdateArticleIsTopReqVO updateArticleIsTopReqVO) {

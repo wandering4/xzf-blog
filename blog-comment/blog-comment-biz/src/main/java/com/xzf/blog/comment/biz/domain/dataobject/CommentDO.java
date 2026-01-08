@@ -1,4 +1,4 @@
-package com.xzf.blog.user.biz.domain.dataobject;
+package com.xzf.blog.comment.biz.domain.dataobject;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.xzf.blog.framework.commons.domain.dataobject.BaseDO;
@@ -7,13 +7,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-
 @Data
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("user_role_rel")
-public class UserRoleDO extends BaseDO {
+@TableName("comment")
+public class CommentDO extends BaseDO {
+
+    /**
+     * 文章id
+     */
+    private Long articleId;
 
     /**
      * 用户id
@@ -21,8 +25,8 @@ public class UserRoleDO extends BaseDO {
     private Long userId;
 
     /**
-     * 角色id
+     * 评论内容
      */
-    private Long roleId;
+    private String content;
 
 }

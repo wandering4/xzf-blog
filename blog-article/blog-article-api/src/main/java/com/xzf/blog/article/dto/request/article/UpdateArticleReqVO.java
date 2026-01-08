@@ -30,8 +30,6 @@ public class UpdateArticleReqVO {
     @NotBlank(message = "文章封面不能为空")
     private String cover;
 
-    private String summary;
-
     @NotNull(message = "文章分类不能为空")
     private Long categoryId;
 

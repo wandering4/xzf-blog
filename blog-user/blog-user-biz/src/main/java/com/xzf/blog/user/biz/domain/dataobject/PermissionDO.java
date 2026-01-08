@@ -1,27 +1,19 @@
 package com.xzf.blog.user.biz.domain.dataobject;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.xzf.blog.framework.commons.domain.dataobject.BaseDO;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("permission")
-public class PermissionDO {
-
-    /**
-     * 主键id
-     */
-    private Long id;
+public class PermissionDO extends BaseDO {
 
     /**
      * 父ID
@@ -62,15 +54,5 @@ public class PermissionDO {
      * 状态(0：启用；1：禁用)
      */
     private Byte status;
-
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
-
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
 
 }

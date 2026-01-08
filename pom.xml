@@ -17,7 +17,6 @@
         <module>blog-user</module>
         <module>blog-article</module>
         <module>blog-comment</module>
-        <module>blog-count</module>
         <module>blog-oss</module>
     </modules>
 
@@ -35,7 +34,7 @@
         <spring-cloud.version>2021.0.8</spring-cloud.version>
         <spring-cloud-alibaba.version>2021.0.5.0</spring-cloud-alibaba.version>
 
-        <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
+        <mybatis-plus.version>3.5.4.1</mybatis-plus.version>
         <mybatis-generator-maven-plugin.version>1.3.5</mybatis-generator-maven-plugin.version>
         <mysql-connector-java.version>8.0.21</mysql-connector-java.version>
         <druid.version>1.2.18</druid.version>
@@ -117,6 +116,11 @@
                 <version>${revision}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.xzf.blog.comment</groupId>
+                <artifactId>blog-comment-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.xzf.blog.article</groupId>
@@ -176,7 +180,13 @@
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-boot-starter</artifactId>
-                <version>3.5.4.1</version>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-core</artifactId>
+                <version>${mybatis-plus.version}</version>
             </dependency>
 
             <!-- Sa-Token 整合 Redis （使用 jackson 序列化方式） -->
