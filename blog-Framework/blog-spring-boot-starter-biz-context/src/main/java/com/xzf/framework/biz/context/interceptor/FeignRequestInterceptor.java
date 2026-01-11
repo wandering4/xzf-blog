@@ -12,13 +12,18 @@ import java.util.Objects;
 public class FeignRequestInterceptor implements RequestInterceptor {
     @Override
     public void apply(RequestTemplate requestTemplate) {
-// 获取当前上下文中的用户 ID
+        // 获取当前上下文中的用户信息
         Long userId = LoginUserContextHolder.getUserId();
+        String userRole = LoginUserContextHolder.getUserRole();
 
         // 若不为空，则添加到请求头中
         if (Objects.nonNull(userId)) {
             requestTemplate.header(GlobalConstants.USER_ID, String.valueOf(userId));
             log.info("########## feign 请求设置请求头 userId: {}", userId);
+        }
+        if (Objects.nonNull(userRole)) {
+            requestTemplate.header(GlobalConstants.USER_ROLE, userRole);
+            log.info("########## feign 请求设置请求头 userRole: {}", userRole);
         }
     }
 }

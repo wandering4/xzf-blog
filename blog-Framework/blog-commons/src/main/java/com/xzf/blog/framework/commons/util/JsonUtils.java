@@ -1,5 +1,6 @@
 package com.xzf.blog.framework.commons.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -122,7 +123,7 @@ public class JsonUtils {
      * @param <T>
      * @throws Exception
      */
-    public static <T> List<T> parseList(String jsonStr, Class<T> clazz) throws Exception {
+    public static <T> List<T> parseList(String jsonStr, Class<T> clazz) throws JsonProcessingException {
         // 使用 TypeReference 指定 List<T> 的泛型类型
         return OBJECT_MAPPER.readValue(jsonStr, new TypeReference<List<T>>() {
             @Override

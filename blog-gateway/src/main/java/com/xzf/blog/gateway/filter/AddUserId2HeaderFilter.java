@@ -6,6 +6,7 @@ import com.xzf.blog.framework.commons.constant.RedisKeyConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -17,7 +18,7 @@ import java.util.Objects;
 
 @Component
 @Slf4j
-public class AddUserId2HeaderFilter implements GlobalFilter {
+public class AddUserId2HeaderFilter implements GlobalFilter, Ordered {
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
@@ -65,5 +66,14 @@ public class AddUserId2HeaderFilter implements GlobalFilter {
                 .request(builder -> builder.header(GlobalConstants.USER_ID, String.valueOf(userId))) // 将用户 ID 设置到请求头中
                 .build();
         return chain.filter(newExchange);
+    }
+
+    /**
+     * 设置过滤器执行顺序，数字越小优先级越高（先执行）
+     * 此过滤器先执行，设置 userId 到请求头
+     */
+    @Override
+    public int getOrder() {
+        return 1;
     }
 }

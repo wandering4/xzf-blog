@@ -7,6 +7,8 @@ import com.alibaba.nacos.shaded.com.google.common.base.Preconditions;
 import com.xzf.blog.framework.commons.constant.RedisKeyConstants;
 import com.xzf.blog.framework.commons.exception.BizException;
 import com.xzf.blog.framework.commons.response.Response;
+import com.xzf.blog.user.biz.domain.dataobject.RoleDO;
+import com.xzf.blog.user.biz.domain.manager.RoleManager;
 import com.xzf.blog.user.biz.exception.BizResponseCodeEnum;
 import com.xzf.blog.user.biz.enums.LoginTypeEnum;
 import com.xzf.blog.user.biz.model.vo.request.SendVerificationCodeReqVO;
@@ -21,6 +23,8 @@ import com.xzf.framework.biz.context.holder.LoginUserContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,6 +44,8 @@ public class AuthServiceImpl implements AuthService {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
+    // 暂时写死
+    private static final Long loginExpireHours = 72L;
 
     @Resource
     private PasswordEncoder passwordEncoder;
@@ -49,6 +55,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Resource
     private AliyunSmsHelper aliyunSmsHelper;
+    @Autowired
+    private RoleManager roleManager;
 
     /**
      * 登录与注册
@@ -133,6 +141,12 @@ public class AuthServiceImpl implements AuthService {
         // SaToken 登录用户, 入参为用户 ID
         StpUtil.login(userId);
 
+        // 根据用户 ID ，从 Redis 中获取该用户的角色集合
+        RoleDO roleDO = roleManager.selectByUserId(userId);
+        String userRolesKey = RedisKeyConstants.buildUserRoleKey(userId);
+        redisTemplate.opsForValue().set(userRolesKey, roleDO.getRoleKey(), loginExpireHours, TimeUnit.HOURS);
+
+
         // 获取 Token 令牌
         SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
 
@@ -154,6 +168,8 @@ public class AuthServiceImpl implements AuthService {
 
         // 退出登录 (指定用户 ID)
         StpUtil.logout(userId);
+        String userRolesKey = RedisKeyConstants.buildUserRoleKey(userId);
+        redisTemplate.delete(userRolesKey);
 
         return Response.success();
     }

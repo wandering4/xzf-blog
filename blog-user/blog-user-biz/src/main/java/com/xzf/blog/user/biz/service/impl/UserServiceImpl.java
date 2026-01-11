@@ -10,12 +10,12 @@ import com.xzf.blog.framework.commons.util.JsonUtils;
 import com.xzf.blog.framework.commons.util.ParamUtils;
 import com.xzf.blog.user.biz.constant.MQConstants;
 import com.xzf.blog.user.biz.constant.RedisKeyConstants;
-import com.xzf.blog.user.biz.constant.RoleConstants;
 import com.xzf.blog.user.biz.domain.dataobject.UserDO;
 import com.xzf.blog.user.biz.domain.dataobject.UserRoleDO;
 import com.xzf.blog.user.biz.domain.mapper.RoleDOMapper;
 import com.xzf.blog.user.biz.domain.mapper.UserDOMapper;
 import com.xzf.blog.user.biz.domain.mapper.UserRoleDOMapper;
+import com.xzf.blog.framework.commons.enums.RoleEnums;
 import com.xzf.blog.user.biz.exception.BizResponseCodeEnum;
 import com.xzf.blog.user.biz.enums.SexEnum;
 import com.xzf.blog.user.biz.model.vo.request.FindUserProfileReqVO;
@@ -240,7 +240,7 @@ public class UserServiceImpl implements UserService {
         // 给该用户分配一个默认角色
         UserRoleDO userRoleDO = UserRoleDO.builder()
                 .userId(userId)
-                .roleId(RoleConstants.COMMON_USER_ROLE_ID)
+                .roleId(RoleEnums.COMMON_USER.getId())
                 .createTime(LocalDateTime.now())
                 .updateTime(LocalDateTime.now())
                 .build();

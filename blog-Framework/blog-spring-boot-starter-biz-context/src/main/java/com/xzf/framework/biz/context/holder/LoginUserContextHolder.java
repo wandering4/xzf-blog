@@ -14,7 +14,10 @@ import java.util.Objects;
 public class LoginUserContextHolder {
 
     // 初始化一个 ThreadLocal 变量
-    private static final ThreadLocal<Map<String, Object>> LOGIN_USER_CONTEXT_THREAD_LOCAL
+    private static final ThreadLocal<Map<String, Object>> LOGIN_USER_ID_CONTEXT_THREAD_LOCAL
+            = TransmittableThreadLocal.withInitial(HashMap::new);
+
+    private static final ThreadLocal<Map<String, Object>> LOGIN_USER_ROLE_CONTEXT_THREAD_LOCAL
             = TransmittableThreadLocal.withInitial(HashMap::new);
 
     /**
@@ -23,7 +26,16 @@ public class LoginUserContextHolder {
      * @param value
      */
     public static void setUserId(Object value) {
-        LOGIN_USER_CONTEXT_THREAD_LOCAL.get().put(GlobalConstants.USER_ID, value);
+        LOGIN_USER_ID_CONTEXT_THREAD_LOCAL.get().put(GlobalConstants.USER_ID, value);
+    }
+
+    /**
+     * 设置用户 角色
+     *
+     * @param value
+     */
+    public static void setUserRole(Object value) {
+        LOGIN_USER_ROLE_CONTEXT_THREAD_LOCAL.get().put(GlobalConstants.USER_ROLE, value);
     }
 
     /**
@@ -32,7 +44,7 @@ public class LoginUserContextHolder {
      * @return
      */
     public static Long getUserId() {
-        Object value = LOGIN_USER_CONTEXT_THREAD_LOCAL.get().get(GlobalConstants.USER_ID);
+        Object value = LOGIN_USER_ID_CONTEXT_THREAD_LOCAL.get().get(GlobalConstants.USER_ID);
         if (Objects.isNull(value)) {
             return null;
         }
@@ -40,10 +52,24 @@ public class LoginUserContextHolder {
     }
 
     /**
+     * 获取用户角色 ID
+     *
+     * @return
+     */
+    public static String getUserRole() {
+        Object value = LOGIN_USER_ROLE_CONTEXT_THREAD_LOCAL.get().get(GlobalConstants.USER_ROLE);
+        if (Objects.isNull(value)) {
+            return null;
+        }
+        return String.valueOf(value.toString());
+    }
+
+    /**
      * 删除 ThreadLocal
      */
     public static void remove() {
-        LOGIN_USER_CONTEXT_THREAD_LOCAL.remove();
+        LOGIN_USER_ID_CONTEXT_THREAD_LOCAL.remove();
+        LOGIN_USER_ROLE_CONTEXT_THREAD_LOCAL.remove();
     }
 
 }
