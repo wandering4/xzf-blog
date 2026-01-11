@@ -7,5 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 public class FindIndexArticlePageListReqVO extends BasePageQuery {
+    private Long tagId;
+    private Long categoryId;
 }
 
