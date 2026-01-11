@@ -13,4 +13,16 @@
     id, article_id, user_id, content, create_time, update_time
   </sql>
 
+    <select id="count" resultType="java.util.Map">
+      SELECT
+      article_id as articleId,
+      COUNT(*) as commentCount
+      FROM comment
+      WHERE article_id IN
+      <foreach collection="articleIds" item="articleId" open="(" separator="," close=")">
+        #{articleId}
+      </foreach>
+      GROUP BY article_id
+    </select>
+
 </mapper>

@@ -33,5 +33,6 @@ public class FindIndexArticlePageListRspVO {
      * 是否置顶
      */
     private Boolean isTop;
+
 }
 

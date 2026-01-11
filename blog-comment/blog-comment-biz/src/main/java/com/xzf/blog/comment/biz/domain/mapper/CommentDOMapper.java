@@ -5,6 +5,11 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xzf.blog.comment.biz.domain.dataobject.CommentDO;
+import org.apache.ibatis.annotations.MapKey;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+import java.util.Map;
 
 
 public interface CommentDOMapper extends BaseMapper<CommentDO> {
@@ -23,5 +28,8 @@ public interface CommentDOMapper extends BaseMapper<CommentDO> {
                 .orderByDesc(CommentDO::getCreateTime); // 按创建时间倒叙
         return selectPage(page, wrapper);
     }
+
+    @MapKey("count")
+    Map<Long, Long> count(@Param("articleIds") List<Long> articleIds);
 
 }

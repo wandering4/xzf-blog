@@ -8,13 +8,12 @@
     <result column="author_id" jdbcType="BIGINT" property="authorId" />
     <result column="status" jdbcType="TINYINT" property="status" />
     <result column="view_count" jdbcType="INTEGER" property="viewCount" />
-    <result column="comment_count" jdbcType="INTEGER" property="commentCount" />
     <result column="summary" jdbcType="VARCHAR" property="summary" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, title, cover, author_id, `status`, view_count, comment_count, summary, create_time, 
+    id, title, cover, author_id, `status`, view_count, summary, create_time,
     update_time
   </sql>
 

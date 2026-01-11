@@ -44,6 +44,11 @@ public class FindArticleDetailRspVO {
      * 阅读量
      */
     private Long readNum;
+
+    /**
+     * 评论量
+     */
+    private Long commentNum;
     /**
      * 标签集合
      */

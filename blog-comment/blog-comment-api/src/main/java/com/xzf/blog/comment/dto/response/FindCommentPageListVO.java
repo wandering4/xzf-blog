@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FindCommentPageListRspVO {
+public class FindCommentPageListVO {
 
     private Long id;
 

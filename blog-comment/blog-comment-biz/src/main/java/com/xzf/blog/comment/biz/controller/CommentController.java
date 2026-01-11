@@ -1,9 +1,11 @@
 package com.xzf.blog.comment.biz.controller;
 
-import com.xzf.blog.comment.dto.request.DeleteCommentReqVO;
+import com.xzf.blog.comment.dto.request.CommentIdReqVO;
+import com.xzf.blog.comment.dto.request.CountCommentReqVO;
 import com.xzf.blog.comment.dto.request.PublishCommentReqVO;
 import com.xzf.blog.comment.biz.service.CommentService;
-import com.xzf.blog.comment.dto.response.FindCommentPageListRspVO;
+import com.xzf.blog.comment.dto.response.CommentCountVO;
+import com.xzf.blog.comment.dto.response.FindCommentPageListVO;
 import com.xzf.blog.framework.commons.request.BasePageQuery;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
@@ -26,21 +28,26 @@ public class CommentController {
 
     @PostMapping("/list")
     @ApiOperationLog(description = "查询评论分页数据")
-    public PageResponse<FindCommentPageListRspVO> findCommentPageList(@RequestBody @Validated BasePageQuery req) {
+    public PageResponse<FindCommentPageListVO> findCommentPageList(@RequestBody @Validated BasePageQuery req) {
         return commentService.findCommentPageList(req);
     }
 
     @PostMapping("/delete")
     @ApiOperationLog(description = "评论删除")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public Response deleteComment(@RequestBody @Validated DeleteCommentReqVO deleteCommentReqVO) {
-        return commentService.deleteComment(deleteCommentReqVO);
+    public Response deleteComment(@RequestBody @Validated CommentIdReqVO commentIdReqVO) {
+        return commentService.deleteComment(commentIdReqVO);
     }
 
     @PostMapping("/publish")
     @ApiOperationLog(description = "发布评论")
     public Response<Long> publishComment(@RequestBody @Validated PublishCommentReqVO publishCommentReqVO) {
         return commentService.publishComment(publishCommentReqVO);
+    }
+
+    @PostMapping("/count")
+    @ApiOperationLog(description = "获取评论数")
+    public Response<CommentCountVO> countComment(@RequestBody @Validated CountCommentReqVO req) {
+        return commentService.count(req);
     }
 
 }

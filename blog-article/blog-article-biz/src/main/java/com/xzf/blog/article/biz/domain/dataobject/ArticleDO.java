@@ -31,8 +31,6 @@ public class ArticleDO {
 
     private Long viewCount;
 
-    private Integer commentCount;
-
     private Integer isTop;
 
     private String summary;

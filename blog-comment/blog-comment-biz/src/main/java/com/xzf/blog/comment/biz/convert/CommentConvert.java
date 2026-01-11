@@ -1,14 +1,11 @@
 package com.xzf.blog.comment.biz.convert;
 
 import com.xzf.blog.comment.biz.domain.dataobject.CommentDO;
-import com.xzf.blog.comment.dto.response.FindCommentPageListRspVO;
+import com.xzf.blog.comment.dto.response.FindCommentPageListVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 /**
- * @author: 犬小哈
- * @url: www.quanxiaoha.com
- * @date: 2023/10/8 14:57
  * @description: 评论实体类转换
  **/
 @Mapper
@@ -23,5 +20,5 @@ public interface CommentConvert {
      * @param bean
      * @return
      */
-    FindCommentPageListRspVO convertDO2VO(CommentDO bean);
+    FindCommentPageListVO convertDO2VO(CommentDO bean);
 }
