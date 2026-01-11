@@ -25,6 +25,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.xzf.blog.article</groupId>
+            <artifactId>blog-article-api</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.xzf</groupId>
             <artifactId>blog-commons</artifactId>
         </dependency>

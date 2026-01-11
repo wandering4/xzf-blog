@@ -32,4 +32,10 @@ public interface CommentDOMapper extends BaseMapper<CommentDO> {
     @MapKey("count")
     Map<Long, Long> count(@Param("articleIds") List<Long> articleIds);
 
+    default int deleteByArticleId(Long articleId){
+        LambdaQueryWrapper<CommentDO> wrapper = Wrappers.<CommentDO>lambdaQuery();
+        wrapper.eq(CommentDO::getArticleId, articleId);
+        return delete(wrapper);
+    }
+
 }

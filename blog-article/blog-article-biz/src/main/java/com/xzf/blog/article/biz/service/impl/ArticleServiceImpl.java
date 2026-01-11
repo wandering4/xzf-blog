@@ -13,15 +13,21 @@ import com.xzf.blog.article.biz.model.vo.article.FindIndexArticlePageListRspVO;
 import com.xzf.blog.article.biz.service.ArticleService;
 import com.xzf.blog.article.biz.util.MarkdownHelper;
 import com.xzf.blog.article.biz.util.MarkdownStatsUtil;
+import com.xzf.blog.article.constants.MQConstants;
 import com.xzf.blog.article.dto.request.article.*;
 import com.xzf.blog.article.dto.response.article.FindArticleDetailRspVO;
 import com.xzf.blog.article.dto.response.tag.FindTagListRspVO;
 import com.xzf.blog.framework.commons.exception.BizException;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
+import com.xzf.blog.framework.commons.util.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.client.producer.SendCallback;
+import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -50,7 +56,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Autowired
     private ArticleTagMapper articleTagRelMapper;
     @Autowired
-    private ApplicationEventPublisher eventPublisher;
+    private RocketMQTemplate rocketMQTemplate;
 
 
     /**
@@ -102,8 +108,8 @@ public class ArticleServiceImpl implements ArticleService {
         List<String> publishTags = publishArticleReqVO.getTags();
         insertTags(articleId, publishTags);
 
-        // 发送文章发布事件
-//        eventPublisher.publishEvent(new PublishArticleEvent(this, articleId));
+        // TODO:5.发送文章发布事件
+//        rocketMQTemplate.asyncSend(MQConstants.TOPIC_PUBLISH_ARTICLE, JsonUtils.toJsonString());
 
         return Response.success();
     }
@@ -282,8 +288,19 @@ public class ArticleServiceImpl implements ArticleService {
         // 4. 删除文章-标签关联记录
         articleTagRelMapper.deleteByArticleId(articleId);
 
-        // 发布文章删除事件
-//        eventPublisher.publishEvent(new DeleteArticleEvent(this, articleId));
+        // 5. 发布文章删除事件
+        Message<String> message = MessageBuilder.withPayload(JsonUtils.toJsonString(JsonUtils.toJsonString(articleId))).build();
+        rocketMQTemplate.asyncSend(MQConstants.TOPIC_DELETE_ARTICLE, message, new SendCallback() {
+            @Override
+            public void onSuccess(SendResult sendResult) {
+                log.info("==> 【文章服务：删除文章】MQ 发送成功，SendResult: {}", sendResult);
+            }
+
+            @Override
+            public void onException(Throwable throwable) {
+                log.error("==> 【文章服务：删除文章】MQ 发送异常: ", throwable);
+            }
+        });
 
         return Response.success();
     }
