@@ -67,4 +67,15 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
     @Select("SELECT SUM(view_count) FROM article WHERE status = #{status}")
     Long getTotalViewCount(@Param("status") Integer status);
 
+    /**
+     * 阅读量+1
+     * @param articleId
+     * @return
+     */
+    default int increaseReadNum(Long articleId) {
+        return update(null, Wrappers.<ArticleDO>lambdaUpdate()
+                .setSql("read_num = read_num + 1")
+                .eq(ArticleDO::getId, articleId));
+    }
+
 }

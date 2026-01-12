@@ -264,7 +264,18 @@ public class ArticleServiceImpl implements ArticleService {
         vo.setTags(tagVOS);
 
         // 发布文章阅读事件
-//        eventPublisher.publishEvent(new ReadArticleEvent(this, articleId));
+        Message<Long> message = MessageBuilder.withPayload(articleId).build();
+        rocketMQTemplate.asyncSend(MQConstants.TOPIC_READ_ARTICLE, message, new SendCallback() {
+            @Override
+            public void onSuccess(SendResult sendResult) {
+                log.info("==> 【文章服务：阅读文章】MQ 发送成功，SendResult: {}", sendResult);
+            }
+
+            @Override
+            public void onException(Throwable throwable) {
+                log.error("==> 【文章服务：阅读文章】MQ 发送异常: ", throwable);
+            }
+        });
 
         return Response.success(vo);
     }
