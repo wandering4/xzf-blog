@@ -12,5 +12,10 @@
     id, article_id, category_id, create_time, update_time
   </sql>
 
+  <select id="countArticlesByCategoryId" resultType="int">
+    SELECT COUNT( ac.article_id)
+    FROM article_category_rel ac
+    WHERE ac.category_id = #{categoryId}
+  </select>
 
 </mapper>

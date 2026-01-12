@@ -40,30 +40,35 @@ public class ArticleController {
 
     @PostMapping("/publish")
     @ApiOperationLog(description = "文章发布")
+    //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Response<?> publishArticle(@RequestBody @Validated PublishArticleReqVO publishArticleReqVO) {
         return articleService.publishArticle(publishArticleReqVO);
     }
 
     @PostMapping("/delete")
     @ApiOperationLog(description = "文章删除")
+    //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Response<?> deleteArticle(@RequestBody @Validated DeleteArticleReqVO deleteArticleReqVO) {
         return articleService.deleteArticle(deleteArticleReqVO);
     }
 
     @PostMapping("/update")
     @ApiOperationLog(description = "更新文章")
+    //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Response<?> updateArticle(@RequestBody @Validated UpdateArticleReqVO updateArticleReqVO) {
         return articleService.updateArticle(updateArticleReqVO);
     }
 
     @PostMapping("/updateSummary")
     @ApiOperationLog(description = "更新摘要")
+    //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Response<?> updateArticleSummary(@RequestBody @Validated UpdateArticleSummaryRequest req) {
         return articleService.updateArticleSummary(req);
     }
 
     @PostMapping("/isTop/update")
     @ApiOperationLog(description = "文章置顶")
+    //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Response updateArticleIsTop(@RequestBody @Validated UpdateArticleIsTopReqVO updateArticleIsTopReqVO) {
         return articleService.updateArticleIsTop(updateArticleIsTopReqVO);
     }

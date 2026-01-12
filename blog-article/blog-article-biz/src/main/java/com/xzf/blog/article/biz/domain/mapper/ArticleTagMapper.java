@@ -3,6 +3,7 @@ package com.xzf.blog.article.biz.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.xzf.blog.article.biz.domain.dataobject.ArticleTagDO;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -59,4 +60,5 @@ public interface ArticleTagMapper extends BaseMapper<ArticleTagDO> {
                 .eq(ArticleTagDO::getTagId, tagId));
     }
 
+    int batchInsert(@Param("list") List<ArticleTagDO> batchList);
 }

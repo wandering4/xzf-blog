@@ -12,4 +12,13 @@
     id, article_id, tag_id, create_time, update_time
   </sql>
 
+  <insert id="batchInsert" parameterType="java.util.List">
+    INSERT INTO article_tag_rel
+    (article_id, tag_id, create_time, update_time)
+    VALUES
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.articleId}, #{item.tagId}, #{item.createTime}, #{item.updateTime})
+    </foreach>
+  </insert>
+
 </mapper>

@@ -14,6 +14,7 @@ import com.xzf.blog.article.biz.service.ArticleService;
 import com.xzf.blog.article.biz.util.MarkdownHelper;
 import com.xzf.blog.article.biz.util.MarkdownStatsUtil;
 import com.xzf.blog.article.constants.MQConstants;
+import com.xzf.blog.article.dto.mq.ArticleMessage;
 import com.xzf.blog.article.dto.request.article.*;
 import com.xzf.blog.article.dto.response.article.FindArticleDetailRspVO;
 import com.xzf.blog.article.dto.response.tag.FindTagListRspVO;
@@ -33,10 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -108,21 +106,28 @@ public class ArticleServiceImpl implements ArticleService {
         List<String> publishTags = publishArticleReqVO.getTags();
         insertTags(articleId, publishTags);
 
-        // TODO:5.发送文章发布事件
-//        rocketMQTemplate.asyncSend(MQConstants.TOPIC_PUBLISH_ARTICLE, JsonUtils.toJsonString());
+        // 5.发送文章发布事件
+        ArticleMessage articleMessage = ArticleMessage.builder()
+                .articleId(articleId)
+                .title(articleDO.getTitle())
+                .content(publishArticleReqVO.getContent())
+                .build();
+        Message<String> message = MessageBuilder.withPayload(JsonUtils.toJsonString(articleMessage)).build();
+        rocketMQTemplate.asyncSend(MQConstants.TOPIC_PUBLISH_ARTICLE, message, new SendCallback() {
+            @Override
+            public void onSuccess(SendResult sendResult) {
+                log.info("==> 【文章服务：发布文章】MQ 发送成功，SendResult: {}", sendResult);
+            }
+
+            @Override
+            public void onException(Throwable throwable) {
+                log.error("==> 【文章服务：发布文章】MQ 发送异常: ", throwable);
+            }
+        });
 
         return Response.success();
     }
 
-    /**
-     * 保存标签
-     *
-     * @param articleId
-     * @param publishTags
-     */
-    private void insertTags(Long articleId, List<String> publishTags) {
-        // TODO
-    }
 
     @Override
     public PageResponse<FindIndexArticlePageListRspVO> findArticlePageList(FindIndexArticlePageListReqVO findIndexArticlePageListReqVO) {
@@ -289,7 +294,7 @@ public class ArticleServiceImpl implements ArticleService {
         articleTagRelMapper.deleteByArticleId(articleId);
 
         // 5. 发布文章删除事件
-        Message<String> message = MessageBuilder.withPayload(JsonUtils.toJsonString(JsonUtils.toJsonString(articleId))).build();
+        Message<Long> message = MessageBuilder.withPayload(articleId).build();
         rocketMQTemplate.asyncSend(MQConstants.TOPIC_DELETE_ARTICLE, message, new SendCallback() {
             @Override
             public void onSuccess(SendResult sendResult) {
@@ -364,8 +369,24 @@ public class ArticleServiceImpl implements ArticleService {
         List<String> publishTags = req.getTags();
         insertTags(articleId, publishTags);
 
-        // 发布文章修改事件
-//        eventPublisher.publishEvent(new UpdateArticleEvent(this, articleId));
+        // 发布文章修改消息
+        ArticleMessage articleMessage = ArticleMessage.builder()
+                .articleId(articleId)
+                .title(articleDO.getTitle())
+                .content(req.getContent())
+                .build();
+        Message<String> message = MessageBuilder.withPayload(JsonUtils.toJsonString(articleMessage)).build();
+        rocketMQTemplate.asyncSend(MQConstants.TOPIC_UPDATE_ARTICLE, message, new SendCallback() {
+            @Override
+            public void onSuccess(SendResult sendResult) {
+                log.info("==> 【文章服务：更新文章】MQ 发送成功，SendResult: {}", sendResult);
+            }
+
+            @Override
+            public void onException(Throwable throwable) {
+                log.error("==> 【文章服务：更新文章】MQ 发送异常: ", throwable);
+            }
+        });
 
         return Response.success();
     }
@@ -405,6 +426,92 @@ public class ArticleServiceImpl implements ArticleService {
                 .build());
 
         return Response.success();
+    }
+
+
+
+    /**
+     * 保存标签
+     * @param articleId
+     * @param publishTags
+     */
+    private void insertTags(Long articleId, List<String> publishTags) {
+        // 筛选提交的标签（表中不存在的标签）
+        List<String> notExistTags = null;
+        // 筛选提交的标签（表中已存在的标签）
+        List<String> existedTags = null;
+
+        // 查询出所有标签
+        List<TagDO> tagDOS = tagMapper.selectList(Wrappers.emptyWrapper());
+
+        // 如果表中还没有添加任何标签
+        if (CollectionUtils.isEmpty(tagDOS)) {
+            notExistTags = publishTags;
+        } else {
+            List<String> tagIds = tagDOS.stream().map(tagDO -> String.valueOf(tagDO.getId())).collect(Collectors.toList());
+            // 表中已添加相关标签，则需要筛选
+            // 通过标签 ID 来筛选，包含对应 ID 则表示提交的标签是表中存在的
+            existedTags = publishTags.stream().filter(publishTag -> tagIds.contains(publishTag)).collect(Collectors.toList());
+            // 否则则是不存在的
+            notExistTags = publishTags.stream().filter(publishTag -> !tagIds.contains(publishTag)).collect(Collectors.toList());
+
+            // 还有一种可能：按字符串名称提交上来的标签，也有可能是表中已存在的，比如表中已经有了 Java 标签，用户提交了个 java 小写的标签，需要内部装换为 Java 标签
+            Map<String, Long> tagNameIdMap = tagDOS.stream().collect(Collectors.toMap(tagDO -> tagDO.getName().toLowerCase(), TagDO::getId));
+
+            // 使用迭代器进行安全的删除操作
+            Iterator<String> iterator = notExistTags.iterator();
+            while (iterator.hasNext()) {
+                String notExistTag = iterator.next();
+                // 转小写, 若 Map 中相同的 key，则表示该新标签是重复标签
+                if (tagNameIdMap.containsKey(notExistTag.toLowerCase())) {
+                    // 从不存在的标签集合中清除
+                    iterator.remove();
+                    // 并将对应的 ID 添加到已存在的标签集合
+                    existedTags.add(String.valueOf(tagNameIdMap.get(notExistTag.toLowerCase())));
+                }
+            }
+        }
+
+        // 将提交的上来的，已存在于表中的标签，文章-标签关联关系入库
+        if (!CollectionUtils.isEmpty(existedTags)) {
+            List<ArticleTagDO> articleTagRelDOS = Lists.newArrayList();
+            existedTags.forEach(tagId -> {
+                ArticleTagDO articleTagRelDO = ArticleTagDO.builder()
+                        .articleId(articleId)
+                        .tagId(Long.valueOf(tagId))
+                        .build();
+                articleTagRelDOS.add(articleTagRelDO);
+            });
+            // 批量插入
+            articleTagRelMapper.batchInsert(articleTagRelDOS);
+        }
+
+        // 将提交的上来的，不存在于表中的标签，入库保存
+        if (!CollectionUtils.isEmpty(notExistTags)) {
+            // 需要先将标签入库，拿到对应标签 ID 后，再把文章-标签关联关系入库
+            List<ArticleTagDO> articleTagRelDOS = Lists.newArrayList();
+            notExistTags.forEach(tagName -> {
+                TagDO tagDO = TagDO.builder()
+                        .name(tagName)
+                        .createTime(LocalDateTime.now())
+                        .updateTime(LocalDateTime.now())
+                        .build();
+
+                tagMapper.insert(tagDO);
+
+                // 拿到保存的标签 ID
+                Long tagId = tagDO.getId();
+
+                // 文章-标签关联关系
+                ArticleTagDO articleTagRelDO = ArticleTagDO.builder()
+                        .articleId(articleId)
+                        .tagId(tagId)
+                        .build();
+                articleTagRelDOS.add(articleTagRelDO);
+            });
+            // 批量插入
+            articleTagRelMapper.batchInsert(articleTagRelDOS);
+        }
     }
 
 }

@@ -87,5 +87,12 @@
                enableSelectByExample="false"
                selectByExampleQueryId="false"/>
 
+        <table tableName="statistics_article_pv" domainObjectName="StatisticsArticlePVDO"
+               enableCountByExample="false"
+               enableUpdateByExample="false"
+               enableDeleteByExample="false"
+               enableSelectByExample="false"
+               selectByExampleQueryId="false"/>
+
     </context>
 </generatorConfiguration>

@@ -16,7 +16,7 @@ public interface CategoryService {
      * @param addCategoryReqVO
      * @return
      */
-    Response addCategory(AddCategoryReqVO addCategoryReqVO);
+    Response<String> addCategory(AddCategoryReqVO addCategoryReqVO);
 
     /**
      * 分类分页数据查询

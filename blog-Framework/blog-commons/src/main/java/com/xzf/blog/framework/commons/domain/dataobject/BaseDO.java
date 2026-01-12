@@ -1,5 +1,7 @@
 package com.xzf.blog.framework.commons.domain.dataobject;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +18,7 @@ public class BaseDO {
     /**
      * 主键id
      */
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**

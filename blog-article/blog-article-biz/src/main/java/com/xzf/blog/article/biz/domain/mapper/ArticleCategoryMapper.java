@@ -3,6 +3,7 @@ package com.xzf.blog.article.biz.domain.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.xzf.blog.article.biz.domain.dataobject.ArticleCategoryDO;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -58,5 +59,12 @@ public interface ArticleCategoryMapper extends BaseMapper<ArticleCategoryDO> {
         return selectList(Wrappers.<ArticleCategoryDO>lambdaQuery()
                 .eq(ArticleCategoryDO::getCategoryId, categoryId));
     }
+
+    /**
+     * 统计分类下的文章数量
+     * @param categoryId
+     * @return
+     */
+    int countArticlesByCategoryId(@Param("categoryId") Long categoryId);
 
 }
