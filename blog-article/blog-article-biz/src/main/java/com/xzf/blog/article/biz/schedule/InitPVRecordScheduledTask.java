@@ -12,9 +12,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * @author: 犬小哈
- * @url: www.quanxiaoha.com
- * @date: 2023/11/12 12:02
  * @description: 初始化 PV 访问量定时任务
  **/
 @Component

@@ -36,7 +36,7 @@ public class TagController {
         return tagService.addTags(addTagReqVO);
     }
 
-    @PostMapping("/list")
+    @PostMapping("/delete")
     @ApiOperationLog(description = "删除标签")
 //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Response deleteTag(@RequestBody @Validated DeleteTagReqVO deleteTagReqVO) {

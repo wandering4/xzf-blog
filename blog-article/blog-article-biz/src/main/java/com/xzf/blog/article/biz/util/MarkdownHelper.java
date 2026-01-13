@@ -15,9 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * @author: 犬小哈
- * @url: www.quanxiaoha.com
- * @date: 2023/10/31 21:16
  * @description: Markdown 转换器
  **/
 public class MarkdownHelper {
@@ -60,11 +57,6 @@ public class MarkdownHelper {
     public static String convertMarkdown2Html(String markdown) {
         Node document = PARSER.parse(markdown);
         return HTML_RENDERER.render(document);
-    }
-
-    public static void main(String[] args) {
-        String markdown = "[http://www.quanxiaoha.com1](http://www.quanxiaoha.com \"http://www.quanxiaoha.com2\")";
-        System.out.println(MarkdownHelper.convertMarkdown2Html(markdown));
     }
 
 }

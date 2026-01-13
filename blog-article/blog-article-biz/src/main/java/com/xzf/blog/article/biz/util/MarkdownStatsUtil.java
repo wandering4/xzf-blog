@@ -6,9 +6,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author: 犬小哈
- * @url: www.quanxiaoha.com
- * @date: 2023-08-31 20:53
  * @description: Markdown 统计工具类
  **/
 public class MarkdownStatsUtil {

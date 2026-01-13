@@ -13,9 +13,6 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * @author: 犬小哈
- * @url: www.quanxiaoha.com
- * @date: 2023/11/1 14:41
  * @description: 自定义链接节点渲染器
  **/
 public class LinkNodeRenderer implements NodeRenderer {
@@ -25,7 +22,7 @@ public class LinkNodeRenderer implements NodeRenderer {
     /**
      * 网站域名（上线后需要改成自己的域名）
      */
-    private final static String DOMAIN = "www.quanxiaoha.com";
+    private final static String DOMAIN = "127.0.0.1:8000";
 
 
     public LinkNodeRenderer(HtmlNodeRendererContext context) {
