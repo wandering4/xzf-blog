@@ -3,13 +3,9 @@ package com.xzf.blog.user.biz.domain.dataobject;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.xzf.blog.framework.commons.domain.dataobject.BaseDO;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @SuperBuilder
@@ -41,6 +37,6 @@ public class RoleDO extends BaseDO {
     /**
      * 备注
      */
-    private String desc;
+    private String description;
 
 }

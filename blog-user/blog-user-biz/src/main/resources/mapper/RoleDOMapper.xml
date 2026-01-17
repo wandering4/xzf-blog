@@ -7,12 +7,12 @@
     <result column="role_key" jdbcType="VARCHAR" property="roleKey" />
     <result column="status" jdbcType="TINYINT" property="status" />
     <result column="sort" jdbcType="INTEGER" property="sort" />
-    <result column="desc" jdbcType="VARCHAR" property="desc" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, role_name, role_key, `status`, sort, remark, create_time, update_time
+    id, role_name, role_key, `status`, sort, `description`, create_time, update_time
   </sql>
 
 </mapper>

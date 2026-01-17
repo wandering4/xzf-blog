@@ -1,10 +1,8 @@
 package com.xzf.blog.user.biz.controller;
 
 import com.xzf.blog.framework.commons.response.Response;
-import com.xzf.blog.user.biz.model.vo.request.FindUserProfileReqVO;
 import com.xzf.blog.user.biz.model.vo.request.UpdatePasswordRequest;
 import com.xzf.blog.user.biz.model.vo.request.UpdateUserInfoRequest;
-import com.xzf.blog.user.biz.model.vo.response.FindUserProfileRspVO;
 import com.xzf.blog.user.biz.service.UserService;
 import com.xzf.blog.user.dto.req.*;
 import com.xzf.blog.user.dto.resp.FindUserByIdResponse;
@@ -15,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -23,7 +20,6 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/user")
 public class UserController {
 
     @Resource
@@ -48,19 +44,15 @@ public class UserController {
     }
 
     /**
-     * 获取用户详细信息
-     *
+     * 删除用户
+     * @param req
      * @return
      */
-    @PostMapping(value = "/profile")
-    @ApiOperationLog(description = "获取用户详细信息")
-    public Response<FindUserProfileRspVO> findUserProfile(@Validated @RequestBody FindUserProfileReqVO findUserProfileReqVO) {
-        return userService.findUserProfile(findUserProfileReqVO);
+    @PostMapping(value = "/delete", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ApiOperationLog(description = "删除用户")
+    public Response<?> updateUserInfo(@Validated UserIdRequest req) {
+        return userService.deleteUser(req);
     }
-
-
-    // ===================================== 对其他服务提供的接口 =====================================
-
 
     @PostMapping("/findByPhone")
     @ApiOperationLog(description = "手机号查询用户信息")
@@ -68,11 +60,10 @@ public class UserController {
         return Response.success(userService.findByPhone(findUserByPhoneRequest));
     }
 
-
     @PostMapping("/findById")
     @ApiOperationLog(description = "查询用户信息")
-    public Response<FindUserByIdResponse> findById(@Validated @RequestBody FindUserByIdRequest findUserByIdRequest) {
-        return userService.findById(findUserByIdRequest);
+    public Response<FindUserByIdResponse> findById(@Validated @RequestBody UserIdRequest userIdRequest) {
+        return userService.findById(userIdRequest);
     }
 
     @PostMapping("/findByIds")

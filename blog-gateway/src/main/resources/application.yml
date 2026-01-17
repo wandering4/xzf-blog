@@ -10,12 +10,6 @@ spring:
             - Path=/user/**
           filters:
             - StripPrefix=1
-        - id: auth
-          uri: lb://blog-user
-          predicates:
-            - Path=/auth/**
-          filters:
-            - StripPrefix=1
         - id: comment
           uri: lb://blog-comment
           predicates:
@@ -26,6 +20,12 @@ spring:
           uri: lb://blog-article
           predicates:
             - Path=/article/**
+          filters:
+            - StripPrefix=1
+        - id: ai
+          uri: lb://ai-chat-system
+          predicates:
+            - Path=/ai/**
           filters:
             - StripPrefix=1
 

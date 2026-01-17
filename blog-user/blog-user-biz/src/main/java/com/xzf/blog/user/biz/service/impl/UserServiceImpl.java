@@ -18,7 +18,6 @@ import com.xzf.blog.user.biz.domain.mapper.UserRoleDOMapper;
 import com.xzf.blog.framework.commons.enums.RoleEnums;
 import com.xzf.blog.user.biz.exception.BizResponseCodeEnum;
 import com.xzf.blog.user.biz.enums.SexEnum;
-import com.xzf.blog.user.biz.model.vo.request.FindUserProfileReqVO;
 import com.xzf.blog.user.biz.model.vo.request.UpdatePasswordRequest;
 import com.xzf.blog.user.biz.model.vo.request.UpdateUserInfoRequest;
 import com.xzf.blog.user.biz.model.vo.response.FindUserProfileRspVO;
@@ -153,7 +152,7 @@ public class UserServiceImpl implements UserService {
 
             // 更新用户信息
             userDO.setUpdateTime(LocalDateTime.now());
-            userDOMapper.updateByPrimaryKeySelective(userDO);
+            userDOMapper.updateById(userDO);
 
             // 延时双删
             sendDelayDeleteUserRedisCacheMQ(userId);
@@ -232,7 +231,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         // 添加入库
-        userDOMapper.insertSelective(userDO);
+        userDOMapper.insert(userDO);
 
         // 获取刚刚添加入库的用户 ID
         Long userId = userDO.getId();
@@ -290,7 +289,7 @@ public class UserServiceImpl implements UserService {
                 .password(encodePassword)
                 .updateTime(LocalDateTime.now())
                 .build();
-        userDOMapper.updateByPrimaryKeySelective(userDO);
+        userDOMapper.updateById(userDO);
 
         return Response.success();
     }
@@ -298,12 +297,12 @@ public class UserServiceImpl implements UserService {
     /**
      * 根据用户 ID 查询用户信息
      *
-     * @param findUserByIdRequest
+     * @param userIdRequest
      * @return
      */
     @Override
-    public Response<FindUserByIdResponse> findById(FindUserByIdRequest findUserByIdRequest) {
-        Long userId = findUserByIdRequest.getId();
+    public Response<FindUserByIdResponse> findById(UserIdRequest userIdRequest) {
+        Long userId = userIdRequest.getId();
 
         // redis缓存
         String userInfoRedisKey = RedisKeyConstants.buildUserInfoKey(userId);
@@ -318,7 +317,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 否则, 从数据库中查询
-        UserDO userDO = userDOMapper.selectByPrimaryKey(userId);
+        UserDO userDO = userDOMapper.selectById(userId);
 
         // 判空
         if (Objects.isNull(userDO)) {
@@ -337,6 +336,7 @@ public class UserServiceImpl implements UserService {
                 .userName(userDO.getUsername())
                 .avatarUrl(userDO.getAvatarUrl())
                 .introduction(userDO.getIntroduction())
+                .sex(userDO.getSex())
                 .build();
 
         // 异步将用户信息存入 Redis 缓存，提升响应速度
@@ -461,75 +461,18 @@ public class UserServiceImpl implements UserService {
         return Response.success(findUserByIdRspDTOS);
     }
 
-
-    /**
-     * 获取用户主页信息
-     *
-     * @param findUserProfileReqVO
-     * @return
-     */
     @Override
-    public Response<FindUserProfileRspVO> findUserProfile(FindUserProfileReqVO findUserProfileReqVO) {
-        // 要查询的用户 ID
-        Long userId = findUserProfileReqVO.getUserId();
+    @Transactional(rollbackFor = Exception.class)
+    public Response<?> deleteUser(UserIdRequest req) {
+        Long userId = req.getId();
 
-        // 若入参中用户 ID 为空，则查询当前登录用户
-        if (Objects.isNull(userId)) {
-            userId = LoginUserContextHolder.getUserId();
-        }
+        userRoleDOMapper.deleteByUserId(userId);
+        userDOMapper.deleteById(userId);
 
-        // 2. 查询 Redis 缓存
-        String userProfileRedisKey = RedisKeyConstants.buildUserProfileKey(userId);
-
-        String userProfileJson = (String) redisTemplate.opsForValue().get(userProfileRedisKey);
-
-        if (StringUtils.isNotBlank(userProfileJson)) {
-            FindUserProfileRspVO findUserProfileRspVO = JsonUtils.parseObject(userProfileJson, FindUserProfileRspVO.class);
-            return Response.success(findUserProfileRspVO);
-        }
-
-        //3. 若 Redis 中无缓存，再查询数据库
-        UserDO userDO = userDOMapper.selectByPrimaryKey(userId);
-
-        if (Objects.isNull(userDO)) {
-            throw new BizException(BizResponseCodeEnum.USER_NOT_FOUND);
-        }
-
-        // 构建返参 VO
-        FindUserProfileRspVO findUserProfileRspVO = FindUserProfileRspVO.builder()
-                .id(userDO.getId())
-                .avatarUrl(userDO.getAvatarUrl())
-                .name(userDO.getUsername())
-                .sex(userDO.getSex())
-                .introduction(userDO.getIntroduction())
-                .build();
-
-
-        // 异步同步到 Redis 中
-        syncUserProfile2Redis(userProfileRedisKey, findUserProfileRspVO);
-
-
-        return Response.success(findUserProfileRspVO);
+        // redis缓存
+        String userInfoRedisKey = RedisKeyConstants.buildUserInfoKey(userId);
+        redisTemplate.delete(userInfoRedisKey);
+        return Response.success();
     }
-
-
-
-
-    /**
-     * 异步同步到 Redis 中
-     *
-     * @param userProfileRedisKey
-     * @param findUserProfileRspVO
-     */
-    private void syncUserProfile2Redis(String userProfileRedisKey, FindUserProfileRspVO findUserProfileRspVO) {
-        threadPoolTaskExecutor.submit(() -> {
-            // 设置随机过期时间 (2小时以内)
-            long expireTime = 60*60 + RandomUtil.randomInt(60 * 60);
-
-            // 将 VO 转为 Json 字符串写入到 Redis 中
-            redisTemplate.opsForValue().set(userProfileRedisKey, JsonUtils.toJsonString(findUserProfileRspVO), expireTime, TimeUnit.SECONDS);
-        });
-    }
-
 
 }

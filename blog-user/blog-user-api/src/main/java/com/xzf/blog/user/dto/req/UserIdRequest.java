@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FindUserByIdRequest {
+public class UserIdRequest {
 
     /**
      * 手机号

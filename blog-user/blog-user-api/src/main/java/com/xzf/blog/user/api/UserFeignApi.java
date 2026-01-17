@@ -15,7 +15,6 @@ import java.util.List;
 @FeignClient(name = ApiConstants.SERVICE_NAME)
 public interface UserFeignApi {
 
-    String PREFIX = "/user";
 
     /**
      * 用户注册
@@ -23,7 +22,7 @@ public interface UserFeignApi {
      * @param registerUserRequest
      * @return
      */
-    @PostMapping(value = PREFIX + "/register")
+    @PostMapping(value = "/register")
     Response<Long> registerUser(@RequestBody RegisterUserRequest registerUserRequest);
 
     /**
@@ -32,7 +31,7 @@ public interface UserFeignApi {
      * @param findUserByPhoneRequest
      * @return
      */
-    @PostMapping(value = PREFIX + "/findByPhone")
+    @PostMapping(value = "/findByPhone")
     Response<FindUserByPhoneRspDTO> findByPhone(@RequestBody FindUserByPhoneRequest findUserByPhoneRequest);
 
     /**
@@ -41,17 +40,17 @@ public interface UserFeignApi {
      * @param updateUserPasswordRequest
      * @return
      */
-    @PostMapping(value = PREFIX + "/password/update")
+    @PostMapping(value = "/password/update")
     Response<?> updatePassword(@RequestBody UpdateUserPasswordRequest updateUserPasswordRequest);
 
     /**
      * 根据用户 ID 查询用户信息
      *
-     * @param findUserByIdRequest
+     * @param userIdRequest
      * @return
      */
-    @PostMapping(value = PREFIX + "/findById")
-    Response<FindUserByIdResponse> findById(@RequestBody FindUserByIdRequest findUserByIdRequest);
+    @PostMapping(value = "/findById")
+    Response<FindUserByIdResponse> findById(@RequestBody UserIdRequest userIdRequest);
 
     /**
      * 批量查询用户信息
@@ -59,7 +58,7 @@ public interface UserFeignApi {
      * @param findUsersByIdsReqDTO
      * @return
      */
-    @PostMapping(value = PREFIX + "/findByIds")
+    @PostMapping(value = "/findByIds")
     Response<List<FindUserByIdResponse>> findByIds(@RequestBody FindUsersByIdsReqDTO findUsersByIdsReqDTO);
 
 }

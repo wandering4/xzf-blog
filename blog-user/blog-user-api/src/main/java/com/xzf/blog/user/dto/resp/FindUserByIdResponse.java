@@ -27,6 +27,11 @@ public class FindUserByIdResponse {
     private String avatarUrl;
 
     /**
+     * 性别
+     */
+    private Integer sex;
+
+    /**
      * 简介
      */
     private String introduction;

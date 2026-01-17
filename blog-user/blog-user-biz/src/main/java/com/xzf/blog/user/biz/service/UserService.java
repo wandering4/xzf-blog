@@ -1,10 +1,8 @@
 package com.xzf.blog.user.biz.service;
 
 import com.xzf.blog.framework.commons.response.Response;
-import com.xzf.blog.user.biz.model.vo.request.FindUserProfileReqVO;
 import com.xzf.blog.user.biz.model.vo.request.UpdatePasswordRequest;
 import com.xzf.blog.user.biz.model.vo.request.UpdateUserInfoRequest;
-import com.xzf.blog.user.biz.model.vo.response.FindUserProfileRspVO;
 import com.xzf.blog.user.dto.req.*;
 import com.xzf.blog.user.dto.resp.FindUserByIdResponse;
 import com.xzf.blog.user.dto.resp.FindUserByPhoneRspDTO;
@@ -48,10 +46,10 @@ public interface UserService {
     /**
      * 根据用户 ID 查询用户信息
      *
-     * @param findUserByIdRequest
+     * @param userIdRequest
      * @return
      */
-    Response<FindUserByIdResponse> findById(FindUserByIdRequest findUserByIdRequest);
+    Response<FindUserByIdResponse> findById(UserIdRequest userIdRequest);
 
     /**
      * 批量根据用户 ID 查询用户信息
@@ -61,13 +59,5 @@ public interface UserService {
      */
     Response<List<FindUserByIdResponse>> findByIds(FindUsersByIdsReqDTO findUsersByIdsReqDTO);
 
-
-    /**
-     * 获取用户主页信息
-     *
-     * @return
-     */
-    Response<FindUserProfileRspVO> findUserProfile(FindUserProfileReqVO findUserProfileReqVO);
-
-
+    Response<?> deleteUser(UserIdRequest req);
 }

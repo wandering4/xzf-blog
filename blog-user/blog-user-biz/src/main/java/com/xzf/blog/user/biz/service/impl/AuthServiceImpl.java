@@ -108,7 +108,7 @@ public class AuthServiceImpl implements AuthService {
 
             case PASSWORD:
                 String password = userLoginRequest.getPassword();
-                if (Objects.isNull(password)) {
+                if (ObjectUtils.isEmpty(password)) {
                     throw new BizException(BizResponseCodeEnum.LOGIN_FAIL);
                 }
 
