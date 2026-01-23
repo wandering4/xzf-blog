@@ -2,11 +2,9 @@
     <header class="sticky top-0 z-10">
         <nav class="bg-white border-gray-200 border-b dark:bg-gray-900 dark:border-gray-800">
             <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-                <!-- 博客 LOGO 、博客名称 -->
+                <!-- 博客 LOGO -->
                 <a href="/" class="flex items-center">
-                    <img :src="blogSettingsStore.blogSettings.logo" class="h-8 mr-3 rounded-full" alt="Weblog Logo" />
-                    <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">{{
-                        blogSettingsStore.blogSettings.name }}</span>
+                    <img :src="userStore.blogSettings.logo" class="h-8 mr-3 rounded-full" alt="Weblog Logo" />
                 </a>
                 <div class="flex items-center md:order-2">
                     <button type="button" data-collapse-toggle="navbar-search" aria-controls="navbar-search"
@@ -83,7 +81,7 @@
                         class="text-white ml-2 mr-2 md:mr-0 focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                         type="button">
                         <!-- 用户登录头像 -->
-                        <img class="w-8 h-8 rounded-full" :src="blogSettingsStore.blogSettings.avatar" alt="user photo">
+                        <img class="w-8 h-8 rounded-full" :src="userStore.userInfo.avatarUrl || '/src/assets/developer.png'" alt="user photo">
                     </button>
 
                     <!-- Dropdown menu -->
@@ -165,16 +163,6 @@
                             <a @click="router.push('/tag/list')"
                                 :class="[currPath.startsWith('/tag') ? 'text-sky-600 md:border-b-2 md:border-sky-600 dark:text-sky-500 dark:md:border-sky-600' : 'text-gray-900 dark:text-white']"
                                 class="block py-2 pl-3 pr-4 rounded md:rounded-none hover:bg-gray-100 md:hover:bg-transparent md:hover:text-sky-600 md:p-0 md:dark:hover:text-sky-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">标签</a>
-                        </li>
-                        <li>
-                            <a @click="router.push('/archive/list')"
-                                :class="[currPath == '/archive/list' ? 'text-sky-600 md:border-b-2 md:border-sky-600 dark:text-sky-500 dark:md:border-sky-600' : 'text-gray-900 dark:text-white']"
-                                class="block py-2 pl-3 pr-4 rounded md:rounded-none hover:bg-gray-100 md:hover:bg-transparent md:hover:text-sky-600 md:p-0 md:dark:hover:text-sky-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">归档</a>
-                        </li>
-                        <li>
-                            <a @click="router.push('/wiki/list')"
-                                :class="[currPath == '/wiki/list' ? 'text-sky-600 md:border-b-2 md:border-sky-600 dark:text-sky-500 dark:md:border-sky-600' : 'text-gray-900 dark:text-white']"
-                                class="block py-2 pl-3 pr-4 rounded md:rounded-none hover:bg-gray-100 md:hover:bg-transparent md:hover:text-sky-600 md:p-0 md:dark:hover:text-sky-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">知识库</a>
                         </li>
                     </ul>
                 </div>
@@ -443,7 +431,6 @@
 <script setup>
 import { onMounted, ref, onBeforeUnmount, watch } from 'vue'
 import { initCollapses, initDropdowns, initModals, Modal } from 'flowbite'
-import { useBlogSettingsStore } from '@/stores/blogsettings'
 import { useUserStore } from '@/stores/user'
 import { useRouter, useRoute } from 'vue-router'
 import { showMessage } from '@/composables/util'
@@ -518,11 +505,9 @@ const route = useRoute()
 // 当前路由地址
 const currPath = ref(route.path)
 
-// 引入博客设置信息 store
-const blogSettingsStore = useBlogSettingsStore()
-
-// 是否登录，通过 userStore 中的 userInfo 对象是否有数据来判断
+// 引入用户 store
 const userStore = useUserStore()
+
 // 获取 userInfo 对象所有属性名称的数组
 const keys = Object.keys(userStore.userInfo)
 // 若大于零，则表示用户已登录

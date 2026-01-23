@@ -183,8 +183,8 @@
             <!-- 右边侧边栏，占用一列 -->
             <aside class="col-span-4 md:col-span-1">
                 <div>
-                    <!-- 博主信息 -->
-                    <UserInfoCard></UserInfoCard>
+                    <!-- 轮播图 -->
+                    <Carousel></Carousel>
 
                     <!-- 分类 -->
                     <CategoryListCard></CategoryListCard>
@@ -209,7 +209,7 @@
 <script setup>
 import Header from '@/layouts/frontend/components/Header.vue'
 import Footer from '@/layouts/frontend/components/Footer.vue'
-import UserInfoCard from '@/layouts/frontend/components/UserInfoCard.vue'
+import Carousel from '@/layouts/frontend/components/Carousel.vue'
 import TagListCard from '@/layouts/frontend/components/TagListCard.vue'
 import CategoryListCard from '@/layouts/frontend/components/CategoryListCard.vue'
 import ScrollToTopButton from '@/layouts/frontend/components/ScrollToTopButton.vue'

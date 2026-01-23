@@ -2,7 +2,7 @@ import router from '@/router/index'
 import { getToken } from '@/composables/cookie'
 import { showMessage } from '@/composables/util'
 import { showPageLoading, hidePageLoading } from '@/composables/util'
-import { useBlogSettingsStore } from '@/stores/blogsettings'
+import { useUserStore } from '@/stores/user'
 
 // 全局路由前置守卫
 router.beforeEach((to, from, next) => {
@@ -25,12 +25,14 @@ router.beforeEach((to, from, next) => {
         next({ path: '/admin/index' })
     } else if (!to.path.startsWith('/admin')) {
         // 如果访问的非 /admin 前缀路由
-        // 引入博客设置 store
-        let blogSettingsStore = useBlogSettingsStore()
-        // 获取博客设置信息并保存到全局状态中
-        blogSettingsStore.getBlogSettings()
+        // 前端页面使用写死的数据，不请求接口
+        let userStore = useUserStore()
+        userStore.getFrontendSettings()
         next()
     } else {
+        // 访问 admin 页面时，才请求接口获取最新数据
+        let userStore = useUserStore()
+        userStore.getAdminSettings()
         next()
     }
 })

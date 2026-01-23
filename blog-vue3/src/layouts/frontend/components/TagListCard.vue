@@ -54,11 +54,12 @@ const router = useRouter()
 const tags = ref([])
 // 一次显示的标签数
 const size = ref(20)
-getTagList({ size: size.value }).then((res) => {
-    if (res.success) {
-        tags.value = res.data
-    }
-})
+// 暂时注释掉获取标签列表，避免触发API调用
+// getTagList({ size: size.value }).then((res) => {
+//     if (res.success) {
+//         tags.value = res.data
+//     }
+// })
 
 // 跳转标签文章列表页
 const goTagArticleListPage = (id, name) => {

@@ -475,13 +475,13 @@ const comments = ref([])
 const total = ref(0)
 
 function initComments() {
-    // 获取当前路由下的所有评论
-    getComments(route.path).then(res => {
-        if (res.success) {
-            total.value = res.data.total
-            comments.value = res.data.comments
-        }
-    })
+    // 暂时注释掉获取评论，避免触发API调用
+    // getComments(route.path).then(res => {
+    //     if (res.success) {
+    //         total.value = res.data.total
+    //         comments.value = res.data.comments
+    //     }
+    // })
 }
 initComments()
 

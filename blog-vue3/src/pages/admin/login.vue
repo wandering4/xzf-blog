@@ -35,9 +35,9 @@
                 </div>
                 <!-- 引入 Element Plus 表单组件，移动端设置宽度为 5/6，PC 端设置为 2/5 -->
                 <el-form class="w-5/6 md:w-2/5" ref="formRef" :rules="rules" :model="form">
-                    <el-form-item prop="username">
+                    <el-form-item prop="phone">
                         <!-- 输入框组件 -->
-                        <el-input size="large" v-model="form.username" placeholder="请输入用户名" :prefix-icon="User" clearable />
+                        <el-input size="large" v-model="form.phone" placeholder="请输入手机号" :prefix-icon="User" clearable />
                     </el-form-item>
                     <el-form-item prop="password">
                         <!-- 密码框组件 -->
@@ -57,7 +57,7 @@
 <script setup>
 // 引入 Element Plus 中的用户、锁图标
 import { User, Lock } from '@element-plus/icons-vue'
-import { login } from '@/api/admin/user'
+import { login, getUserInfoWithAuth } from '@/api/admin/user'
 import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { showMessage} from '@/composables/util'
@@ -69,8 +69,8 @@ const userStore = useUserStore()
 
 // 定义响应式的表单对象
 const form = reactive({
-    username: 'test',
-    password: 'test'
+    phone: '17891997260',
+    password: 'bb43181782'
 })
 
 const router = useRouter()
@@ -81,10 +81,10 @@ const loading = ref(false)
 const formRef = ref(null)
 // 表单验证规则
 const rules = {
-    username: [
+    phone: [
         {
             required: true,
-            message: '用户名不能为空',
+            message: '手机号不能为空',
             trigger: 'blur'
         }
     ],
@@ -109,22 +109,31 @@ const onSubmit = () => {
         loading.value = true
 
         // 调用登录接口
-        login(form.username, form.password).then((res) => {
+        login(form.phone, form.password).then((res) => {
             console.log(res)
             // 判断是否成功
             if (res.success == true) {
-                // 提示登录成功
-                showMessage('登录成功')
-
                 // 存储 Token 到 Cookie 中
-                let token = res.data.token
+                let token = res.data
                 setToken(token)
 
-                // 获取用户信息，并存储到全局状态中
-                userStore.setUserInfo()
+                // 使用新接口获取用户信息
+                getUserInfoWithAuth().then(userRes => {
+                    if (userRes.success == true) {
+                        // 将用户信息存储到全局状态中
+                        userStore.setUserInfoDirect(userRes.data)
 
-                // 跳转到后台首页
-                router.push('/admin/index')
+                        // 提示登录成功
+                        showMessage('登录成功')
+
+                        // 跳转到后台首页
+                        router.push('/admin/index')
+                    } else {
+                        showMessage('获取用户信息失败', 'error')
+                    }
+                }).catch(() => {
+                    showMessage('获取用户信息失败', 'error')
+                })
             } else {
                 // 获取服务端返回的错误消息
                 let message = res.message

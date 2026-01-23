@@ -69,12 +69,8 @@
         <!-- 修改密码 -->
         <FormDialog ref="formDialogRef" title="修改密码" destroyOnClose @submit="onSubmit">
             <el-form ref="formRef" :rules="rules" :model="form">
-                <el-form-item label="用户名" prop="username" label-width="120px" size="large">
-                    <!-- 输入框组件 -->
-                    <el-input v-model="form.username" placeholder="请输入用户名" clearable disabled />
-                </el-form-item>
-                <el-form-item label="新密码" prop="password" label-width="120px" size="large">
-                    <el-input type="password" v-model="form.password" placeholder="请输入新密码" clearable show-password />
+                <el-form-item label="新密码" prop="newPassword" label-width="120px" size="large">
+                    <el-input type="password" v-model="form.newPassword" placeholder="请输入新密码" clearable show-password />
                 </el-form-item>
                 <el-form-item label="确认新密码" prop="rePassword" label-width="120px" size="large">
                     <el-input type="password" v-model="form.rePassword" placeholder="请确认新密码" clearable show-password />
@@ -141,32 +137,14 @@ const formRef = ref(null)
 
 // 修改用户密码表单对象
 const form = reactive({
-    username: userStore.userInfo.username || '',
-    password: '',
+    newPassword: '',
     rePassword: ''
 })
 
-// 监听Pinia store中的某个值的变化
-watch(() => userStore.userInfo.username, (newValue, oldValue) => {
-    // 在这里处理变化后的值
-    console.log('新值:', newValue);
-    console.log('旧值:', oldValue);
-
-    // 可以在这里执行任何你需要的逻辑
-    // 重新将新的值，设置会 form 对象中
-    form.username = newValue
-});
 
 // 规则校验
 const rules = {
-    username: [
-        {
-            required: true,
-            message: '用户名不能为空',
-            trigger: 'blur'
-        }
-    ],
-    password: [
+    newPassword: [
         {
             required: true,
             message: '密码不能为空',
@@ -190,7 +168,7 @@ const onSubmit = () => {
             return false
         }
 
-        if (form.password != form.rePassword) {
+        if (form.newPassword != form.rePassword) {
             showMessage('两次密码输入不一致，请检查！', 'warning')
             return
         }

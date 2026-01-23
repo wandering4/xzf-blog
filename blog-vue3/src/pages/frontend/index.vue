@@ -114,8 +114,8 @@
             <!-- 右边侧边栏，占用一列 -->
             <aside class="col-span-4 md:col-span-1 animate__animated animate__fadeInUp">
                 <div class="sticky top-[5.5rem]">
-                    <!-- 博主信息 -->
-                    <UserInfoCard></UserInfoCard>
+                    <!-- 轮播图 -->
+                    <Carousel></Carousel>
 
                     <!-- 分类 -->
                     <CategoryListCard></CategoryListCard>
@@ -137,7 +137,7 @@
 <script setup>
 import Header from '@/layouts/frontend/components/Header.vue'
 import Footer from '@/layouts/frontend/components/Footer.vue'
-import UserInfoCard from '@/layouts/frontend/components/UserInfoCard.vue'
+import Carousel from '@/layouts/frontend/components/Carousel.vue'
 import CategoryListCard from '@/layouts/frontend/components/CategoryListCard.vue'
 import TagListCard from '@/layouts/frontend/components/TagListCard.vue'
 import ScrollToTopButton from '@/layouts/frontend/components/ScrollToTopButton.vue'
@@ -186,7 +186,8 @@ function getArticles(currentNo) {
         }
     })
 }
-getArticles(current.value)
+// 暂时注释掉自动获取文章，避免触发API调用
+// getArticles(current.value)
 
 // 跳转文章详情页
 const goArticleDetailPage = (articleId) => {
