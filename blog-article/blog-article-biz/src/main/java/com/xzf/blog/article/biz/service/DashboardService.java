@@ -18,7 +18,7 @@ public interface DashboardService {
      * 获取文章发布热点统计信息
      * @return
      */
-    Response<Map<LocalDate, Long>> findDashboardPublishArticleStatistics();
+    Response<Map<String, Long>> findDashboardPublishArticleStatistics();
 
     /**
      * 获取文章最近一周 PV 访问量统计信息

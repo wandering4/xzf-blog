@@ -31,10 +31,6 @@ public class FindUserProfileRspVO {
      */
     private String name;
 
-    /**
-     * 性别
-     */
-    private Integer sex;
 
     /**
      * 个人介绍

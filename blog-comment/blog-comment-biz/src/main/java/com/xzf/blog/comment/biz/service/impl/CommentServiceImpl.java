@@ -69,6 +69,28 @@ public class CommentServiceImpl implements CommentService {
         // 获取当前页、以及每页需要展示的数据数量
         Long current = req.getCurrent();
         Long size = req.getSize();
+        Long userId = LoginUserContextHolder.getUserId();
+
+        // 执行分页查询
+        Page<CommentDO> commentDOPage = commentDOMapper.selectPageList(current, size, userId);
+
+        List<CommentDO> commentDOS = commentDOPage.getRecords();
+
+        // DO 转 VO
+        List<FindCommentPageListVO> vos = null;
+        if (!CollectionUtils.isEmpty(commentDOS)) {
+            vos = commentDOS.stream()
+                    .map(CommentConvert.INSTANCE::convertDO2VO)
+                    .collect(Collectors.toList());
+        }
+        return PageResponse.success(commentDOPage, vos);
+    }
+
+    @Override
+    public PageResponse<FindCommentPageListVO> findCommentAdminPageList(BasePageQuery req) {
+        // 获取当前页、以及每页需要展示的数据数量
+        Long current = req.getCurrent();
+        Long size = req.getSize();
 
         // 执行分页查询
         Page<CommentDO> commentDOPage = commentDOMapper.selectPageList(current, size);

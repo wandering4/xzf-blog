@@ -17,7 +17,6 @@ import com.xzf.blog.user.biz.domain.mapper.UserDOMapper;
 import com.xzf.blog.user.biz.domain.mapper.UserRoleDOMapper;
 import com.xzf.blog.framework.commons.enums.RoleEnums;
 import com.xzf.blog.user.biz.exception.BizResponseCodeEnum;
-import com.xzf.blog.user.biz.enums.SexEnum;
 import com.xzf.blog.user.biz.model.vo.request.UpdatePasswordRequest;
 import com.xzf.blog.user.biz.model.vo.request.UpdateUserInfoRequest;
 import com.xzf.blog.user.biz.model.vo.response.FindUserProfileRspVO;
@@ -26,6 +25,7 @@ import com.xzf.blog.user.biz.service.UserService;
 import com.xzf.blog.user.dto.req.*;
 import com.xzf.blog.user.dto.resp.FindUserByIdResponse;
 import com.xzf.blog.user.dto.resp.FindUserByPhoneRspDTO;
+import com.xzf.blog.user.dto.resp.LoginUserInfoResponse;
 import com.xzf.framework.biz.context.holder.LoginUserContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -87,16 +87,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Response<?> updateUserInfo(UpdateUserInfoRequest updateUserInfoRequest) {
-
         // 被更新的用户 ID
-        Long userId = updateUserInfoRequest.getId();
-        // 当前登录的用户 ID
-        Long loginUserId = LoginUserContextHolder.getUserId();
-
-        // 非号主本人，无法修改其个人信息
-        if (!Objects.equals(loginUserId, userId)) {
-            throw new BizException(BizResponseCodeEnum.CANT_UPDATE_OTHER_USER_PROFILE);
-        }
+        Long userId = LoginUserContextHolder.getUserId();
 
         UserDO userDO = new UserDO();
         //获取当前用户id
@@ -105,17 +97,9 @@ public class UserServiceImpl implements UserService {
         boolean needUpdate = false;
 
         // 头像
-        MultipartFile avatarFile = updateUserInfoRequest.getAvatar();
-        if (ObjectUtils.isNotEmpty(avatarFile)) {
-            // 调用对象存储服务上传文件
-            String avatar = ossRpcService.uploadFile(avatarFile);
-            log.info("==> 调用 oss 服务成功，上传头像，url：{}", avatar);
-
-            if (StringUtils.isBlank(avatar)) {
-                throw new BizException(BizResponseCodeEnum.UPLOAD_AVATAR_FAIL);
-            }
-
-            userDO.setAvatarUrl(avatar);
+        String avatarUrl = updateUserInfoRequest.getAvatarUrl();
+        if (ObjectUtils.isNotEmpty(avatarUrl)) {
+            userDO.setAvatarUrl(avatarUrl);
             needUpdate = true;
         }
 
@@ -124,15 +108,6 @@ public class UserServiceImpl implements UserService {
         if (StringUtils.isNotBlank(nickname)) {
             Preconditions.checkArgument(ParamUtils.checkNickname(nickname), BizResponseCodeEnum.NICK_NAME_VALID_FAIL.getErrorMessage());
             userDO.setUsername(nickname);
-            needUpdate = true;
-        }
-
-
-        // 性别
-        Integer sex = updateUserInfoRequest.getSex();
-        if (Objects.nonNull(sex)) {
-            Preconditions.checkArgument(SexEnum.isValid(sex), BizResponseCodeEnum.SEX_VALID_FAIL.getErrorMessage());
-            userDO.setSex(sex);
             needUpdate = true;
         }
 
@@ -336,7 +311,6 @@ public class UserServiceImpl implements UserService {
                 .userName(userDO.getUsername())
                 .avatarUrl(userDO.getAvatarUrl())
                 .introduction(userDO.getIntroduction())
-                .sex(userDO.getSex())
                 .build();
 
         // 异步将用户信息存入 Redis 缓存，提升响应速度
@@ -473,6 +447,21 @@ public class UserServiceImpl implements UserService {
         String userInfoRedisKey = RedisKeyConstants.buildUserInfoKey(userId);
         redisTemplate.delete(userInfoRedisKey);
         return Response.success();
+    }
+
+    @Override
+    public Response<LoginUserInfoResponse> getLoginUserInfo() {
+        Long userId = LoginUserContextHolder.getUserId();
+        String role = LoginUserContextHolder.getUserRole();
+
+        FindUserByIdResponse data = findById(UserIdRequest.builder().id(userId).build()).getData();
+        LoginUserInfoResponse loginUserInfoResponse = LoginUserInfoResponse.builder()
+                .userId(userId)
+                .role(role)
+                .userName(data.getUserName())
+                .avatarUrl(data.getAvatarUrl())
+                .build();
+        return Response.success(loginUserInfoResponse);
     }
 
 }

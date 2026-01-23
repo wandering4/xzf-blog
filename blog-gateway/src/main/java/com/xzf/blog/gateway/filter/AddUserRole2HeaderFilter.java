@@ -76,24 +76,17 @@ public class AddUserRole2HeaderFilter implements GlobalFilter, Ordered {
         String userRolesKey = RedisKeyConstants.buildUserRoleKey(userId);
 
         // 根据用户 ID ，从 Redis 中获取该用户的角色集合
-        String useRolesValue = redisTemplate.opsForValue().get(userRolesKey);
+        String userRole = redisTemplate.opsForValue().get(userRolesKey);
 
-        if (StringUtils.isBlank(useRolesValue)) {
+        if (StringUtils.isBlank(userRole)) {
             log.info("## 用户角色数据为空，直接放行");
             return chain.filter(exchange);
         }
 
-        // 将 JSON 字符串转换为 List<String> 集合
-        String role = JsonUtils.parseObject(useRolesValue, String.class);
-        if (Objects.isNull(role)) {
-            log.info("## 用户角色为空，直接放行");
-            return chain.filter(exchange);
-        }
-
-        log.info("## 当前登录的用户角色: {}", role);
+        log.info("## 当前登录的用户角色: {}", userRole);
 
         ServerWebExchange newExchange = exchange.mutate()
-                .request(builder -> builder.header(GlobalConstants.USER_ROLE, role)) // 将用户角色设置到请求头中
+                .request(builder -> builder.header(GlobalConstants.USER_ROLE, userRole)) // 将用户角色设置到请求头中
                 .build();
         return chain.filter(newExchange);
     }

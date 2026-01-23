@@ -3,8 +3,12 @@ package com.xzf.blog.article.biz.service;
 import com.xzf.blog.article.dto.request.tag.AddTagReqVO;
 import com.xzf.blog.article.dto.request.tag.DeleteTagReqVO;
 import com.xzf.blog.article.dto.request.tag.FindTagPageListReqVO;
+import com.xzf.blog.article.dto.request.tag.SearchTagReqVO;
+import com.xzf.blog.article.dto.response.SelectRspVO;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
+
+import java.util.List;
 
 public interface TagService {
 
@@ -35,4 +39,5 @@ public interface TagService {
      */
     Response findTagSelectList();
 
+    Response<List<SelectRspVO>> searchTag(SearchTagReqVO req);
 }

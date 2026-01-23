@@ -6,6 +6,7 @@ import com.xzf.blog.article.dto.request.category.FindCategoryPageListReqVO;
 import com.xzf.blog.article.dto.request.tag.AddTagReqVO;
 import com.xzf.blog.article.dto.request.tag.DeleteTagReqVO;
 import com.xzf.blog.article.dto.request.tag.FindTagPageListReqVO;
+import com.xzf.blog.article.dto.request.tag.SearchTagReqVO;
 import com.xzf.blog.article.dto.response.SelectRspVO;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
@@ -41,6 +42,12 @@ public class TagController {
 //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Response deleteTag(@RequestBody @Validated DeleteTagReqVO deleteTagReqVO) {
         return tagService.deleteTag(deleteTagReqVO);
+    }
+
+    @PostMapping("/search")
+    @ApiOperationLog(description = "搜索标签")
+    public Response<List<SelectRspVO>> searchTag(@RequestBody @Validated SearchTagReqVO req) {
+        return tagService.searchTag(req);
     }
 
     @PostMapping("/list")

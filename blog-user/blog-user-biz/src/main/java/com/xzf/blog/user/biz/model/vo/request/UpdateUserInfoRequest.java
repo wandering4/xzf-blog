@@ -19,24 +19,16 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class UpdateUserInfoRequest {
 
-    @NotNull(message = "用户 ID 不能为空")
-    private Long id;
-
     /**
      * 头像
      */
-    private MultipartFile avatar;
+    private String avatarUrl;
 
     /**
      * 昵称
      */
     private String nickname;
 
-
-    /**
-     * 性别
-     */
-    private Integer sex;
 
 
     /**

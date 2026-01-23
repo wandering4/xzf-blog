@@ -12,15 +12,13 @@ import org.springframework.web.multipart.MultipartFile;
 @FeignClient(name = ApiConstants.SERVICE_NAME, configuration = FeignFormConfig.class)
 public interface FileFeignApi {
 
-    String PREFIX = "/file";
-
     /**
      * 文件上传
      *
      * @param file
      * @return
      */
-    @PostMapping(value = PREFIX + "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value =  "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     Response<?> uploadFile(@RequestPart(value = "file") MultipartFile file);
 
 }

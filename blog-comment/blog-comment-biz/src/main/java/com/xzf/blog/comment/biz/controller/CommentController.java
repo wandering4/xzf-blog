@@ -9,18 +9,17 @@ import com.xzf.blog.comment.dto.response.FindCommentPageListVO;
 import com.xzf.blog.framework.commons.request.BasePageQuery;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
+import com.xzf.framework.biz.context.aspect.PreAuthorize;
 import com.xzf.framework.biz.operationlog.aspect.ApiOperationLog;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/comment")
 public class CommentController {
 
     @Autowired
@@ -48,6 +47,16 @@ public class CommentController {
     @ApiOperationLog(description = "获取评论数")
     public Response<CommentCountVO> countComment(@RequestBody @Validated CountCommentReqVO req) {
         return commentService.count(req);
+    }
+
+    /*==================================  管理系统接口  ====================================*/
+
+
+    @PostMapping("/admin/list")
+    @ApiOperationLog(description = "查询评论分页数据")
+    @PreAuthorize(hasRoles = {"root"})
+    public PageResponse<FindCommentPageListVO> findAdminCommentPageList(@RequestBody @Validated BasePageQuery req) {
+        return commentService.findCommentAdminPageList(req);
     }
 
 }

@@ -42,9 +42,9 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
         return selectPage(page, wrapper);
     }
 
-    default List<ArticleDO> selectAllViewCount(){
+    default List<ArticleDO> selectAllViewCount(Long userId) {
         // 设置仅查询 read_num 字段
-        return selectList(Wrappers.<ArticleDO>lambdaQuery()
+        return selectList(Wrappers.<ArticleDO>lambdaQuery().eq(ArticleDO::getAuthorId, userId)
                 .select(ArticleDO::getViewCount));
     }
 
@@ -56,9 +56,10 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
             "FROM article " +
             "WHERE create_time >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR) " +
             "AND status = #{status} " +
+            "AND author_id = #{userId} " +
             "GROUP BY DATE(create_time) " +
             "ORDER BY publish_date")
-    List<Map<String, Object>> selectPublishArticleStatisticsLastYearRaw(@Param("status") Integer status);
+    List<Map<String, Object>> selectPublishArticleStatisticsLastYearRaw(@Param("status") Integer status, @Param("userId") Long userId);
 
     /**
      * 获取所有文章的总浏览量

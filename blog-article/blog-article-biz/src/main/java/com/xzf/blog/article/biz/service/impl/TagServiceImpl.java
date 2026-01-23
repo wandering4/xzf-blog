@@ -1,6 +1,7 @@
 package com.xzf.blog.article.biz.service.impl;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -10,18 +11,17 @@ import com.xzf.blog.article.biz.domain.mapper.ArticleTagMapper;
 import com.xzf.blog.article.biz.domain.mapper.TagMapper;
 import com.xzf.blog.article.biz.exception.BizResponseCodeEnum;
 import com.xzf.blog.article.biz.service.TagService;
-import com.xzf.blog.article.dto.request.tag.AddTagReqVO;
-import com.xzf.blog.article.dto.request.tag.DeleteTagReqVO;
-import com.xzf.blog.article.dto.request.tag.FindTagPageListReqVO;
-import com.xzf.blog.article.dto.request.tag.FindTagPageListRspVO;
+import com.xzf.blog.article.dto.request.tag.*;
 import com.xzf.blog.article.dto.response.SelectRspVO;
 import com.xzf.blog.framework.commons.exception.BizException;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -131,8 +131,24 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagDO> implements Tag
     public Response findTagSelectList() {
         // 查询所有标签
         List<TagDO> tagDOS = tagMapper.selectList(Wrappers.emptyWrapper());
-
         // DO 转 VO
+        return toVO(tagDOS);
+    }
+
+    @Override
+    public Response<List<SelectRspVO>> searchTag(SearchTagReqVO req) {
+        String searchKey = req.getTagName();
+
+        LambdaQueryWrapper<TagDO> wrapper = Wrappers.lambdaQuery();
+        if(!StringUtils.isEmpty(searchKey)){
+            wrapper.like(TagDO::getName, searchKey);
+        }
+        List<TagDO> tagDOS = tagMapper.selectList(wrapper);
+        return toVO(tagDOS);
+    }
+
+    @NotNull
+    private Response<List<SelectRspVO>> toVO(List<TagDO> tagDOS) {
         List<SelectRspVO> vos = null;
         if (!CollectionUtils.isEmpty(tagDOS)) {
             vos = tagDOS.stream()
@@ -142,7 +158,6 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagDO> implements Tag
                             .build())
                     .collect(Collectors.toList());
         }
-
         return Response.success(vos);
     }
 }

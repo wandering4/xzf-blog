@@ -32,10 +32,14 @@ public interface CommentService {
      */
     PageResponse<FindCommentPageListVO> findCommentPageList(BasePageQuery req);
 
+    PageResponse<FindCommentPageListVO> findCommentAdminPageList(BasePageQuery req);
+
     /**
      * 获取评论数
      * @param req
      * @return
      */
     Response<CommentCountVO> count(CountCommentReqVO req);
+
+
 }

@@ -24,18 +24,21 @@ public class DashboardController {
 
     @PostMapping("/statistics")
     @ApiOperationLog(description = "获取后台仪表盘基础统计信息")
+    //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Response<FindDashboardStatisticsInfoRspVO> findDashboardStatistics() {
         return dashboardService.findDashboardStatistics();
     }
 
     @PostMapping("/publishArticle/statistics")
     @ApiOperationLog(description = "获取后台仪表盘文章发布热点统计信息")
-    public Response<Map<LocalDate, Long>> findDashboardPublishArticleStatistics() {
+    //    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public Response<Map<String, Long>> findDashboardPublishArticleStatistics() {
         return dashboardService.findDashboardPublishArticleStatistics();
     }
 
     @PostMapping("/pv/statistics")
     @ApiOperationLog(description = "获取后台仪表盘最近一周 PV 访问量信息")
+    //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Response<FindDashboardPVStatisticsInfoRspVO> findDashboardPVStatistics() {
         return dashboardService.findDashboardPVStatistics();
     }

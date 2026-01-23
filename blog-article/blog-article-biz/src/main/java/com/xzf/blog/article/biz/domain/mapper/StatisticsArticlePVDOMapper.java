@@ -18,10 +18,13 @@ public interface StatisticsArticlePVDOMapper extends BaseMapper<StatisticsArticl
      * @return PV统计数据列表
      */
     @Select("SELECT pv_date, pv_count FROM statistics_article_pv " +
-            "WHERE pv_date >= #{startDate} AND pv_date <= #{endDate} " +
+            "WHERE pv_date >= #{startDate} "+
+            "AND pv_date <= #{endDate} " +
+            "AND author_id <= #{authorId} " +
             "ORDER BY pv_date")
     List<Map<String, Object>> selectPVStatisticsByDateRange(@Param("startDate") LocalDate startDate,
-                                                           @Param("endDate") LocalDate endDate);
+                                                           @Param("endDate") LocalDate endDate,
+                                                           @Param("authorId") Long authorId);
 
     /**
      * 获取指定日期的PV统计记录

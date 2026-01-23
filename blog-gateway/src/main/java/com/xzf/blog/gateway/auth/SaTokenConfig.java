@@ -22,9 +22,9 @@ public class SaTokenConfig {
                 .addInclude("/**")
                 .setAuth(o -> {
                             //登录校验，拦截所有路由,并排除login 用于开放登录
-                            SaRouter.match("/**")
-                                    .notMatch("/auth/login")
-                                    .notMatch("/auth/verification/code/send")
+                            SaRouter.match("/admin/**")
+//                                    .notMatch("/auth/login")
+//                                    .notMatch("/auth/verification/code/send")
                                     .check(r -> StpUtil.checkLogin());
 
                             //权限认证

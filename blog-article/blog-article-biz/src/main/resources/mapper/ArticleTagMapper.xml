@@ -14,10 +14,10 @@
 
   <insert id="batchInsert" parameterType="java.util.List">
     INSERT INTO article_tag_rel
-    (article_id, tag_id, create_time, update_time)
+    (article_id, tag_id)
     VALUES
     <foreach collection="list" item="item" index="index" separator=",">
-      (#{item.articleId}, #{item.tagId}, #{item.createTime}, #{item.updateTime})
+      (#{item.articleId}, #{item.tagId})
     </foreach>
   </insert>
 

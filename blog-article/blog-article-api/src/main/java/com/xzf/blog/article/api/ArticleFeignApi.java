@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = ApiConstants.SERVICE_NAME)
 public interface ArticleFeignApi {
 
-    String PREFIX = "/article";
-
-    @PostMapping(PREFIX + "/updateSummary")
+    @PostMapping( "/updateSummary")
     public Response<?> updateArticleSummary(@RequestBody UpdateArticleSummaryRequest req);
 
 }

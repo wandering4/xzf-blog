@@ -11,5 +11,5 @@ public interface FileService {
      * @param file
      * @return
      */
-    Response<?> uploadFile(MultipartFile file);
+    Response<String> uploadFile(MultipartFile file);
 }

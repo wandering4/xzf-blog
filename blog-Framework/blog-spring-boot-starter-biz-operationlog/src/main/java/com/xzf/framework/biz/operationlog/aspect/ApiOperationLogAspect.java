@@ -39,7 +39,14 @@ public class ApiOperationLogAspect {
         // 请求入参
         Object[] args = joinPoint.getArgs();
         // 入参转 JSON 字符串
-        String argsJsonStr = Arrays.stream(args).map(toJsonStr()).collect(Collectors.joining(", "));
+        String argsJsonStr = Arrays.stream(args).map(arg -> {
+                    try {
+                        return JsonUtils.toJsonString(arg);
+                    } catch (Exception e) {
+                        return "";
+                    }
+                })
+                .collect(Collectors.joining(", "));
 
         // 功能描述信息
         String description = getApiOperationLogDescription(joinPoint);
@@ -80,12 +87,5 @@ public class ApiOperationLogAspect {
         return apiOperationLog.description();
     }
 
-    /**
-     * 转 JSON 字符串
-     * @return
-     */
-    private Function<Object, String> toJsonStr() {
-        return JsonUtils::toJsonString;
-    }
 
 }

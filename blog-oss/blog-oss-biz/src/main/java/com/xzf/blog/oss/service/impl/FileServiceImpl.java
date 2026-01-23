@@ -19,7 +19,7 @@ public class FileServiceImpl implements FileService {
     private static final String BUCKET_NAME = "xzf-blog";
 
     @Override
-    public Response<?> uploadFile(MultipartFile file) {
+    public Response<String> uploadFile(MultipartFile file) {
         // 上传文件
         String url = fileStrategy.uploadFile(file, BUCKET_NAME);
 

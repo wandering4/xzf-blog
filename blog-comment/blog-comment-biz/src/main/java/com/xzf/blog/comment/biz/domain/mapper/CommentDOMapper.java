@@ -29,6 +29,16 @@ public interface CommentDOMapper extends BaseMapper<CommentDO> {
         return selectPage(page, wrapper);
     }
 
+    default Page<CommentDO> selectPageList(Long current, Long size, Long userId) {
+        // 分页对象(查询第几页、每页多少数据)
+        Page<CommentDO> page = new Page<>(current, size);
+        // 构建查询条件
+        LambdaQueryWrapper<CommentDO> wrapper = Wrappers.<CommentDO>lambdaQuery()
+                .eq(CommentDO::getUserId, userId)
+                .orderByDesc(CommentDO::getCreateTime); // 按创建时间倒叙
+        return selectPage(page, wrapper);
+    }
+
     @MapKey("count")
     Map<Long, Long> count(@Param("articleIds") List<Long> articleIds);
 

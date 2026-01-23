@@ -22,6 +22,7 @@ import com.xzf.blog.framework.commons.exception.BizException;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
 import com.xzf.blog.framework.commons.util.JsonUtils;
+import com.xzf.framework.biz.context.holder.LoginUserContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.client.producer.SendResult;
@@ -68,6 +69,7 @@ public class ArticleServiceImpl implements ArticleService {
     public Response<?> publishArticle(PublishArticleReqVO publishArticleReqVO) {
         // 1. VO 转 ArticleDO, 并保存
         ArticleDO articleDO = ArticleDO.builder()
+                .authorId(LoginUserContextHolder.getUserId())
                 .title(publishArticleReqVO.getTitle())
                 .cover(publishArticleReqVO.getCover())
                 .summary(publishArticleReqVO.getSummary())
@@ -490,6 +492,8 @@ public class ArticleServiceImpl implements ArticleService {
                 ArticleTagDO articleTagRelDO = ArticleTagDO.builder()
                         .articleId(articleId)
                         .tagId(Long.valueOf(tagId))
+                        .createTime(LocalDateTime.now())
+                        .updateTime(LocalDateTime.now())
                         .build();
                 articleTagRelDOS.add(articleTagRelDO);
             });

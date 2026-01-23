@@ -6,6 +6,7 @@ import com.xzf.blog.user.biz.model.vo.request.UpdateUserInfoRequest;
 import com.xzf.blog.user.dto.req.*;
 import com.xzf.blog.user.dto.resp.FindUserByIdResponse;
 import com.xzf.blog.user.dto.resp.FindUserByPhoneRspDTO;
+import com.xzf.blog.user.dto.resp.LoginUserInfoResponse;
 
 import java.util.List;
 
@@ -60,4 +61,6 @@ public interface UserService {
     Response<List<FindUserByIdResponse>> findByIds(FindUsersByIdsReqDTO findUsersByIdsReqDTO);
 
     Response<?> deleteUser(UserIdRequest req);
+
+    Response<LoginUserInfoResponse> getLoginUserInfo();
 }

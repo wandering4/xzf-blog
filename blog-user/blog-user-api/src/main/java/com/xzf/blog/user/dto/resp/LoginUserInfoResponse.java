@@ -9,27 +9,22 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FindUserByIdResponse {
+public class LoginUserInfoResponse {
 
     /**
      * 用户 ID
      */
-    private Long id;
+    private Long userId;
 
     /**
-     * 昵称
+     * 角色
      */
+    private String role;
+
     private String userName;
 
     /**
      * 头像
      */
     private String avatarUrl;
-
-
-    /**
-     * 简介
-     */
-    private String introduction;
-
 }

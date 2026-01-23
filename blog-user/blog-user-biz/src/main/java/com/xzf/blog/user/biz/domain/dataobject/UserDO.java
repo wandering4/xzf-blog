@@ -43,9 +43,4 @@ public class UserDO extends BaseDO {
      */
     private String introduction;
 
-    /**
-     * 性别（0：女性，1：男性）
-     */
-    private Integer sex;
-
 }

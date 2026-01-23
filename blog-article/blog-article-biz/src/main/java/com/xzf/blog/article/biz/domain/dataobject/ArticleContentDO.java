@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("article_content_rel")
+@TableName("article_content")
 public class ArticleContentDO  extends BaseDO {
 
     private Long articleId;

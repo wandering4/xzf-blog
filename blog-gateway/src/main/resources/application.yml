@@ -28,6 +28,12 @@ spring:
             - Path=/ai/**
           filters:
             - StripPrefix=1
+        - id: file
+          uri: lb://blog-oss
+          predicates:
+            - Path=/file/**
+          filters:
+            - StripPrefix=1
 
   data:
     redis:
