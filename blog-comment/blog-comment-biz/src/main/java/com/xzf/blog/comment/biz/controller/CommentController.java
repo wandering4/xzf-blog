@@ -1,6 +1,7 @@
 package com.xzf.blog.comment.biz.controller;
 
 import com.xzf.blog.comment.dto.request.CommentIdReqVO;
+import com.xzf.blog.comment.dto.request.CommentPageRequest;
 import com.xzf.blog.comment.dto.request.CountCommentReqVO;
 import com.xzf.blog.comment.dto.request.PublishCommentReqVO;
 import com.xzf.blog.comment.biz.service.CommentService;
@@ -27,20 +28,8 @@ public class CommentController {
 
     @PostMapping("/list")
     @ApiOperationLog(description = "查询评论分页数据")
-    public PageResponse<FindCommentPageListVO> findCommentPageList(@RequestBody @Validated BasePageQuery req) {
+    public PageResponse<FindCommentPageListVO> findCommentPageList(@RequestBody @Validated CommentPageRequest req) {
         return commentService.findCommentPageList(req);
-    }
-
-    @PostMapping("/delete")
-    @ApiOperationLog(description = "评论删除")
-    public Response deleteComment(@RequestBody @Validated CommentIdReqVO commentIdReqVO) {
-        return commentService.deleteComment(commentIdReqVO);
-    }
-
-    @PostMapping("/publish")
-    @ApiOperationLog(description = "发布评论")
-    public Response<Long> publishComment(@RequestBody @Validated PublishCommentReqVO publishCommentReqVO) {
-        return commentService.publishComment(publishCommentReqVO);
     }
 
     @PostMapping("/count")
@@ -49,14 +38,20 @@ public class CommentController {
         return commentService.count(req);
     }
 
-    /*==================================  管理系统接口  ====================================*/
-
-
-    @PostMapping("/admin/list")
-    @ApiOperationLog(description = "查询评论分页数据")
-    @PreAuthorize(hasRoles = {"root"})
-    public PageResponse<FindCommentPageListVO> findAdminCommentPageList(@RequestBody @Validated BasePageQuery req) {
-        return commentService.findCommentAdminPageList(req);
+    @PostMapping("/delete")
+    @PreAuthorize
+    @ApiOperationLog(description = "评论删除")
+    public Response deleteComment(@RequestBody @Validated CommentIdReqVO commentIdReqVO) {
+        return commentService.deleteComment(commentIdReqVO);
     }
+
+    @PostMapping("/publish")
+    @PreAuthorize
+    @ApiOperationLog(description = "发布评论")
+    public Response<Long> publishComment(@RequestBody @Validated PublishCommentReqVO publishCommentReqVO) {
+        return commentService.publishComment(publishCommentReqVO);
+    }
+
+
 
 }

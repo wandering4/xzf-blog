@@ -32,10 +32,31 @@
             <!-- 分页列表 -->
             <el-table :data="tableData" border stripe style="width: 100%" v-loading="tableLoading">
                 <el-table-column prop="id" label="ID" width="50" />
-                <el-table-column prop="title" label="标题" width="380" />
-                <el-table-column prop="cover" label="封面" width="180">
+                <el-table-column prop="title" label="标题" width="250" />
+                <el-table-column prop="cover" label="封面" width="120">
                     <template #default="scope">
                         <el-image style="width: 100px;" :src="scope.row.cover" />
+                    </template>
+                </el-table-column>
+                <el-table-column prop="category" label="分类" width="120">
+                    <template #default="scope">
+                        <div v-if="scope.row.category" class="flex flex-wrap gap-1">
+                            <span class="cursor-pointer bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded hover:bg-blue-200 hover:text-blue-900 dark:bg-blue-900 dark:hover:bg-blue-950 dark:text-blue-300">
+                                {{ scope.row.category.name }}
+                            </span>
+                        </div>
+                        <span v-else class="text-gray-400">未分类</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="tags" label="标签" width="200">
+                    <template #default="scope">
+                        <div v-if="scope.row.tags && scope.row.tags.length > 0" class="flex flex-wrap gap-1">
+                            <span v-for="(tag, index) in scope.row.tags" :key="index"
+                                class="cursor-pointer bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded hover:bg-green-200 hover:text-green-900 dark:bg-green-900 dark:hover:bg-green-950 dark:text-green-300">
+                                {{ tag.name }}
+                            </span>
+                        </div>
+                        <span v-else class="text-gray-400">无标签</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="isTop" label="是否置顶" width="100">
@@ -49,7 +70,7 @@
                         />
                     </template>
                 </el-table-column>
-                <el-table-column prop="createTime" label="发布时间" width="180" />
+                <el-table-column prop="createDate" label="发布时间" width="180" />
                 <el-table-column label="操作">
                     <template #default="scope">
                         <el-button size="small" @click="showArticleUpdateEditor(scope.row)">
@@ -612,6 +633,14 @@ const handleIsTopChange = (row) => {
 /* 指定 select 下拉框宽度 */
 .el-select--large {
     width: 600px;
+}
+
+/* 摘要文本截断样式 */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 </style>
 

@@ -1,5 +1,6 @@
 package com.xzf.blog.user.biz.service;
 
+import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
 import com.xzf.blog.user.biz.model.vo.request.UpdatePasswordRequest;
 import com.xzf.blog.user.biz.model.vo.request.UpdateUserInfoRequest;
@@ -63,4 +64,6 @@ public interface UserService {
     Response<?> deleteUser(UserIdRequest req);
 
     Response<LoginUserInfoResponse> getLoginUserInfo();
+
+    PageResponse<?> findUserPage(FindUserPageRequest req);
 }

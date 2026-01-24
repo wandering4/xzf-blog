@@ -18,6 +18,8 @@ import com.xzf.blog.article.dto.mq.ArticleMessage;
 import com.xzf.blog.article.dto.request.article.*;
 import com.xzf.blog.article.dto.response.article.FindArticleDetailRspVO;
 import com.xzf.blog.article.dto.response.tag.FindTagListRspVO;
+import com.xzf.blog.framework.commons.enums.ResponseCodeEnum;
+import com.xzf.blog.framework.commons.enums.RoleEnums;
 import com.xzf.blog.framework.commons.exception.BizException;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
@@ -34,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -135,9 +138,54 @@ public class ArticleServiceImpl implements ArticleService {
     public PageResponse<FindIndexArticlePageListRspVO> findArticlePageList(FindIndexArticlePageListReqVO findIndexArticlePageListReqVO) {
         Long current = findIndexArticlePageListReqVO.getCurrent();
         Long size = findIndexArticlePageListReqVO.getSize();
+        LocalDate startDate = findIndexArticlePageListReqVO.getStartCreateTime();
+        LocalDate endDate = findIndexArticlePageListReqVO.getEndCreateTime();
+        String title = findIndexArticlePageListReqVO.getTitle();
+        List<Long> tagIds = findIndexArticlePageListReqVO.getTagIds();
+        List<Long> categoryIds = findIndexArticlePageListReqVO.getCategoryIds();
+        boolean hasTagCondition = tagIds != null && !tagIds.isEmpty();
+        boolean hasCategoryCondition = categoryIds != null && !categoryIds.isEmpty();
 
-        // 第一步：分页查询文章主体记录
-        Page<ArticleDO> articleDOPage = articleMapper.selectPageList(current, size, null, null, null, null);
+        // 1.根据tag条件查询对应的tag
+        Set<Long> articleIdSetFromTags = new HashSet<>();
+        List<ArticleTagDO> articleTagRelDOS = new ArrayList<>();
+        if (hasTagCondition) {
+            // 根据tagId查询文章ID范围
+            articleTagRelDOS = articleTagRelMapper.selectByTagIds(tagIds);
+            articleIdSetFromTags = articleTagRelDOS.stream()
+                    .map(ArticleTagDO::getArticleId)
+                    .collect(Collectors.toSet());
+        }
+
+        // 3.根据category条件查询对应的category
+        Set<Long> articleIdSetFromCategories = new HashSet<>();
+        List<ArticleCategoryDO> articleCategoryRelDOS = new ArrayList<>();
+        if (hasCategoryCondition) {
+            // 根据categoryId查询文章ID范围
+            articleCategoryRelDOS = articleCategoryRelMapper.selectByCategoryIds(categoryIds);
+            articleIdSetFromCategories = articleCategoryRelDOS.stream()
+                    .map(ArticleCategoryDO::getArticleId)
+                    .collect(Collectors.toSet());
+        }
+
+        // 5.根据articleId的限制和其他条件分页查询文章主体记录
+        // 合并tag和category的articleId限制条件
+        Set<Long> filteredArticleIds = new HashSet<>();
+        if (hasTagCondition && hasCategoryCondition) {
+            // 取交集：文章必须同时满足tag和category条件
+            filteredArticleIds = articleIdSetFromTags.stream()
+                    .filter(articleIdSetFromCategories::contains)
+                    .collect(Collectors.toSet());
+        } else if (hasTagCondition) {
+            filteredArticleIds = articleIdSetFromTags;
+        } else if (hasCategoryCondition) {
+            filteredArticleIds = articleIdSetFromCategories;
+        }
+
+        List<Long> articleIdList = filteredArticleIds.isEmpty() ? null : new ArrayList<>(filteredArticleIds);
+
+        // 分页查询文章主体记录
+        Page<ArticleDO> articleDOPage = articleMapper.selectPageListWithArticleIds(current, size, title, startDate, endDate, articleIdList, null);
 
         // 返回的分页数据
         List<ArticleDO> articleDOS = articleDOPage.getRecords();
@@ -161,10 +209,12 @@ public class ArticleServiceImpl implements ArticleService {
             // 转 Map, 方便后续根据分类 ID 拿到对应的分类名称
             Map<Long, String> categoryIdNameMap = categoryDOS.stream().collect(Collectors.toMap(CategoryDO::getId, CategoryDO::getName));
 
-            // 根据文章 ID 批量查询所有关联记录
-            List<ArticleCategoryDO> articleCategoryRelDOS = articleCategoryRelMapper.selectByArticleIds(articleIds);
+            if (!hasCategoryCondition) {
+                // 根据文章 ID 批量查询所有关联记录
+                articleCategoryRelDOS = articleCategoryRelMapper.selectByArticleIds(articleIds);
+            }
 
-            vos.forEach(vo -> {
+            for (FindIndexArticlePageListRspVO vo : vos) {
                 Long currArticleId = vo.getId();
                 // 过滤出当前文章对应的关联数据
                 Optional<ArticleCategoryDO> optional = articleCategoryRelDOS.stream().filter(rel -> Objects.equals(rel.getArticleId(), currArticleId)).findAny();
@@ -183,7 +233,7 @@ public class ArticleServiceImpl implements ArticleService {
                     // 设置到当前 vo 类中
                     vo.setCategory(findCategoryListRspVO);
                 }
-            });
+            }
 
             // 第三步：设置文章标签
             // 查询所有标签
@@ -192,8 +242,10 @@ public class ArticleServiceImpl implements ArticleService {
             Map<Long, String> mapIdNameMap = tagDOS.stream().collect(Collectors.toMap(TagDO::getId, TagDO::getName));
 
             // 拿到所有文章的标签关联记录
-            List<ArticleTagDO> articleTagRelDOS = articleTagRelMapper.selectByArticleIds(articleIds);
-            vos.forEach(vo -> {
+            if(!hasTagCondition){
+                articleTagRelDOS = articleTagRelMapper.selectByArticleIds(articleIds);
+            }
+            for (FindIndexArticlePageListRspVO vo : vos) {
                 Long currArticleId = vo.getId();
                 // 过滤出当前文章的标签关联记录
                 List<ArticleTagDO> articleTagRelDOList = articleTagRelDOS.stream().filter(rel -> Objects.equals(rel.getArticleId(), currArticleId)).collect(Collectors.toList());
@@ -212,7 +264,7 @@ public class ArticleServiceImpl implements ArticleService {
                 });
                 // 设置转换后的标签数据
                 vo.setTags(findTagListRspVOS);
-            });
+            }
         }
 
         return PageResponse.success(articleDOPage, vos);
@@ -220,7 +272,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public Response<FindArticleDetailRspVO> findArticleDetail(FindArticleDetailReqVO findArticleDetailReqVO) {
-        Long articleId = findArticleDetailReqVO.getArticleId();
+        Long articleId = findArticleDetailReqVO.getId();
 
         ArticleDO articleDO = articleMapper.selectById(articleId);
 
@@ -294,6 +346,9 @@ public class ArticleServiceImpl implements ArticleService {
     public Response<?> deleteArticle(DeleteArticleReqVO deleteArticleReqVO) {
         Long articleId = deleteArticleReqVO.getId();
 
+        // 鉴权
+        checkRootOrSelf(articleId);
+
         // 1. 删除文章
         articleMapper.deleteById(articleId);
 
@@ -323,6 +378,19 @@ public class ArticleServiceImpl implements ArticleService {
         return Response.success();
     }
 
+    private void checkRootOrSelf(Long articleId) {
+        Long userId = LoginUserContextHolder.getUserId();
+        String role = LoginUserContextHolder.getUserRole();
+        ArticleDO articleDO = articleMapper.selectById(articleId);
+        if (Objects.isNull(articleDO)) {
+            throw new BizException(BizResponseCodeEnum.ARTICLE_NOT_FOUND);
+        }
+        // TODO:LoginUserContextHolder bug 待修复，暂时排除鉴权
+//        if (!role.equals(RoleEnums.ROOT.getName()) && !articleDO.getAuthorId().equals(userId)) {
+//            throw new BizException(ResponseCodeEnum.NOT_HAVE_PERMISSION);
+//        }
+    }
+
     /**
      * 更新文章
      *
@@ -333,6 +401,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional(rollbackFor = Exception.class)
     public Response updateArticle(UpdateArticleReqVO req) {
         Long articleId = req.getId();
+        checkRootOrSelf(articleId);
 
         // 1. VO 转 ArticleDO, 并更新
         ArticleDO articleDO = ArticleDO.builder()

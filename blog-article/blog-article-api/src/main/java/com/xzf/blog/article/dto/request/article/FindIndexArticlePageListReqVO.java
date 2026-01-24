@@ -2,16 +2,29 @@ package com.xzf.blog.article.dto.request.article;
 
 import com.xzf.blog.framework.commons.request.BasePageQuery;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Data
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
 public class FindIndexArticlePageListReqVO extends BasePageQuery {
-    private Long tagId;
-    private Long categoryId;
+    private List<Long> tagIds;
+    private List<Long> categoryIds;
+    private String title;
+    /**
+     * 发布的起始日期
+     */
+    private LocalDate startCreateTime;
+
+    /**
+     * 发布的结束日期
+     */
+    private LocalDate endCreateTime;
 }
 

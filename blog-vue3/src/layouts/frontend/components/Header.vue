@@ -426,10 +426,6 @@
                     <!-- Esc 退出提示 -->
                     <span class="px-2 py-[1px] flex-none border rounded dark:border-gray-600">Esc</span>
                     <span class="text-gray-400 ml-2">关闭</span>
-
-                    <!-- 底层技术介绍 -->
-                    <span class="ml-auto">基于&nbsp;<a href="https://lucene.apache.org/" target="_blank"
-                            class="underline">Apache Lucene</a>&nbsp;全文检索引擎开发</span>
                 </div>
             </div>
         </div>
@@ -572,7 +568,7 @@ const searchLoading = ref(false)
 watch(searchWord, (newText, oldText) => {
     console.log(`新值: ${newText}, 老值: ${oldText}`)
     if (newText && newText !== oldText) { // 若搜索关键词不为空，且和之前的值不相同
-        renderSearchArticles({ current: current.value, size: size.value, word: newText })
+        renderSearchArticles({ current: current.value, size: size.value, title: newText })
     } else if (newText == '') { // 搜索词为空
         // 置空
         searchArticles.value = []
@@ -587,10 +583,10 @@ function renderSearchArticles(data) {
         console.log(res)
         if (res.success) {
             searchArticles.value = res.data
-            current.value = res.current
-            size.value = res.size
-            total.value = res.total
-            pages.value = res.pages
+            current.value = res.pageNo
+            size.value = res.pageSize
+            total.value = res.totalCount
+            pages.value = res.totalPage
         }
     }).finally(() => searchLoading.value = false) // 隐藏加载 Loading
 }

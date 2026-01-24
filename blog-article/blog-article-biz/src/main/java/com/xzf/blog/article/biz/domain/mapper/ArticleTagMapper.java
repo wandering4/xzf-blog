@@ -60,5 +60,15 @@ public interface ArticleTagMapper extends BaseMapper<ArticleTagDO> {
                 .eq(ArticleTagDO::getTagId, tagId));
     }
 
+    /**
+     * 根据标签 ID 集合批量查询
+     * @param tagIds
+     * @return
+     */
+    default List<ArticleTagDO> selectByTagIds(List<Long> tagIds) {
+        return selectList(Wrappers.<ArticleTagDO>lambdaQuery()
+                .in(ArticleTagDO::getTagId, tagIds));
+    }
+
     int batchInsert(@Param("list") List<ArticleTagDO> batchList);
 }

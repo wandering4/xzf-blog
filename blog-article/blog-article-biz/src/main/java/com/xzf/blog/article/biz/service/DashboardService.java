@@ -1,10 +1,9 @@
 package com.xzf.blog.article.biz.service;
 
-import com.xzf.blog.article.dto.request.dashboard.FindDashboardPVStatisticsInfoRspVO;
-import com.xzf.blog.article.dto.request.dashboard.FindDashboardStatisticsInfoRspVO;
+import com.xzf.blog.article.dto.response.dashboard.FindDashboardPVStatisticsInfoRspVO;
+import com.xzf.blog.article.dto.response.dashboard.FindDashboardStatisticsInfoRspVO;
 import com.xzf.blog.framework.commons.response.Response;
 
-import java.time.LocalDate;
 import java.util.Map;
 
 public interface DashboardService {

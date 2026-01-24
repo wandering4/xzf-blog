@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * @description: 发布评论
@@ -20,6 +21,7 @@ public class PublishCommentReqVO {
     /**
      * 回复的文章 ID
      */
+    @NotNull(message = "文章id不能为空")
     private Long articleId;
 
     @NotBlank(message = "评论内容不能为空")

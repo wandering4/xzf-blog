@@ -27,7 +27,7 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
      * @return
      */
     default Page<ArticleDO> selectPageList(Long current, Long size, String title,
-                                           LocalDate startDate, LocalDate endDate, Integer type) {
+                                           LocalDate startDate, LocalDate endDate, Integer type, Long authorId) {
         // 分页对象(查询第几页、每页多少数据)
         Page<ArticleDO> page = new Page<>(current, size);
 
@@ -37,6 +37,36 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
                 .ge(Objects.nonNull(startDate), ArticleDO::getCreateTime, startDate) // 大于等于 startDate
                 .le(Objects.nonNull(endDate), ArticleDO::getCreateTime, endDate)  // 小于等于 endDate
                 .eq(ArticleDO::getStatus,ArticleStatusEnum.ENABLE.getCode()) // 文章类型
+                .eq(Objects.nonNull(authorId),ArticleDO::getAuthorId,authorId)
+                .orderByDesc(ArticleDO::getCreateTime); // 按创建时间倒叙
+
+        return selectPage(page, wrapper);
+    }
+
+    /**
+     * 分页查询（支持articleId列表过滤）
+     * @param current
+     * @param size
+     * @param title
+     * @param startDate
+     * @param endDate
+     * @param articleIds
+     * @return
+     */
+    default Page<ArticleDO> selectPageListWithArticleIds(Long current, Long size, String title,
+                                                        LocalDate startDate, LocalDate endDate,
+                                                        List<Long> articleIds, Long authorId) {
+        // 分页对象(查询第几页、每页多少数据)
+        Page<ArticleDO> page = new Page<>(current, size);
+
+        // 构建查询条件
+        LambdaQueryWrapper<ArticleDO> wrapper = Wrappers.<ArticleDO>lambdaQuery()
+                .like(StringUtils.isNotBlank(title), ArticleDO::getTitle, title) // like 模块查询
+                .ge(Objects.nonNull(startDate), ArticleDO::getCreateTime, startDate) // 大于等于 startDate
+                .le(Objects.nonNull(endDate), ArticleDO::getCreateTime, endDate)  // 小于等于 endDate
+                .eq(ArticleDO::getStatus,ArticleStatusEnum.ENABLE.getCode()) // 文章状态
+                .in(Objects.nonNull(articleIds) && !articleIds.isEmpty(), ArticleDO::getId, articleIds) // articleId 过滤
+                .eq(Objects.nonNull(authorId),ArticleDO::getAuthorId,authorId)
                 .orderByDesc(ArticleDO::getCreateTime); // 按创建时间倒叙
 
         return selectPage(page, wrapper);

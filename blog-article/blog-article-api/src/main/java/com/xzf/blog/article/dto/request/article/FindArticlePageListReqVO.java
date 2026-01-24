@@ -2,16 +2,16 @@ package com.xzf.blog.article.dto.request.article;
 
 import com.xzf.blog.framework.commons.request.BasePageQuery;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 public class FindArticlePageListReqVO extends BasePageQuery {
 
     /**

@@ -27,6 +27,20 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
+    @PostMapping("/list")
+    @ApiOperationLog(description = "分类分页数据获取")
+    public PageResponse findCategoryPageList(@RequestBody @Validated FindCategoryPageListReqVO findCategoryPageListReqVO) {
+        return categoryService.findCategoryPageList(findCategoryPageListReqVO);
+    }
+
+    @PostMapping("/select/list")
+    @ApiOperationLog(description = "分类 Select 下拉列表数据获取")
+    public Response<List<SelectRspVO>> findCategorySelectList() {
+        return categoryService.findCategorySelectList();
+    }
+
+    /*==================================  管理系统接口  ====================================*/
+
     @PostMapping("/add")
     @ApiOperationLog(description = "添加分类")
 //    @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -40,18 +54,5 @@ public class CategoryController {
     public Response deleteCategory(@RequestBody @Validated DeleteCategoryReqVO deleteCategoryReqVO) {
         return categoryService.deleteCategory(deleteCategoryReqVO);
     }
-
-    @PostMapping("/list")
-    @ApiOperationLog(description = "分类分页数据获取")
-    public PageResponse findCategoryPageList(@RequestBody @Validated FindCategoryPageListReqVO findCategoryPageListReqVO) {
-        return categoryService.findCategoryPageList(findCategoryPageListReqVO);
-    }
-
-    @PostMapping("/select/list")
-    @ApiOperationLog(description = "分类 Select 下拉列表数据获取")
-    public Response<List<SelectRspVO>> findCategorySelectList() {
-        return categoryService.findCategorySelectList();
-    }
-
 
 }

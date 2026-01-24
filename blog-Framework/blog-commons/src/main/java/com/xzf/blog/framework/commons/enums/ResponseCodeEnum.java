@@ -11,6 +11,8 @@ public enum ResponseCodeEnum implements BaseExceptionInterface {
     // ----------- 通用异常状态码 -----------
     SYSTEM_ERROR("COMMON-10000", "出错啦，后台小哥正在努力修复中..."),
     PARAM_NOT_VALID("COMMON-10001", "参数错误"),
+    NOT_LOGIN("COMMON-10002", "未登录，请先登录"),
+    NOT_HAVE_PERMISSION("COMMON-10003", "没有权限"),
 
     ;
 

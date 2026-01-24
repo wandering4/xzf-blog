@@ -20,12 +20,7 @@ public enum BizResponseCodeEnum implements BaseExceptionInterface {
     ARTICLE_NOT_FOUND("20010", "该文章不存在！"),
     CATEGORY_CAN_NOT_DELETE("20011", "该分类下包含文章，请先删除对应文章，才能删除！"),
     TAG_CAN_NOT_DELETE("20012", "该标签下包含文章，请先删除对应文章，才能删除！"),
-    WIKI_NOT_FOUND("20013", "该知识库不存在"),
-    NOT_QQ_NUMBER("20014", "QQ 号格式不正确"),
-    COMMENT_CONTAIN_SENSITIVE_WORD("20015", "评论内容中包含敏感词，请重新编辑后再提交"),
-    COMMENT_WAIT_EXAMINE("20016", "评论已提交, 等待博主审核通过"),
-    COMMENT_NOT_FOUND("20017", "该评论不存在"),
-    COMMENT_STATUS_NOT_WAIT_EXAMINE("20018", "该评论未处于待审核状态"),
+    EXCEED_PICTURE_LIMIT("20013", "超过最大广告图片可配置数"),
 
     ;
 

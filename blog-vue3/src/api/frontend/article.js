@@ -5,6 +5,11 @@ export function getArticlePageList(data) {
     return axios.post("/article/list", data)
 }
 
+// 获取个人主页文章分页数据
+export function getPersonalArticlePageList(data) {
+    return axios.post("/article/personal/list", data)
+}
+
 // 删除文章
 export function deleteArticle(id) {
     return axios.post("/article/delete", {id})

@@ -1,6 +1,7 @@
 package com.xzf.blog.comment.biz.service;
 
 import com.xzf.blog.comment.dto.request.CommentIdReqVO;
+import com.xzf.blog.comment.dto.request.CommentPageRequest;
 import com.xzf.blog.comment.dto.request.CountCommentReqVO;
 import com.xzf.blog.comment.dto.request.PublishCommentReqVO;
 import com.xzf.blog.comment.dto.response.CommentCountVO;
@@ -30,9 +31,8 @@ public interface CommentService {
      * @param req
      * @return
      */
-    PageResponse<FindCommentPageListVO> findCommentPageList(BasePageQuery req);
+    PageResponse<FindCommentPageListVO> findCommentPageList(CommentPageRequest req);
 
-    PageResponse<FindCommentPageListVO> findCommentAdminPageList(BasePageQuery req);
 
     /**
      * 获取评论数

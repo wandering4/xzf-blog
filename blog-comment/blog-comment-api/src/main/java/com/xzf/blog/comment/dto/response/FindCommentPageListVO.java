@@ -15,22 +15,15 @@ public class FindCommentPageListVO {
 
     private Long id;
 
-    private String routerUrl;
+    private String avatarUrl;
 
-    private String avatar;
+    private String userName;
 
-    private String nickname;
-
-    private String mail;
-
-    private String website;
-
-    private LocalDateTime createTime;
+    private String articleName;
 
     private String content;
 
-    private Integer status;
+    private LocalDateTime createTime;
 
-    private String reason;
 }
 

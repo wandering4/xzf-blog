@@ -49,8 +49,8 @@
             <!-- 分页 -->
             <div class="mt-10 flex justify-center">
                 <el-pagination v-model:current-page="current" v-model:page-size="size" :page-sizes="[10, 20, 50]"
-                :small="false" :background="true" layout="total, sizes, prev, pager, next, jumper"
-                :total="total" @size-change="handleSizeChange" @current-change="getTableData" />
+                    :small="false" :background="true" layout="total, sizes, prev, pager, next, jumper" :total="total"
+                    @size-change="handleSizeChange" @current-change="getTableData" />
             </div>
 
         </el-card>

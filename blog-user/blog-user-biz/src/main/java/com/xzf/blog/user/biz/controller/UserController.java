@@ -1,5 +1,6 @@
 package com.xzf.blog.user.biz.controller;
 
+import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
 import com.xzf.blog.user.biz.model.vo.request.UpdatePasswordRequest;
 import com.xzf.blog.user.biz.model.vo.request.UpdateUserInfoRequest;
@@ -53,8 +54,16 @@ public class UserController {
      */
     @PostMapping(value = "/delete")
     @ApiOperationLog(description = "删除用户")
+    @PreAuthorize(hasRoles = "root")
     public Response<?> updateUserInfo(@Validated UserIdRequest req) {
         return userService.deleteUser(req);
+    }
+
+    @PostMapping(value = "/list")
+    @ApiOperationLog(description = "用户列表")
+    @PreAuthorize(hasRoles = "root")
+    public PageResponse<?> findUserPage(@Validated @RequestBody FindUserPageRequest req) {
+        return userService.findUserPage(req);
     }
 
     @PostMapping("/findByPhone")

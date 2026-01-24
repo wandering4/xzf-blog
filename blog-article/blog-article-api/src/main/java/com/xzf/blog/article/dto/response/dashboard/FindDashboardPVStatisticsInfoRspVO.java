@@ -1,4 +1,4 @@
-package com.xzf.blog.article.dto.request.dashboard;
+package com.xzf.blog.article.dto.response.dashboard;
 
 
 import lombok.AllArgsConstructor;

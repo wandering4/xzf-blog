@@ -30,20 +30,6 @@ public class TagController {
     @Autowired
     private TagService tagService;
 
-    @PostMapping("/add")
-    @ApiOperationLog(description = "添加标签")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public Response addTags(@RequestBody @Validated AddTagReqVO addTagReqVO) {
-        return tagService.addTags(addTagReqVO);
-    }
-
-    @PostMapping("/delete")
-    @ApiOperationLog(description = "删除标签")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public Response deleteTag(@RequestBody @Validated DeleteTagReqVO deleteTagReqVO) {
-        return tagService.deleteTag(deleteTagReqVO);
-    }
-
     @PostMapping("/search")
     @ApiOperationLog(description = "搜索标签")
     public Response<List<SelectRspVO>> searchTag(@RequestBody @Validated SearchTagReqVO req) {
@@ -60,6 +46,22 @@ public class TagController {
     @ApiOperationLog(description = "分类 Select 下拉列表数据获取")
     public Response findTagSelectList() {
         return tagService.findTagSelectList();
+    }
+
+    /*==================================  管理系统接口  ====================================*/
+
+    @PostMapping("/add")
+    @ApiOperationLog(description = "添加标签")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public Response addTags(@RequestBody @Validated AddTagReqVO addTagReqVO) {
+        return tagService.addTags(addTagReqVO);
+    }
+
+    @PostMapping("/delete")
+    @ApiOperationLog(description = "删除标签")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public Response deleteTag(@RequestBody @Validated DeleteTagReqVO deleteTagReqVO) {
+        return tagService.deleteTag(deleteTagReqVO);
     }
 
 

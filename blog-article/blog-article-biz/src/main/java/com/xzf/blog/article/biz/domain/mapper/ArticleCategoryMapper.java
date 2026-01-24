@@ -61,6 +61,16 @@ public interface ArticleCategoryMapper extends BaseMapper<ArticleCategoryDO> {
     }
 
     /**
+     * 根据分类 ID 集合批量查询
+     * @param categoryIds
+     * @return
+     */
+    default List<ArticleCategoryDO> selectByCategoryIds(List<Long> categoryIds) {
+        return selectList(Wrappers.<ArticleCategoryDO>lambdaQuery()
+                .in(ArticleCategoryDO::getCategoryId, categoryIds));
+    }
+
+    /**
      * 统计分类下的文章数量
      * @param categoryId
      * @return

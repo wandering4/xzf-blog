@@ -4,12 +4,16 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.alibaba.nacos.shaded.com.google.common.base.Preconditions;
 import com.alibaba.nacos.shaded.com.google.common.collect.Lists;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xzf.blog.framework.commons.exception.BizException;
+import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
 import com.xzf.blog.framework.commons.util.JsonUtils;
 import com.xzf.blog.framework.commons.util.ParamUtils;
 import com.xzf.blog.user.biz.constant.MQConstants;
 import com.xzf.blog.user.biz.constant.RedisKeyConstants;
+import com.xzf.blog.user.biz.convert.UserConvert;
+import com.xzf.blog.user.biz.domain.dataobject.RoleDO;
 import com.xzf.blog.user.biz.domain.dataobject.UserDO;
 import com.xzf.blog.user.biz.domain.dataobject.UserRoleDO;
 import com.xzf.blog.user.biz.domain.mapper.RoleDOMapper;
@@ -25,6 +29,7 @@ import com.xzf.blog.user.biz.service.UserService;
 import com.xzf.blog.user.dto.req.*;
 import com.xzf.blog.user.dto.resp.FindUserByIdResponse;
 import com.xzf.blog.user.dto.resp.FindUserByPhoneRspDTO;
+import com.xzf.blog.user.dto.resp.FindUserPageListRspVO;
 import com.xzf.blog.user.dto.resp.LoginUserInfoResponse;
 import com.xzf.framework.biz.context.holder.LoginUserContextHolder;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +46,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -464,4 +470,32 @@ public class UserServiceImpl implements UserService {
         return Response.success(loginUserInfoResponse);
     }
 
+    @Override
+    public PageResponse<FindUserPageListRspVO> findUserPage(FindUserPageRequest req) {
+        Long current = req.getCurrent();
+        Long size = req.getSize();
+        String name = req.getName();
+
+        // 查询用户表
+        Page<UserDO> commentDOPage = userDOMapper.selectPageList(current,size,name);
+        List<UserDO> userDOs = commentDOPage.getRecords();
+
+        // DO 转 VO
+        List<FindUserPageListRspVO> vos = null;
+        if (!CollectionUtils.isEmpty(userDOs)) {
+            // 查询所有相关角色
+            List<Long> userIds = userDOs.stream().map(UserDO::getId).toList();
+            List<UserRoleDO> userRoleDOS = userRoleDOMapper.selectByUserIds(userIds);
+            List<Long> roleIds = userRoleDOS.stream().map(UserRoleDO::getRoleId).toList();
+            List<RoleDO> roles = roleDOMapper.selectBatchIds(roleIds);
+
+            // 构建<用户id，角色>映射
+            Map<Long,RoleDO> roleMap = roles.stream().collect(Collectors.toMap(RoleDO::getId, p -> p));
+
+            vos = userDOs.stream()
+                    .map(userDO-> UserConvert.userDOtoPageVO(userDO,roleMap.get(userDO.getId())))
+                    .toList();
+        }
+        return PageResponse.success(commentDOPage, vos);
+    }
 }

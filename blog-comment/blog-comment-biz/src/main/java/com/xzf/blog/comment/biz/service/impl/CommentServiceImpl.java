@@ -8,6 +8,7 @@ import com.xzf.blog.comment.biz.domain.mapper.CommentDOMapper;
 import com.xzf.blog.comment.biz.exception.BizResponseCodeEnum;
 import com.xzf.blog.comment.biz.service.CommentService;
 import com.xzf.blog.comment.dto.request.CommentIdReqVO;
+import com.xzf.blog.comment.dto.request.CommentPageRequest;
 import com.xzf.blog.comment.dto.request.CountCommentReqVO;
 import com.xzf.blog.comment.dto.request.PublishCommentReqVO;
 import com.xzf.blog.comment.dto.response.CommentCountItem;
@@ -65,37 +66,22 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public PageResponse<FindCommentPageListVO> findCommentPageList(BasePageQuery req) {
+    public PageResponse<FindCommentPageListVO> findCommentPageList(CommentPageRequest req) {
         // 获取当前页、以及每页需要展示的数据数量
         Long current = req.getCurrent();
         Long size = req.getSize();
-        Long userId = LoginUserContextHolder.getUserId();
+        Long articleId = req.getArticleId();
+        Long userId = req.getUserId();
 
         // 执行分页查询
-        Page<CommentDO> commentDOPage = commentDOMapper.selectPageList(current, size, userId);
+        Page<CommentDO> commentDOPage = commentDOMapper.selectPageList(current, size, articleId, userId, req.getStartDate(), req.getEndDate());
 
         List<CommentDO> commentDOS = commentDOPage.getRecords();
 
-        // DO 转 VO
-        List<FindCommentPageListVO> vos = null;
-        if (!CollectionUtils.isEmpty(commentDOS)) {
-            vos = commentDOS.stream()
-                    .map(CommentConvert.INSTANCE::convertDO2VO)
-                    .collect(Collectors.toList());
-        }
-        return PageResponse.success(commentDOPage, vos);
-    }
+        List<Long> articleIds = commentDOS.stream().map(CommentDO::getArticleId).toList();
+        List<Long> userIds = commentDOS.stream().map(CommentDO::getUserId).toList();
 
-    @Override
-    public PageResponse<FindCommentPageListVO> findCommentAdminPageList(BasePageQuery req) {
-        // 获取当前页、以及每页需要展示的数据数量
-        Long current = req.getCurrent();
-        Long size = req.getSize();
-
-        // 执行分页查询
-        Page<CommentDO> commentDOPage = commentDOMapper.selectPageList(current, size);
-
-        List<CommentDO> commentDOS = commentDOPage.getRecords();
+        // TODO:rpc查询信息
 
         // DO 转 VO
         List<FindCommentPageListVO> vos = null;

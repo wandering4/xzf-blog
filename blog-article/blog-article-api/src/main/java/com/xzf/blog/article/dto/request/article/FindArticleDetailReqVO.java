@@ -13,5 +13,5 @@ public class FindArticleDetailReqVO {
     /**
      * 文章 ID
      */
-    private Long articleId;
+    private Long id;
 }
