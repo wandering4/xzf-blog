@@ -44,11 +44,6 @@ const handleSelect = (path) => {
 
 const menus = [
     {
-        'name': '仪表盘',
-        'icon': 'Monitor',
-        'path': '/admin/index'
-    },
-    {
         'name': '文章管理',
         'icon': 'Document',
         'path': '/admin/article/list',
@@ -69,9 +64,9 @@ const menus = [
         'path': '/admin/comment/list',
     },
     {
-        'name': '博客设置',
-        'icon': 'Setting',
-        'path': '/admin/blog/settings',
+        'name': '广告图管理',
+        'icon': 'Picture',
+        'path': '/admin/advertisement/list',
     },
 ]
 </script>

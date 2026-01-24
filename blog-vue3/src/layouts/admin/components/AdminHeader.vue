@@ -50,8 +50,8 @@
                     <span class="el-dropdown-link flex items-center justify-center text-gray-700 text-xs">
                         <!-- 头像 Avatar -->
                         <el-avatar class="mr-2" :size="25"
-                            src="https://img.quanxiaoha.com/quanxiaoha/f97361c0429d4bb1bc276ab835843065.jpg" />
-                        {{ userStore.userInfo.username }}
+                            :src="userStore.userInfo.avatarUrl || '/src/assets/developer.png'" />
+                        {{ userStore.userInfo.username || userStore.userInfo.userName }}
                         <el-icon class="el-icon--right">
                             <arrow-down />
                         </el-icon>

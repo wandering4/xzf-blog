@@ -22,7 +22,7 @@ router.beforeEach((to, from, next) => {
         // 若用户已经登录，且重复访问登录页
         showMessage('请勿重复登录', 'warning')
         // 跳转后台首页
-        next({ path: '/admin/index' })
+        next({ path: '/admin/article/list' })
     } else if (!to.path.startsWith('/admin')) {
         // 如果访问的非 /admin 前缀路由
         // 前端页面使用写死的数据，不请求接口

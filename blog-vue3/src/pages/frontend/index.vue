@@ -84,12 +84,12 @@
                             </a>
                         </li>
                         <!-- 页码 -->
-                        <li v-for="(pageNo, index) in pages" :key="index">
+                        <li v-for="pageNo in pageNumbers" :key="pageNo">
                             <a @click="getArticles(pageNo)"
                                 class="flex items-center justify-center px-4 h-10 leading-tight border  dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                                 :class="[pageNo == current ? 'text-sky-600  bg-sky-50 border-sky-500 hover:bg-sky-100 hover:text-sky-700' : 'text-gray-500 border-gray-300 bg-white hover:bg-gray-100 hover:text-gray-700']"
                                 >
-                                {{ index + 1 }}
+                                {{ pageNo }}
                             </a>
                         </li>
                         <!-- 下一页 -->
@@ -142,7 +142,7 @@ import CategoryListCard from '@/layouts/frontend/components/CategoryListCard.vue
 import TagListCard from '@/layouts/frontend/components/TagListCard.vue'
 import ScrollToTopButton from '@/layouts/frontend/components/ScrollToTopButton.vue'
 import { initTooltips } from 'flowbite'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { getArticlePageList } from '@/api/frontend/article'
 import { useRouter } from 'vue-router'
 
@@ -171,6 +171,15 @@ const total = ref(0)
 // 总共多少页
 const pages = ref(0)
 
+// 生成页码数组
+const pageNumbers = computed(() => {
+    const numbers = []
+    for (let i = 1; i <= pages.value; i++) {
+        numbers.push(i)
+    }
+    return numbers
+})
+
 
 function getArticles(currentNo) {
     // 上下页是否能点击判断，当要跳转上一页且页码小于 1 时，则不允许跳转；当要跳转下一页且页码大于总页数时，则不允许跳转
@@ -178,16 +187,16 @@ function getArticles(currentNo) {
     // 调用分页接口渲染数据
     getArticlePageList({current: currentNo, size: size.value}).then((res) => {
         if (res.success) {
-            articles.value = res.data
-            current.value = res.current
-            size.value = res.size
-            total.value = res.total
-            pages.value = res.pages
+            articles.value = res.data  // 直接使用data数组
+            current.value = res.pageNo
+            size.value = res.pageSize
+            total.value = res.totalCount
+            pages.value = res.totalPage
         }
     })
 }
-// 暂时注释掉自动获取文章，避免触发API调用
-// getArticles(current.value)
+// 页面初始化时获取文章数据
+getArticles(current.value)
 
 // 跳转文章详情页
 const goArticleDetailPage = (articleId) => {

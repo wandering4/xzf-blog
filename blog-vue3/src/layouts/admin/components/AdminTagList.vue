@@ -2,7 +2,7 @@
     <!-- 左边：标签导航栏 -->
     <div class="fixed top-[64px] h-[44px] px-2 right-0 z-50 flex items-center bg-white transition-all duration-300 shadow" :style="{left: menuStore.menuWidth}">
         <el-tabs v-model="activeTab" type="card" class="demo-tabs" @tab-remove="removeTab" @tab-change="tabChange" style="min-width: 10px;">
-            <el-tab-pane v-for="item in tabList" :key="item.path" :label="item.title" :name="item.path" :closable="item.path != '/admin/index'">
+            <el-tab-pane v-for="item in tabList" :key="item.path" :label="item.title" :name="item.path" :closable="item.path != '/admin/article/list'">
             </el-tab-pane>
         </el-tabs>
 
@@ -29,7 +29,7 @@
 <script setup>
 import { useTabList } from '@/composables/useTagList.js'
 
-const { menuStore, activeTab, tabList, tabChange, removeTab, handleCloseTab } = useTabList()
+const { menuStore, activeTab, tabList, tabChange, removeTab, handleCloseTab } = useTabList('admin')
 </script>
 
 <style>

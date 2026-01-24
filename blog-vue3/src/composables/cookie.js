@@ -28,11 +28,13 @@ export function removeToken() {
 const TAB_LIST_KEY = 'tabList'
 
 // 获取 TabList
-export function getTabList() {
-    return cookie.get(TAB_LIST_KEY)
+export function getTabList(system = 'admin') {
+    const key = system === 'personal' ? 'personalTabList' : 'adminTabList'
+    return cookie.get(key)
 }
 
 // 存储 TabList 到 Cookie 中
-export function setTabList(tabList) {
-    return cookie.set(TAB_LIST_KEY, tabList)
+export function setTabList(tabList, system = 'admin') {
+    const key = system === 'personal' ? 'personalTabList' : 'adminTabList'
+    return cookie.set(key, tabList)
 }

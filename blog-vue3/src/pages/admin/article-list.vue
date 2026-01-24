@@ -61,7 +61,7 @@
                             <el-icon class="mr-1">
                                 <View />
                             </el-icon>
-                            预览</el-button>
+                            查看</el-button>
                         <el-button type="danger" size="small" @click="deleteArticleSubmit(scope.row)">
                             <el-icon class="mr-1">
                                 <Delete />
@@ -176,6 +176,13 @@
                 </el-form-item>
                 <el-form-item label="内容" prop="content">
                     <!-- Markdown 编辑器 -->
+                    <div class="mb-2">
+                        <el-alert
+                            title="提示：当前显示的是 HTML 格式内容，请手动转换为 Markdown 格式进行编辑"
+                            type="warning"
+                            :closable="false"
+                            show-icon />
+                    </div>
                     <MdEditor v-model="updateArticleForm.content" @onUploadImg="onUploadImg"
                         editorId="updateArticleEditor" />
                 </el-form-item>
@@ -522,13 +529,13 @@ const showArticleUpdateEditor = (row) => {
     getArticleDetail(articleId).then((res) => {
         if (res.success) {
             // 设置表单数据
-            updateArticleForm.id = res.data.id
+            updateArticleForm.id = articleId // 从 row 中获取文章 ID
             updateArticleForm.title = res.data.title
-            updateArticleForm.cover = res.data.cover
-            updateArticleForm.content = res.data.content
+            updateArticleForm.cover = row.cover || '' // 从表格行数据中获取封面，如果没有则为空
+            updateArticleForm.content = res.data.content // HTML 内容，需要用户手动转换为 Markdown
             updateArticleForm.categoryId = res.data.categoryId
-            updateArticleForm.tags = res.data.tagIds
-            updateArticleForm.summary = res.data.summary
+            updateArticleForm.tags = res.data.tags ? res.data.tags.map(tag => tag.id) : [] // 提取标签 ID 数组
+            updateArticleForm.summary = '' // 新的接口没有摘要字段，设置为空
         }
     })
 }

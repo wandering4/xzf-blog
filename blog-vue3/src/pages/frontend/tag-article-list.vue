@@ -268,11 +268,11 @@
                             </a>
                         </li>
                         <!-- 页码 -->
-                        <li v-for="(pageNo, index) in pages" :key="index">
+                        <li v-for="pageNo in pageNumbers" :key="pageNo">
                             <a @click="getTagArticles(pageNo)"
                                 class="flex items-center justify-center px-4 h-10 leading-tight border  dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                                 :class="[pageNo == current ? 'text-sky-600  bg-sky-50 border-sky-500 hover:bg-sky-100 hover:text-sky-700' : 'text-gray-500 border-gray-300 bg-white hover:bg-gray-100 hover:text-gray-700']">
-                                {{ index + 1 }}
+                                {{ pageNo }}
                             </a>
                         </li>
                         <!-- 下一页 -->
@@ -322,7 +322,7 @@ import Carousel from '@/layouts/frontend/components/Carousel.vue'
 import TagListCard from '@/layouts/frontend/components/TagListCard.vue'
 import CategoryListCard from '@/layouts/frontend/components/CategoryListCard.vue'
 import ScrollToTopButton from '@/layouts/frontend/components/ScrollToTopButton.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getTagArticlePageList, getTagList } from '@/api/frontend/tag'
 
@@ -340,7 +340,11 @@ const tagId = ref(route.query.id)
 watch(route, (newRoute, oldRoute) => {
     tagName.value = newRoute.query.name
     tagId.value = newRoute.query.id
-    getTagArticles(current.value)
+    // 重置到第一页
+    current.value = 1
+    if (tagId.value) {
+        getTagArticles(current.value)
+    }
 })
 
 // 当前页码
@@ -352,21 +356,36 @@ const total = ref(0)
 // 总共多少页
 const pages = ref(0)
 
+// 生成页码数组
+const pageNumbers = computed(() => {
+    const numbers = []
+    for (let i = 1; i <= pages.value; i++) {
+        numbers.push(i)
+    }
+    return numbers
+})
+
 function getTagArticles(currentNo) {
+    // 检查是否有有效的标签ID
+    if (!tagId.value) return
+
     // 上下页是否能点击判断，当要跳转上一页且页码小于 1 时，则不允许跳转；当要跳转下一页且页码大于总页数时，则不允许跳转
     if (currentNo < 1 || (pages.value > 0 && currentNo > pages.value)) return
     // 调用分页接口渲染数据
     getTagArticlePageList({ current: currentNo, size: size.value, id: tagId.value }).then((res) => {
         if (res.success) {
             articles.value = res.data
-            current.value = res.current
-            size.value = res.size
-            total.value = res.total
-            pages.value = res.pages
+            current.value = res.pageNo
+            size.value = res.pageSize
+            total.value = res.totalCount
+            pages.value = res.totalPage
         }
     })
 }
-getTagArticles(current.value)
+// 页面初始化时获取文章数据
+if (tagId.value) {
+    getTagArticles(current.value)
+}
 
 // 跳转文章详情页
 const goArticleDetailPage = (articleId) => {

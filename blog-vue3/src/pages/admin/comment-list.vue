@@ -4,23 +4,11 @@
         <el-card shadow="never" class="mb-5">
             <!-- flex 布局，内容垂直居中 -->
             <div class="flex items-center">
-                <el-text>路由地址</el-text>
-                <div class="ml-3 w-52 mr-5"><el-input v-model="searchRouterUrl" placeholder="请输入（模糊查询）" clearable />
-                </div>
-
                 <el-text>创建日期</el-text>
                 <div class="ml-3 w-30 mr-5">
                     <!-- 日期选择组件（区间选择） -->
                     <el-date-picker v-model="pickDate" type="daterange" range-separator="至" start-placeholder="开始时间"
                         end-placeholder="结束时间" size="default" :shortcuts="shortcuts" @change="datepickerChange" />
-                </div>
-
-                <el-text>状态</el-text>
-                <div class="ml-3 w-30 mr-5">
-                    <el-select v-model="status" placeholder="---请选择---">
-                        <el-option v-for="item in statusOptions" :key="item.value" :label="item.label"
-                            :value="item.value" />
-                    </el-select>
                 </div>
 
                 <el-button type="primary" class="ml-3" :icon="Search" @click="getTableData">查询</el-button>
@@ -32,12 +20,6 @@
             <!-- 分页列表 -->
             <el-table :data="tableData" border stripe v-loading="tableLoading" table-layout="auto">
                 <el-table-column type="index" label="序号" width="60" />
-                <el-table-column prop="routerUrl" label="路由">
-                    <template #default="scope">
-                        <el-link type="primary" :href="'#' + scope.row.routerUrl" target="_blank">{{ scope.row.routerUrl
-                            }}</el-link>
-                    </template>
-                </el-table-column>
                 <el-table-column prop="avatar" label="头像" width="60">
                     <template #default="scope">
                         <el-avatar :size="40" :src="scope.row.avatar" />
@@ -46,24 +28,11 @@
                 <el-table-column prop="nickname" label="昵称" />
                 <el-table-column prop="content" label="评论内容" />
                 <el-table-column prop="createTime" label="发布时间" width="200" />
-                <el-table-column prop="status" label="状态">
-                    <template #default="scope">
-                        <el-tag type="warning" v-if="scope.row.status == 1">待审核</el-tag>
-                        <el-tag type="success" v-else-if="scope.row.status == 2">正常</el-tag>
-                        <el-tag type="danger" v-else-if="scope.row.status == 3">审核不通过</el-tag>
-                    </template>
-                </el-table-column>
-                <el-table-column fixed="right" label="操作" width="150">
+                <el-table-column fixed="right" label="操作" width="120">
                     <template #default="scope">
 
                         <el-tooltip class="box-item" effect="dark" content="详情" placement="bottom">
                             <el-button size="small" :icon="Tickets" circle @click="showDetailDialog(scope.row)">
-                            </el-button>
-                        </el-tooltip>
-
-                        <el-tooltip v-if="scope.row.status == 1" class="box-item" effect="dark" content="审核"
-                            placement="bottom">
-                            <el-button size="small" :icon="Edit" circle @click="showEditDetailDialog(scope.row)">
                             </el-button>
                         </el-tooltip>
 
@@ -89,9 +58,6 @@
         <!-- 查看评论详情 -->
         <el-dialog v-model="detailDialogVisible" title="评论详情" width="700">
             <el-form :model="commentDetail" label-width="auto">
-                <el-form-item label="路由">
-                    <el-input v-model="commentDetail.routerUrl" disabled />
-                </el-form-item>
                 <el-form-item label="头像">
                     <el-avatar :size="40" :src="commentDetail.avatar" />
                 </el-form-item>
@@ -111,11 +77,6 @@
                 <el-form-item label="发布时间">
                     <el-input v-model="commentDetail.createTime" disabled />
                 </el-form-item>
-                <el-form-item label="状态">
-                    <el-tag type="warning" v-if="commentDetail.status == 1">待审核</el-tag>
-                    <el-tag type="success" v-else-if="commentDetail.status == 2">正常</el-tag>
-                    <el-tag type="danger" v-else-if="commentDetail.status == 3">审核不通过</el-tag>
-                </el-form-item>
                 <el-form-item label="原因">
                     <el-input type="textarea" v-model="commentDetail.reason" disabled />
                 </el-form-item>
@@ -127,33 +88,16 @@
             </template>
         </el-dialog>
 
-        <!-- 评论审核 -->
-        <FormDialog ref="editDialogRef" title="审核评论" destroyOnClose @submit="onSubmit">
-            <el-form ref="formRef" :rules="rules" :model="form" label-width="auto">
-                <el-form-item label="状态" prop="status">
-                    <el-radio-group v-model="form.status">
-                        <el-radio label="2">通过</el-radio>
-                        <el-radio label="3">不通过</el-radio>
-                    </el-radio-group>
-                </el-form-item>
-                <el-form-item label="原因" prop="reason" v-if="form.status == 3">
-                    <el-input type="textarea" placeholder="请填写审核不通过的原因" v-model="form.reason" :rows="6" />
-                </el-form-item>
-            </el-form>
-        </FormDialog>
     </div>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { getCommentPageList, deleteComment, examineComment } from '@/api/admin/comment'
-import { Search, RefreshRight, Delete, Edit, Tickets } from '@element-plus/icons-vue'
+import { getCommentPageList, deleteComment } from '@/api/admin/comment'
+import { Search, RefreshRight, Delete, Tickets } from '@element-plus/icons-vue'
 import moment from 'moment'
 import { showMessage, showModel } from '@/composables/util'
-import FormDialog from '@/components/FormDialog.vue'
 
-// 模糊搜索的路由
-const searchRouterUrl = ref('')
 // 日期
 const pickDate = ref('')
 
@@ -199,31 +143,12 @@ const shortcuts = [
     },
 ]
 
-// 当前选择的评论状态
-const status = ref(null)
-// 评论状态 select
-const statusOptions = [
-    {
-        value: 1,
-        label: '待审核',
-    },
-    {
-        value: 2,
-        label: '正常',
-    },
-    {
-        value: 3,
-        label: '审核未通过',
-    },
-]
 
 // 重置
 const reset = () => {
     pickDate.value = ''
     startDate.value = null
     endDate.value = null
-    searchRouterUrl.value = ''
-    status.value = null
 }
 
 // 表格加载 Loading
@@ -244,7 +169,7 @@ function getTableData() {
     // 调用后台分页接口，并传入所需参数
     getCommentPageList({
         current: current.value, size: size.value, startDate: startDate.value,
-        endDate: endDate.value, routerUrl: searchRouterUrl.value, status: status.value
+        endDate: endDate.value
     })
         .then((res) => {
             if (res.success == true) {
@@ -298,72 +223,4 @@ const showDetailDialog = (row) => {
     commentDetail.value = row
 }
 
-// 表单引用
-const formRef = ref(null)
-// 评论审核表单对象
-const form = reactive({
-    id: null,
-    status: '2',
-    reason: ''
-})
-
-// 规则校验
-const rules = {
-    status: [
-        {
-            required: true,
-            message: '状态不能为空',
-            trigger: 'blur',
-        },
-    ],
-    reason: [
-        {
-            required: true,
-            message: '原因不能为空',
-            trigger: 'blur',
-        },
-    ]
-}
-
-// 评论审核对话框引用
-const editDialogRef = ref(null)
-// 展示评论审核对话框
-const showEditDetailDialog = (row) => {
-    editDialogRef.value.open()
-    // 设置表单对象的评论 ID
-    form.id = row.id
-}
-
-const onSubmit = () => {
-    // 先验证 form 表单字段
-    formRef.value.validate((valid) => {
-        if (!valid) {
-            console.log('表单验证不通过')
-            return false
-        }
-        
-        // 显示提交按钮 loading
-        editDialogRef.value.showBtnLoading()
-        examineComment(form).then((res) => {
-            if (!res.success) {
-                // 获取服务端返回的错误消息
-                let message = res.message
-                // 提示错误消息
-                showMessage(message, 'error')
-                return
-            }
-
-            showMessage('审核完成')
-            // 将表单置空
-            form.id = null
-            form.status = 2
-            form.reason = ''
-            // 隐藏对话框
-            editDialogRef.value.close()
-            // 重新请求分页接口，渲染数据
-            getTableData()
-        }).finally(() => editDialogRef.value.closeBtnLoading()) // 隐藏提交按钮 loading
-
-    })
-}
 </script>

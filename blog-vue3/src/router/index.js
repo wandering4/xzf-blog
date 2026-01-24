@@ -6,14 +6,17 @@ import TagArticleList from '@/pages/frontend/tag-article-list.vue'
 import ArticleDetail from '@/pages/frontend/article-detail.vue'
 import NotFound from '@/pages/frontend/404.vue'
 import Login from '@/pages/admin/login.vue'
-import AdminIndex from '@/pages/admin/index.vue'
 import AdminArticleList from '@/pages/admin/article-list.vue'
 import AdminCategoryList from '@/pages/admin/category-list.vue'
 import AdminTagList from '@/pages/admin/tag-list.vue'
-import AdminBlogSettings from '@/pages/admin/blog-settings.vue'
 import AdminCommentList from '@/pages/admin/comment-list.vue'
+import AdminAdvertisementList from '@/pages/admin/advertisement-list.vue'
+import PersonalDashboard from '@/pages/personal/dashboard.vue'
+import PersonalBlogSettings from '@/pages/personal/blog-settings.vue'
+import PersonalArticleList from '@/pages/personal/article-list.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Admin from '@/layouts/admin/admin.vue'
+import Personal from '@/layouts/personal/personal.vue'
 
 // 统一在这里声明所有路由
 const routes = [
@@ -80,13 +83,6 @@ const routes = [
         // 使用到 admin.vue 布局的，都需要放置在其子路由下面
         children: [
             {
-                path: "/admin/index",
-                component: AdminIndex,
-                meta: {
-                    title: '仪表盘'
-                }
-            },
-            {
                 path: "/admin/article/list",
                 component: AdminArticleList,
                 meta: {
@@ -108,17 +104,46 @@ const routes = [
                 }
             },
             {
-                path: "/admin/blog/settings",
-                component: AdminBlogSettings,
+                path: "/admin/comment/list",
+                component: AdminCommentList,
+                meta: {
+                    title: '评论管理'
+                }
+            },
+            {
+                path: "/admin/advertisement/list",
+                component: AdminAdvertisementList,
+                meta: {
+                    title: '广告图管理'
+                }
+            },
+        ]
+
+    },
+    {
+        path: "/personal", // 个人主页
+        component: Personal,
+        // 使用到 personal.vue 布局的，都需要放置在其子路由下面
+        children: [
+            {
+                path: "/personal/dashboard",
+                component: PersonalDashboard,
+                meta: {
+                    title: '仪表盘'
+                }
+            },
+            {
+                path: "/personal/blog-settings",
+                component: PersonalBlogSettings,
                 meta: {
                     title: '博客设置'
                 }
             },
             {
-                path: "/admin/comment/list",
-                component: AdminCommentList,
+                path: "/personal/article/list",
+                component: PersonalArticleList,
                 meta: {
-                    title: '评论管理'
+                    title: '文章管理'
                 }
             },
         ]

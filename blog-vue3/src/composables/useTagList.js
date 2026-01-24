@@ -3,7 +3,7 @@ import { useMenuStore } from '@/stores/menu'
 import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router'
 import { setTabList, getTabList } from '@/composables/cookie'
 
-export function useTabList() {
+export function useTabList(system = 'admin') {
     const menuStore = useMenuStore()
     const route = useRoute()
     const router = useRouter()
@@ -11,10 +11,15 @@ export function useTabList() {
     // 当前被选中的 tab
     const activeTab = ref(route.path)
     // 导航栏 tab 数组
-    const tabList = ref([
+    const tabList = ref(system === 'personal' ? [
         {
             title: '仪表盘',
-            path: "/admin/index"
+            path: "/personal/dashboard"
+        },
+    ] : [
+        {
+            title: '文章管理',
+            path: "/admin/article/list"
         },
     ])
 
@@ -28,12 +33,12 @@ export function useTabList() {
             tabList.value.push(tab)
         }
         // 存储 tabList 到 cookie 中
-        setTabList(tabList.value)
+        setTabList(tabList.value, system)
     }
 
     function initTabList() {
         // 从 cookie 中获取缓存起来的标签导航栏数据
-        let tabs = getTabList()
+        let tabs = getTabList(system)
         // 若不为空，则赋值
         if (tabs) {
             tabList.value = tabs
@@ -99,7 +104,7 @@ export function useTabList() {
     // 处理关闭标签菜单事件
     const handleCloseTab = (command) => {
         // 首页路由
-        let indexPath = '/admin/index'
+        let indexPath = system === 'personal' ? '/personal/dashboard' : '/admin/article/list'
         // 处理关闭其他
         if (command == 'closeOthers') {
             // 仅过滤出首页和当前页

@@ -76,22 +76,33 @@
                     <!-- 登录 -->
                     <div class="text-gray-900 ml-1 mr-1 hover:text-sky-600 dark:text-white" v-if="!isLogined"
                         @click="$router.push('/login')">登录</div>
-                    <!-- 已经登录，展示用户头像 -->
-                    <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" v-else
-                        class="text-white ml-2 mr-2 md:mr-0 focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                        type="button">
-                        <!-- 用户登录头像 -->
-                        <img class="w-8 h-8 rounded-full" :src="userStore.userInfo.avatarUrl || '/src/assets/developer.png'" alt="user photo">
-                    </button>
-
-                    <!-- Dropdown menu -->
-                    <div id="dropdown"
-                        class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700">
-                        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-                            <li>
-                                <a @click="router.push('/admin/index')"
-                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                                    <svg class="inline w-3 h-3 mb-[2px] mr-1 text-gray-700 dark:text-white"
+                    <!-- 已经登录，展示用户头像和姓名 -->
+                    <el-dropdown class="flex items-center ml-2 mr-2 md:mr-0" @command="handleCommand" v-else>
+                        <span class="el-dropdown-link flex items-center justify-center text-gray-900 dark:text-white text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2 py-1 transition-colors">
+                            <div class="w-8 h-8 rounded-full overflow-hidden mr-2">
+                                <!-- 用户登录头像 -->
+                                <img class="w-full h-full object-cover" :src="userStore.userInfo.avatarUrl || '/src/assets/developer.png'" alt="user photo">
+                            </div>
+                            <!-- 用户姓名 -->
+                            {{ userStore.userInfo.username || userStore.userInfo.userName }}
+                            <el-icon class="el-icon--right ml-1">
+                                <arrow-down />
+                            </el-icon>
+                        </span>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item @click="router.push('/personal/dashboard')">
+                                    <svg class="inline w-3 h-3 mb-[2px] mr-2 text-gray-700 dark:text-white"
+                                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 20 20">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M4.333 6.764a3 3 0 1 1 3.141-5.023m-3.24.029a3.004 3.004 0 0 1 .736-1.979m11.834 0c.959.475 1.598 1.381 1.672 2.417m0 0a3.004 3.004 0 0 1-.736 1.979m-6.917 8.207L12 17l3.333-1.333-1.333-3.333L12 12.333z" />
+                                    </svg>
+                                    个人主页
+                                </el-dropdown-item>
+                                <el-dropdown-item @click="router.push('/admin/article/list')">
+                                    <svg class="inline w-3 h-3 mb-[2px] mr-2 text-gray-700 dark:text-white"
                                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                                         viewBox="0 0 20 20">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
@@ -99,12 +110,9 @@
                                             d="M10 14v4m-4 1h8M1 10h18M2 1h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z" />
                                     </svg>
                                     进入后台
-                                </a>
-                            </li>
-                            <li>
-                                <a data-modal-target="popup-modal" data-modal-toggle="popup-modal"
-                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                                    <svg class="inline w-3 h-3 mb-[2px] mr-1 text-gray-700 dark:text-white"
+                                </el-dropdown-item>
+                                <el-dropdown-item @click="handleLogout">
+                                    <svg class="inline w-3 h-3 mb-[2px] mr-2 text-gray-700 dark:text-white"
                                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                                         viewBox="0 0 16 16">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
@@ -112,10 +120,10 @@
                                             d="M4 8h11m0 0-4-4m4 4-4 4m-5 3H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h3" />
                                     </svg>
                                     退出登录
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                                </el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
 
 
 
@@ -436,6 +444,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { showMessage } from '@/composables/util'
 import { getArticleSearchPageList } from '@/api/frontend/search'
 import { useDark, useToggle } from '@vueuse/core'
+import { ElDropdown, ElDropdownMenu, ElDropdownItem } from 'element-plus'
 
 const modalOptions = {
     placement: 'top-center', // 弹框位置
@@ -519,6 +528,22 @@ const logout = () => {
     // 标记为未登录
     isLogined.value = false
     showMessage('退出登录成功')
+}
+
+// 处理下拉菜单命令
+const handleCommand = (command) => {
+    if (command === 'logout') {
+        handleLogout()
+    }
+}
+
+// 处理退出登录
+const handleLogout = () => {
+    // 触发模态框显示
+    const logoutModal = document.querySelector('[data-modal-target="popup-modal"]')
+    if (logoutModal) {
+        logoutModal.click()
+    }
 }
 
 // 点击搜索框
