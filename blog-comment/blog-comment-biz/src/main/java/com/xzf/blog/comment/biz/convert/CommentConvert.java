@@ -15,10 +15,4 @@ public interface CommentConvert {
      */
     CommentConvert INSTANCE = Mappers.getMapper(CommentConvert.class);
 
-    /**
-     * 将 DO 转化为 VO
-     * @param bean
-     * @return
-     */
-    FindCommentPageListVO convertDO2VO(CommentDO bean);
 }

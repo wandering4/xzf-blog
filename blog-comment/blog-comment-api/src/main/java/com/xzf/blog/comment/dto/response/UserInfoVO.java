@@ -5,23 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FindCommentPageListVO {
-
+public class UserInfoVO {
     private Long id;
-
-    private UserInfoVO userInfo;
-
-    private ArticleInfoVO articleInfo;
-
-    private String content;
-
-    private LocalDateTime createTime;
-
+    private String name;
+    private String avatarUrl;
 }
-

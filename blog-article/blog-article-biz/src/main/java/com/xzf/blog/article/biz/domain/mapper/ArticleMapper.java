@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xzf.blog.article.enums.ArticleIsTopEnum;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import com.xzf.blog.article.biz.domain.dataobject.ArticleDO;
@@ -19,6 +20,7 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
 
     /**
      * 分页查询
+     *
      * @param current
      * @param size
      * @param title
@@ -36,8 +38,9 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
                 .like(StringUtils.isNotBlank(title), ArticleDO::getTitle, title) // like 模块查询
                 .ge(Objects.nonNull(startDate), ArticleDO::getCreateTime, startDate) // 大于等于 startDate
                 .le(Objects.nonNull(endDate), ArticleDO::getCreateTime, endDate)  // 小于等于 endDate
-                .eq(ArticleDO::getStatus,ArticleStatusEnum.ENABLE.getCode()) // 文章类型
-                .eq(Objects.nonNull(authorId),ArticleDO::getAuthorId,authorId)
+                .eq(ArticleDO::getStatus, ArticleStatusEnum.ENABLE.getCode()) // 文章类型
+                .eq(Objects.nonNull(authorId), ArticleDO::getAuthorId, authorId)
+                .orderByDesc(ArticleDO::getIsTop)
                 .orderByDesc(ArticleDO::getCreateTime); // 按创建时间倒叙
 
         return selectPage(page, wrapper);
@@ -45,6 +48,7 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
 
     /**
      * 分页查询（支持articleId列表过滤）
+     *
      * @param current
      * @param size
      * @param title
@@ -54,19 +58,19 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
      * @return
      */
     default Page<ArticleDO> selectPageListWithArticleIds(Long current, Long size, String title,
-                                                        LocalDate startDate, LocalDate endDate,
-                                                        List<Long> articleIds, Long authorId) {
+                                                         LocalDate startDate, LocalDate endDate,
+                                                         List<Long> articleIds, Long authorId) {
         // 分页对象(查询第几页、每页多少数据)
         Page<ArticleDO> page = new Page<>(current, size);
-
         // 构建查询条件
         LambdaQueryWrapper<ArticleDO> wrapper = Wrappers.<ArticleDO>lambdaQuery()
                 .like(StringUtils.isNotBlank(title), ArticleDO::getTitle, title) // like 模块查询
                 .ge(Objects.nonNull(startDate), ArticleDO::getCreateTime, startDate) // 大于等于 startDate
                 .le(Objects.nonNull(endDate), ArticleDO::getCreateTime, endDate)  // 小于等于 endDate
-                .eq(ArticleDO::getStatus,ArticleStatusEnum.ENABLE.getCode()) // 文章状态
+                .eq(ArticleDO::getStatus, ArticleStatusEnum.ENABLE.getCode()) // 文章状态
                 .in(Objects.nonNull(articleIds) && !articleIds.isEmpty(), ArticleDO::getId, articleIds) // articleId 过滤
-                .eq(Objects.nonNull(authorId),ArticleDO::getAuthorId,authorId)
+                .eq(Objects.nonNull(authorId), ArticleDO::getAuthorId, authorId)
+                .orderByDesc(ArticleDO::getIsTop)
                 .orderByDesc(ArticleDO::getCreateTime); // 按创建时间倒叙
 
         return selectPage(page, wrapper);
@@ -80,6 +84,7 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
 
     /**
      * 查询过去一年内每天的文章发布数量统计
+     *
      * @return 日期 -> 发布数量的映射
      */
     @Select("SELECT DATE(create_time) as publish_date, COUNT(*) as article_count " +
@@ -93,20 +98,12 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
 
     /**
      * 获取所有文章的总浏览量
+     *
      * @return 总浏览量
      */
     @Select("SELECT SUM(view_count) FROM article WHERE status = #{status}")
     Long getTotalViewCount(@Param("status") Integer status);
 
-    /**
-     * 阅读量+1
-     * @param articleId
-     * @return
-     */
-    default int increaseReadNum(Long articleId) {
-        return update(null, Wrappers.<ArticleDO>lambdaUpdate()
-                .setSql("read_num = read_num + 1")
-                .eq(ArticleDO::getId, articleId));
-    }
+    int increaseViewCount(@Param("articleId") Long articleId, @Param("count") Integer count);
 
 }

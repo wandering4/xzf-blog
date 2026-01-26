@@ -1,5 +1,6 @@
 package com.xzf.blog.article.biz.domain.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.xzf.blog.article.biz.domain.dataobject.ArticleTagDO;
@@ -71,4 +72,10 @@ public interface ArticleTagMapper extends BaseMapper<ArticleTagDO> {
     }
 
     int batchInsert(@Param("list") List<ArticleTagDO> batchList);
+
+    default Long countArticlesByTagId(Long tagId){
+        LambdaQueryWrapper<ArticleTagDO> wrapper = Wrappers.<ArticleTagDO>lambdaQuery()
+                .eq(ArticleTagDO::getTagId, tagId);
+        return selectCount(wrapper);
+    }
 }

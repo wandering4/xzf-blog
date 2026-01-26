@@ -16,6 +16,7 @@ import java.util.List;
 public class FindIndexArticlePageListReqVO extends BasePageQuery {
     private List<Long> tagIds;
     private List<Long> categoryIds;
+    private Long userId;
     private String title;
     /**
      * 发布的起始日期

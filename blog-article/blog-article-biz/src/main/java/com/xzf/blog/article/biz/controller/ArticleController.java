@@ -1,7 +1,8 @@
 package com.xzf.blog.article.biz.controller;
 
-import com.xzf.blog.article.biz.model.vo.article.FindIndexArticlePageListRspVO;
+import com.xzf.blog.article.dto.response.article.FindIndexArticlePageListRspVO;
 import com.xzf.blog.article.biz.service.ArticleService;
+import com.xzf.blog.article.dto.IdsRequest;
 import com.xzf.blog.article.dto.request.article.*;
 import com.xzf.blog.article.dto.response.article.FindArticleDetailRspVO;
 import com.xzf.blog.framework.commons.response.PageResponse;
@@ -14,6 +15,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -28,10 +31,16 @@ public class ArticleController {
         return articleService.findArticlePageList(findIndexArticlePageListReqVO);
     }
 
+    @PostMapping("/getByIds")
+    @ApiOperationLog(description = "获取文章数据")
+    public Response<List<FindIndexArticlePageListRspVO>> getByIds(@RequestBody IdsRequest req) {
+        return articleService.getByIds(req);
+    }
+
     @PostMapping("/personal/list")
     @ApiOperationLog(description = "获取个人主页文章管理分页数据")
     public PageResponse<FindIndexArticlePageListRspVO> findPersonalArticlePageList(@RequestBody FindIndexArticlePageListReqVO findIndexArticlePageListReqVO) {
-        return articleService.findArticlePageList(findIndexArticlePageListReqVO);
+        return articleService.findPersonalArticlePageList(findIndexArticlePageListReqVO);
     }
 
 

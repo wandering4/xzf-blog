@@ -23,7 +23,6 @@ import com.xzf.blog.framework.commons.enums.RoleEnums;
 import com.xzf.blog.user.biz.exception.BizResponseCodeEnum;
 import com.xzf.blog.user.biz.model.vo.request.UpdatePasswordRequest;
 import com.xzf.blog.user.biz.model.vo.request.UpdateUserInfoRequest;
-import com.xzf.blog.user.biz.model.vo.response.FindUserProfileRspVO;
 import com.xzf.blog.user.biz.rpc.OssRpcService;
 import com.xzf.blog.user.biz.service.UserService;
 import com.xzf.blog.user.dto.req.*;
@@ -340,7 +339,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Response<List<FindUserByIdResponse>> findByIds(FindUsersByIdsReqDTO findUsersByIdsReqDTO) {
         // 需要查询的用户 ID 集合
-        List<Long> userIds = findUsersByIdsReqDTO.getIds();
+        List<Long> userIds = findUsersByIdsReqDTO.getIds().stream().distinct().toList();
 
         // 构建 Redis Key 集合
         List<String> redisKeys = userIds.stream()
@@ -388,7 +387,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 从数据库中批量查询
-        List<UserDO> userDOS = userDOMapper.selectByIds(userIdsNeedQuery);
+        List<UserDO> userDOS = userDOMapper.selectBatchIds(userIdsNeedQuery);
 
         List<FindUserByIdResponse> findUserByIdRspDTOS2 = null;
 

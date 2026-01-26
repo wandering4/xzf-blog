@@ -3,23 +3,23 @@ package com.xzf.blog.article.biz.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
+import com.xzf.blog.article.biz.constant.RedisConstant;
 import com.xzf.blog.article.biz.convert.ArticleConvert;
 import com.xzf.blog.article.biz.domain.dataobject.*;
 import com.xzf.blog.article.biz.domain.mapper.*;
 import com.xzf.blog.article.biz.enums.ArticleIsTopEnum;
 import com.xzf.blog.article.biz.exception.BizResponseCodeEnum;
-import com.xzf.blog.article.biz.model.vo.article.FindCategoryListRspVO;
-import com.xzf.blog.article.biz.model.vo.article.FindIndexArticlePageListRspVO;
+import com.xzf.blog.article.dto.response.article.FindCategoryListRspVO;
+import com.xzf.blog.article.dto.response.article.FindIndexArticlePageListRspVO;
 import com.xzf.blog.article.biz.service.ArticleService;
 import com.xzf.blog.article.biz.util.MarkdownHelper;
 import com.xzf.blog.article.biz.util.MarkdownStatsUtil;
 import com.xzf.blog.article.constants.MQConstants;
+import com.xzf.blog.article.dto.IdsRequest;
 import com.xzf.blog.article.dto.mq.ArticleMessage;
 import com.xzf.blog.article.dto.request.article.*;
 import com.xzf.blog.article.dto.response.article.FindArticleDetailRspVO;
 import com.xzf.blog.article.dto.response.tag.FindTagListRspVO;
-import com.xzf.blog.framework.commons.enums.ResponseCodeEnum;
-import com.xzf.blog.framework.commons.enums.RoleEnums;
 import com.xzf.blog.framework.commons.exception.BizException;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
@@ -30,15 +30,19 @@ import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -59,6 +63,13 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleTagMapper articleTagRelMapper;
     @Autowired
     private RocketMQTemplate rocketMQTemplate;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
+    @Resource(name = "taskExecutor")
+    private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+
+    private static Integer DETAIL_CACHE_TIMEOUT_MINUTES = 60;
+    private static Integer PAGE_CACHE_TIMEOUT_MINUTES = 60;
 
 
     /**
@@ -129,6 +140,9 @@ public class ArticleServiceImpl implements ArticleService {
                 log.error("==> 【文章服务：发布文章】MQ 发送异常: ", throwable);
             }
         });
+        threadPoolTaskExecutor.execute(() -> {
+            deletePageListCache();
+        });
 
         return Response.success();
     }
@@ -136,6 +150,21 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public PageResponse<FindIndexArticlePageListRspVO> findArticlePageList(FindIndexArticlePageListReqVO findIndexArticlePageListReqVO) {
+        // ========== 缓存逻辑 start ==========
+        // 生成缓存 key（将请求序列化的指纹作为 key）
+        String pageCacheKey = RedisConstant.buildArticlePageListKey(JsonUtils.toJsonString(findIndexArticlePageListReqVO));
+
+        // 尝试从缓存获取
+        String cacheStr = (String) redisTemplate.opsForValue().get(pageCacheKey);
+        if (cacheStr != null && !cacheStr.isEmpty()) {
+            log.info("==> 分页列表缓存命中, cacheKey: {}", pageCacheKey);
+            PageResponse<FindIndexArticlePageListRspVO> cachedResponse = JsonUtils.parseObject(cacheStr, PageResponse.class);
+            if (cachedResponse != null) {
+                return cachedResponse;
+            }
+        }
+        // ========== 缓存逻辑 end ==========
+
         Long current = findIndexArticlePageListReqVO.getCurrent();
         Long size = findIndexArticlePageListReqVO.getSize();
         LocalDate startDate = findIndexArticlePageListReqVO.getStartCreateTime();
@@ -143,6 +172,7 @@ public class ArticleServiceImpl implements ArticleService {
         String title = findIndexArticlePageListReqVO.getTitle();
         List<Long> tagIds = findIndexArticlePageListReqVO.getTagIds();
         List<Long> categoryIds = findIndexArticlePageListReqVO.getCategoryIds();
+        Long userId = findIndexArticlePageListReqVO.getUserId();
         boolean hasTagCondition = tagIds != null && !tagIds.isEmpty();
         boolean hasCategoryCondition = categoryIds != null && !categoryIds.isEmpty();
 
@@ -181,11 +211,17 @@ public class ArticleServiceImpl implements ArticleService {
         } else if (hasCategoryCondition) {
             filteredArticleIds = articleIdSetFromCategories;
         }
+        if ((hasTagCondition || hasCategoryCondition) && filteredArticleIds.isEmpty()) {
+            // ========== 空结果也缓存，防止缓存穿透 ==========
+            PageResponse<FindIndexArticlePageListRspVO> emptyResponse = PageResponse.success(null, null);
+            asyncLoadPageCache(pageCacheKey, JsonUtils.toJsonString(emptyResponse), PAGE_CACHE_TIMEOUT_MINUTES);
+            return emptyResponse;
+        }
 
         List<Long> articleIdList = filteredArticleIds.isEmpty() ? null : new ArrayList<>(filteredArticleIds);
 
         // 分页查询文章主体记录
-        Page<ArticleDO> articleDOPage = articleMapper.selectPageListWithArticleIds(current, size, title, startDate, endDate, articleIdList, null);
+        Page<ArticleDO> articleDOPage = articleMapper.selectPageListWithArticleIds(current, size, title, startDate, endDate, articleIdList, userId);
 
         // 返回的分页数据
         List<ArticleDO> articleDOS = articleDOPage.getRecords();
@@ -194,10 +230,7 @@ public class ArticleServiceImpl implements ArticleService {
         if (!CollectionUtils.isEmpty(articleDOS)) {
             // 文章 DO 转 VO
             vos = articleDOS.stream()
-                    .map(articleDO -> {
-                        FindIndexArticlePageListRspVO vo = ArticleConvert.INSTANCE.convertDO2VO(articleDO);
-                        return vo;
-                    })
+                    .map(ArticleConvert.INSTANCE::convertDO2VO)
                     .collect(Collectors.toList());
 
             // 拿到所有文章的 ID 集合
@@ -242,7 +275,7 @@ public class ArticleServiceImpl implements ArticleService {
             Map<Long, String> mapIdNameMap = tagDOS.stream().collect(Collectors.toMap(TagDO::getId, TagDO::getName));
 
             // 拿到所有文章的标签关联记录
-            if(!hasTagCondition){
+            if (!hasTagCondition) {
                 articleTagRelDOS = articleTagRelMapper.selectByArticleIds(articleIds);
             }
             for (FindIndexArticlePageListRspVO vo : vos) {
@@ -267,55 +300,170 @@ public class ArticleServiceImpl implements ArticleService {
             }
         }
 
-        return PageResponse.success(articleDOPage, vos);
+        PageResponse<FindIndexArticlePageListRspVO> result = PageResponse.success(articleDOPage, vos);
+
+        // ========== 缓存逻辑: 异步写入缓存并维护批次 key 集合 ==========
+        final String finalPageCacheKey = pageCacheKey;
+        threadPoolTaskExecutor.execute(() -> {
+            try {
+                // 1. 写入分页缓存
+                redisTemplate.opsForValue().set(finalPageCacheKey, JsonUtils.toJsonString(result), PAGE_CACHE_TIMEOUT_MINUTES, java.util.concurrent.TimeUnit.MINUTES);
+
+                // 2. 将缓存 key 注册到批次集合中（方便后续批量删除）
+                // 注册到全量批次
+                redisTemplate.opsForSet().add(RedisConstant.buildArticlePageBatchKeysKeyForAll(), finalPageCacheKey);
+
+                log.info("==> 分页列表缓存写入成功, cacheKey: {}", finalPageCacheKey);
+            } catch (Exception e) {
+                log.error("==> 分页列表缓存写入失败, cacheKey: {}", finalPageCacheKey, e);
+            }
+        });
+
+        return result;
+    }
+
+    @Override
+    public Response<List<FindIndexArticlePageListRspVO>> getByIds(IdsRequest req) {
+        // 1. 获取请求的文章 ID 集合
+        List<Long> articleIds = req.getIds();
+        if (CollectionUtils.isEmpty(articleIds)) {
+            return Response.success(Collections.emptyList());
+        }
+
+        // 2. 批量查询文章
+        List<ArticleDO> articleDOS = articleMapper.selectBatchIds(articleIds);
+        if (CollectionUtils.isEmpty(articleDOS)) {
+            return Response.success(Collections.emptyList());
+        }
+
+        // 3. 文章 DO 转 VO
+        List<FindIndexArticlePageListRspVO> vos = articleDOS.stream()
+                .map(ArticleConvert.INSTANCE::convertDO2VO)
+                .collect(Collectors.toList());
+
+        // 4. 查询所有分类，转成 Map 方便后续根据分类 ID 获取名称
+        List<CategoryDO> categoryDOS = categoryMapper.selectList(Wrappers.emptyWrapper());
+        Map<Long, String> categoryIdNameMap = categoryDOS.stream()
+                .collect(Collectors.toMap(CategoryDO::getId, CategoryDO::getName));
+
+        // 5. 批量查询文章-分类关联记录
+        List<ArticleCategoryDO> articleCategoryRelDOS = articleCategoryRelMapper.selectByArticleIds(articleIds);
+
+        // 6. 设置文章所属分类
+        for (FindIndexArticlePageListRspVO vo : vos) {
+            Long currArticleId = vo.getId();
+            Optional<ArticleCategoryDO> optional = articleCategoryRelDOS.stream()
+                    .filter(rel -> Objects.equals(rel.getArticleId(), currArticleId))
+                    .findAny();
+
+            if (optional.isPresent()) {
+                ArticleCategoryDO articleCategoryRelDO = optional.get();
+                Long categoryId = articleCategoryRelDO.getCategoryId();
+                String categoryName = categoryIdNameMap.get(categoryId);
+
+                FindCategoryListRspVO categoryVO = FindCategoryListRspVO.builder()
+                        .id(categoryId)
+                        .name(categoryName)
+                        .build();
+                vo.setCategory(categoryVO);
+            }
+        }
+
+        // 7. 查询所有标签，转成 Map 方便后续根据标签 ID 获取名称
+        List<TagDO> tagDOS = tagMapper.selectList(Wrappers.emptyWrapper());
+        Map<Long, String> tagIdNameMap = tagDOS.stream()
+                .collect(Collectors.toMap(TagDO::getId, TagDO::getName));
+
+        // 8. 批量查询文章-标签关联记录
+        List<ArticleTagDO> articleTagRelDOS = articleTagRelMapper.selectByArticleIds(articleIds);
+
+        // 9. 设置文章标签
+        for (FindIndexArticlePageListRspVO vo : vos) {
+            Long currArticleId = vo.getId();
+            List<ArticleTagDO> articleTagRelDOList = articleTagRelDOS.stream()
+                    .filter(rel -> Objects.equals(rel.getArticleId(), currArticleId))
+                    .collect(Collectors.toList());
+
+            List<FindTagListRspVO> tagVOS = articleTagRelDOList.stream()
+                    .map(articleTagRelDO -> {
+                        Long tagId = articleTagRelDO.getTagId();
+                        String tagName = tagIdNameMap.get(tagId);
+                        return FindTagListRspVO.builder()
+                                .id(tagId)
+                                .name(tagName)
+                                .build();
+                    })
+                    .collect(Collectors.toList());
+            vo.setTags(tagVOS);
+        }
+
+        return Response.success(vos);
+    }
+
+    @Override
+    public PageResponse<FindIndexArticlePageListRspVO> findPersonalArticlePageList(FindIndexArticlePageListReqVO findIndexArticlePageListReqVO) {
+        findIndexArticlePageListReqVO.setUserId(LoginUserContextHolder.getUserId());
+        return findArticlePageList(findIndexArticlePageListReqVO);
     }
 
     @Override
     public Response<FindArticleDetailRspVO> findArticleDetail(FindArticleDetailReqVO findArticleDetailReqVO) {
         Long articleId = findArticleDetailReqVO.getId();
 
-        ArticleDO articleDO = articleMapper.selectById(articleId);
+        String redisCacheKey = RedisConstant.buildArticleDetailKey(articleId);
+        String cache = (String) redisTemplate.opsForValue().get(redisCacheKey);
+        FindArticleDetailRspVO vo = null;
 
-        // 判断文章是否存在
-        if (Objects.isNull(articleDO)) {
-            log.warn("==> 该文章不存在, articleId: {}", articleId);
-            throw new BizException(BizResponseCodeEnum.ARTICLE_NOT_FOUND);
+        if (cache != null && !cache.isEmpty()) {
+            vo = JsonUtils.parseObject(cache, FindArticleDetailRspVO.class);
+        } else {
+            ArticleDO articleDO = articleMapper.selectById(articleId);
+            // 判断文章是否存在
+            if (Objects.isNull(articleDO)) {
+                log.warn("==> 该文章不存在, articleId: {}", articleId);
+                // 防止缓存穿透
+                asyncLoadCache(redisCacheKey, "null", 5, TimeUnit.SECONDS);
+                throw new BizException(BizResponseCodeEnum.ARTICLE_NOT_FOUND);
+            }
+
+            // 查询正文
+            ArticleContentDO articleContentDO = articleContentMapper.selectByArticleId(articleId);
+            String content = articleContentDO.getContent();
+
+            // 计算 md 正文字数
+            Integer totalWords = MarkdownStatsUtil.calculateWordCount(content);
+
+            // DO 转 VO
+            vo = FindArticleDetailRspVO.builder()
+                    .title(articleDO.getTitle())
+                    .createTime(articleDO.getCreateTime())
+                    .content(MarkdownHelper.convertMarkdown2Html(content))
+                    .readNum(articleDO.getViewCount())
+                    .totalWords(totalWords)
+                    .readTime(MarkdownStatsUtil.calculateReadingTime(totalWords))
+                    .updateTime(articleDO.getUpdateTime())
+                    .build();
+
+            // 查询所属分类
+            ArticleCategoryDO articleCategoryRelDO = articleCategoryRelMapper.selectByArticleId(articleId);
+            CategoryDO categoryDO = categoryMapper.selectById(articleCategoryRelDO.getCategoryId());
+            vo.setCategoryId(categoryDO.getId());
+            vo.setCategoryName(categoryDO.getName());
+
+            // 查询标签
+            List<ArticleTagDO> articleTagRelDOS = articleTagRelMapper.selectByArticleId(articleId);
+            List<Long> tagIds = articleTagRelDOS.stream().map(ArticleTagDO::getTagId).collect(Collectors.toList());
+            List<TagDO> tagDOS = tagMapper.selectBatchIds(tagIds);
+
+            // 标签 DO 转 VO
+            List<FindTagListRspVO> tagVOS = tagDOS.stream()
+                    .map(tagDO -> FindTagListRspVO.builder().id(tagDO.getId()).name(tagDO.getName()).build())
+                    .collect(Collectors.toList());
+            vo.setTags(tagVOS);
+
+            // 异步加载redis缓存
+            asyncLoadCache(redisCacheKey, JsonUtils.toJsonString(vo), DETAIL_CACHE_TIMEOUT_MINUTES + new Random().nextInt(DETAIL_CACHE_TIMEOUT_MINUTES), TimeUnit.MINUTES);
         }
-
-        // 查询正文
-        ArticleContentDO articleContentDO = articleContentMapper.selectByArticleId(articleId);
-        String content = articleContentDO.getContent();
-
-        // 计算 md 正文字数
-        Integer totalWords = MarkdownStatsUtil.calculateWordCount(content);
-
-        // DO 转 VO
-        FindArticleDetailRspVO vo = FindArticleDetailRspVO.builder()
-                .title(articleDO.getTitle())
-                .createTime(articleDO.getCreateTime())
-                .content(MarkdownHelper.convertMarkdown2Html(content))
-                .readNum(articleDO.getViewCount())
-                .totalWords(totalWords)
-                .readTime(MarkdownStatsUtil.calculateReadingTime(totalWords))
-                .updateTime(articleDO.getUpdateTime())
-                .build();
-
-        // 查询所属分类
-        ArticleCategoryDO articleCategoryRelDO = articleCategoryRelMapper.selectByArticleId(articleId);
-        CategoryDO categoryDO = categoryMapper.selectById(articleCategoryRelDO.getCategoryId());
-        vo.setCategoryId(categoryDO.getId());
-        vo.setCategoryName(categoryDO.getName());
-
-        // 查询标签
-        List<ArticleTagDO> articleTagRelDOS = articleTagRelMapper.selectByArticleId(articleId);
-        List<Long> tagIds = articleTagRelDOS.stream().map(ArticleTagDO::getTagId).collect(Collectors.toList());
-        List<TagDO> tagDOS = tagMapper.selectBatchIds(tagIds);
-
-        // 标签 DO 转 VO
-        List<FindTagListRspVO> tagVOS = tagDOS.stream()
-                .map(tagDO -> FindTagListRspVO.builder().id(tagDO.getId()).name(tagDO.getName()).build())
-                .collect(Collectors.toList());
-        vo.setTags(tagVOS);
 
         // 发布文章阅读事件
         Message<Long> message = MessageBuilder.withPayload(articleId).build();
@@ -332,6 +480,21 @@ public class ArticleServiceImpl implements ArticleService {
         });
 
         return Response.success(vo);
+    }
+
+    private void asyncLoadCache(String redisCacheKey, String cache, Integer timeout, TimeUnit timeUnit) {
+        threadPoolTaskExecutor.execute(() -> {
+            redisTemplate.opsForValue().set(redisCacheKey, cache, timeout, timeUnit);
+        });
+    }
+
+    /**
+     * 异步加载分页缓存
+     */
+    private void asyncLoadPageCache(String redisCacheKey, String cache, Integer timeoutMinutes) {
+        threadPoolTaskExecutor.execute(() -> {
+            redisTemplate.opsForValue().set(redisCacheKey, cache, timeoutMinutes, TimeUnit.MINUTES);
+        });
     }
 
 
@@ -374,6 +537,10 @@ public class ArticleServiceImpl implements ArticleService {
                 log.error("==> 【文章服务：删除文章】MQ 发送异常: ", throwable);
             }
         });
+        threadPoolTaskExecutor.execute(() -> {
+            deletePageListCache();
+            deleteDetailCache(articleId);
+        });
 
         return Response.success();
     }
@@ -408,7 +575,7 @@ public class ArticleServiceImpl implements ArticleService {
                 .id(articleId)
                 .title(req.getTitle())
                 .cover(req.getCover())
-                .summary(req.getContent().substring(0,20))
+                .summary(req.getContent().substring(0, 20))
                 .updateTime(LocalDateTime.now())
                 .build();
         int count = articleMapper.updateById(articleDO);
@@ -469,6 +636,10 @@ public class ArticleServiceImpl implements ArticleService {
                 log.error("==> 【文章服务：更新文章】MQ 发送异常: ", throwable);
             }
         });
+        threadPoolTaskExecutor.execute(() -> {
+            deleteDetailCache(articleId);
+            deletePageListCache();
+        });
 
         return Response.success();
     }
@@ -485,6 +656,7 @@ public class ArticleServiceImpl implements ArticleService {
             log.warn("==> 该文章不存在, articleId: {}", req.getId());
             throw new BizException(BizResponseCodeEnum.ARTICLE_NOT_FOUND);
         }
+        deleteDetailCache(req.getId());
         return Response.success();
     }
 
@@ -507,13 +679,15 @@ public class ArticleServiceImpl implements ArticleService {
                 .isTop(isTopEnum.getCode())
                 .build());
 
+        deletePageListCache();
+
         return Response.success();
     }
 
 
-
     /**
      * 保存标签
+     *
      * @param articleId
      * @param publishTags
      */
@@ -596,6 +770,35 @@ public class ArticleServiceImpl implements ArticleService {
             // 批量插入
             articleTagRelMapper.batchInsert(articleTagRelDOS);
         }
+    }
+
+    private void deletePageListCache() {
+        try {
+            // 获取全量分页缓存批次中的所有缓存 key
+            String batchKey = RedisConstant.buildArticlePageBatchKeysKeyForAll();
+            Set<Object> cacheKeys = redisTemplate.opsForSet().members(batchKey);
+
+            if (cacheKeys != null && !cacheKeys.isEmpty()) {
+                // 批量删除分页缓存
+                Set<String> keysToDelete = new HashSet<>();
+                for (Object key : cacheKeys) {
+                    keysToDelete.add(key.toString());
+                }
+                redisTemplate.delete(keysToDelete);
+                log.info("DeleteArticleCacheConsumer删除分页缓存数量: {}", keysToDelete.size());
+            }
+
+            // 清空批次集合
+            redisTemplate.delete(batchKey);
+
+        } catch (Exception e) {
+            log.error("DeleteArticleCacheConsumer删除分页缓存失败", e);
+        }
+    }
+
+    private void deleteDetailCache(Long articleId){
+        String detailCacheKey = RedisConstant.buildArticleDetailKey(articleId);
+        redisTemplate.delete(detailCacheKey);
     }
 
 }

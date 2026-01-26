@@ -71,7 +71,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagDO> implements Tag
      * @return
      */
     @Override
-    public PageResponse findTagPageList(FindTagPageListReqVO findTagPageListReqVO) {
+    public PageResponse<FindTagPageListRspVO> findTagPageList(FindTagPageListReqVO findTagPageListReqVO) {
         // 分页参数、条件参数
         Long current = findTagPageListReqVO.getCurrent();
         Long size = findTagPageListReqVO.getSize();
@@ -87,11 +87,16 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagDO> implements Tag
         // do 转 vo
         List<FindTagPageListRspVO> vos = null;
         if (!CollectionUtils.isEmpty(records)) {
-            vos = records.stream().map(tagDO -> FindTagPageListRspVO.builder()
-                    .id(tagDO.getId())
-                    .name(tagDO.getName())
-                    .createTime(tagDO.getCreateTime())
-                    .build()).collect(Collectors.toList());
+            vos = records.stream().map(tagDO -> {
+                Long articlesTotal = articleTagRelMapper.countArticlesByTagId(tagDO.getId());
+                return FindTagPageListRspVO.builder()
+                        .id(tagDO.getId())
+                        .name(tagDO.getName())
+                        .createTime(tagDO.getCreateTime())
+                        .articlesTotal(articlesTotal)
+                        .build();
+            }).collect(Collectors.toList()
+            );
         }
 
         return PageResponse.success(page, vos);

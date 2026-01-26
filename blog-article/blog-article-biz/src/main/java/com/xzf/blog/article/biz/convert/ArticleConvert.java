@@ -1,7 +1,7 @@
 package com.xzf.blog.article.biz.convert;
 
 import com.xzf.blog.article.biz.domain.dataobject.ArticleDO;
-import com.xzf.blog.article.biz.model.vo.article.FindIndexArticlePageListRspVO;
+import com.xzf.blog.article.dto.response.article.FindIndexArticlePageListRspVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

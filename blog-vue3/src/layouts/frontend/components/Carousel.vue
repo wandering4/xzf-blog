@@ -1,11 +1,11 @@
 <template>
-    <div class="w-full py-5 px-2 mb-3 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700">
-        <div class="relative w-full h-48 overflow-hidden rounded-lg">
+    <div class="w-full">
+        <div class="relative w-full h-64 overflow-hidden">
             <!-- 轮播图片 -->
             <div class="flex transition-transform duration-500 ease-in-out"
                  :style="{ transform: `translateX(-${currentIndex * 100}%)` }">
                 <div v-for="(image, index) in images" :key="index"
-                     class="flex-shrink-0 w-full h-48 bg-cover bg-center"
+                     class="flex-shrink-0 w-full h-64 bg-cover bg-center"
                      :style="{ backgroundImage: `url(${image.url})` }">
                 </div>
             </div>
@@ -36,18 +36,15 @@
             </div>
         </div>
 
-        <!-- 标题 -->
-        <div class="mt-4 text-center">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">精彩内容推荐</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">发现更多精彩内容</p>
-        </div>
+        
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { getPictureList } from '@/api/frontend/advertisement'
 
-// 轮播图片数据
+// 轮播图片数据（从广告接口动态加载，保留默认占位作为兜底）
 const images = ref([
     {
         url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=300&fit=crop&crop=face',
@@ -56,14 +53,6 @@ const images = ref([
     {
         url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&h=300&fit=crop',
         title: '学习笔记'
-    },
-    {
-        url: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=500&h=300&fit=crop',
-        title: '项目经验'
-    },
-    {
-        url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=500&h=300&fit=crop',
-        title: '生活感悟'
     }
 ])
 
@@ -89,6 +78,20 @@ const goToSlide = (index) => {
 let autoplayInterval
 
 onMounted(() => {
+    // 请求广告图片
+    getPictureList({ size: 6 }).then((res) => {
+        if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+            images.value = res.data.map((p) => {
+                const url = p.url || p.pictureUrl || p.path || p.cover || p.src || p.picture || ''
+                const title = p.title || p.name || ''
+                return { url, title }
+            }).filter(item => item.url)
+        }
+    }).catch(() => {
+        // 忽略错误，保留默认图片
+    })
+
+    // 自动轮播
     autoplayInterval = setInterval(() => {
         nextSlide()
     }, 4000) // 每4秒切换一次

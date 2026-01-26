@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
-//@EnableFeignClients(basePackages = "com.xzf.blog")
+@EnableFeignClients(basePackages = "com.xzf.blog")
 @MapperScan("com.xzf.blog.comment.biz.domain.mapper")
 @SpringBootApplication
 public class BlogCommentApplication {

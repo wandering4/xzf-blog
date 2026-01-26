@@ -7,7 +7,7 @@ export function getCategoryList(data) {
 
 // 获取分类-文章列表
 export function getCategoryArticlePageList(data) {
-    return axios.post("/category/article/list", data)
+    return axios.post("/article/list", data)
 }
 
 

@@ -10,8 +10,3 @@ export function deleteComment(id) {
     return axios.post("/comment/delete", {id})
 }
 
-// 审核评论
-export function examineComment(data) {
-    return axios.post("/comment/examine", data)
-}
-

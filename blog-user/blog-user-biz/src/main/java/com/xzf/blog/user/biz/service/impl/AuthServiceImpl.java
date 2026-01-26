@@ -24,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -125,7 +124,7 @@ public class AuthServiceImpl implements AuthService {
 
                 //如果不匹配，则抛出业务异常
                 if (!matches) {
-                    throw new BizException(BizResponseCodeEnum.PHONE_OR_PASSWORD_ERROR);
+                    throw new BizException(BizResponseCodeEnum.PASSWORD_ERROR);
                 }
                 userId = findUserByPhoneRspDTO.getId();
                 break;

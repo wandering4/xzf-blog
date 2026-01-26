@@ -31,12 +31,12 @@ export const useUserStore = defineStore('user', () => {
 
     console.log('设置用户信息')
     isLoadingUserInfo.value = true
-
-    // 调用后端获取用户信息接口
-    getUserInfoWithAuth().then(res => {
+    // 调用后端获取用户信息接口，并返回 Promise 以便调用方等待
+    return getUserInfoWithAuth().then(res => {
       if (res.success == true) {
         userInfo.value = res.data
       }
+      return res
     }).finally(() => {
       // 请求完成后，重置加载状态
       isLoadingUserInfo.value = false

@@ -8,7 +8,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum BizResponseCodeEnum implements BaseExceptionInterface {
     NOT_HAVE_PERMISSION("COMMENT-20001", "没有权限删除"),
-    COMMENT_NOT_FOUND("20017", "该评论不存在"),
+    ARTICLE_NOT_FOUND("COMMENT-20002", "该文章不存在"),
+    COMMENT_NOT_FOUND("COMMENT-20003", "该评论不存在"),
 
     ;
 

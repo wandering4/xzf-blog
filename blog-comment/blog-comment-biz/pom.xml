@@ -30,6 +30,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.xzf.blog.user</groupId>
+            <artifactId>blog-user-api</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.xzf</groupId>
             <artifactId>blog-commons</artifactId>
         </dependency>

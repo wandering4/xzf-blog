@@ -5,6 +5,7 @@ import com.xzf.blog.article.dto.request.category.AddCategoryReqVO;
 import com.xzf.blog.article.dto.request.category.DeleteCategoryReqVO;
 import com.xzf.blog.article.dto.request.category.FindCategoryPageListReqVO;
 import com.xzf.blog.article.dto.response.SelectRspVO;
+import com.xzf.blog.article.dto.response.category.FindCategoryPageListRspVO;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
 import com.xzf.framework.biz.operationlog.aspect.ApiOperationLog;
@@ -29,7 +30,7 @@ public class CategoryController {
 
     @PostMapping("/list")
     @ApiOperationLog(description = "分类分页数据获取")
-    public PageResponse findCategoryPageList(@RequestBody @Validated FindCategoryPageListReqVO findCategoryPageListReqVO) {
+    public PageResponse<FindCategoryPageListRspVO> findCategoryPageList(@RequestBody @Validated FindCategoryPageListReqVO findCategoryPageListReqVO) {
         return categoryService.findCategoryPageList(findCategoryPageListReqVO);
     }
 

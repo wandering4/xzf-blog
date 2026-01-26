@@ -74,8 +74,16 @@
                     </button>
 
                     <!-- 登录 -->
-                    <div class="text-gray-900 ml-1 mr-1 hover:text-sky-600 dark:text-white" v-if="!isLogined"
-                        @click="$router.push('/login')">登录</div>
+                    <button v-if="!isLogined"
+                        @click="$router.push('/login')"
+                        class="ml-1 mr-1 inline-flex items-center gap-2 px-3 py-1 rounded-md bg-sky-600 text-white text-sm font-medium hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-300 transition"
+                        aria-label="登录">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path d="M16 11V7a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v10a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4v-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20 13v-2m0 0l-3 3m3-3l-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        登录
+                    </button>
                     <!-- 已经登录，展示用户头像和姓名 -->
                     <el-dropdown class="flex items-center ml-2 mr-2 md:mr-0" @command="handleCommand" v-else>
                         <span class="el-dropdown-link flex items-center justify-center text-gray-900 dark:text-white text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-2 py-1 transition-colors">
@@ -101,7 +109,7 @@
                                     </svg>
                                     个人主页
                                 </el-dropdown-item>
-                                <el-dropdown-item @click="router.push('/admin/article/list')">
+                                <el-dropdown-item v-if="userStore.userInfo && userStore.userInfo.role === 'root'" @click="router.push('/admin/article/list')">
                                     <svg class="inline w-3 h-3 mb-[2px] mr-2 text-gray-700 dark:text-white"
                                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                                         viewBox="0 0 20 20">
@@ -433,11 +441,11 @@
 </template>
 
 <script setup>
-import { onMounted, ref, onBeforeUnmount, watch } from 'vue'
+import { onMounted, ref, onBeforeUnmount, watch, computed } from 'vue'
 import { initCollapses, initDropdowns, initModals, Modal } from 'flowbite'
 import { useUserStore } from '@/stores/user'
 import { useRouter, useRoute } from 'vue-router'
-import { showMessage } from '@/composables/util'
+import { showMessage, showModel } from '@/composables/util'
 import { getArticleSearchPageList } from '@/api/frontend/search'
 import { useDark, useToggle } from '@vueuse/core'
 import { ElDropdown, ElDropdownMenu, ElDropdownItem } from 'element-plus'
@@ -513,17 +521,28 @@ const currPath = ref(route.path)
 // 引入用户 store
 const userStore = useUserStore()
 
-// 获取 userInfo 对象所有属性名称的数组
-const keys = Object.keys(userStore.userInfo)
-// 若大于零，则表示用户已登录
-const isLogined = ref(keys.length > 0)
+// 是否已登录（根据 userStore.userInfo 的 userId 或 userName 判断）
+const isLogined = computed(() => {
+    return Boolean(userStore.userInfo && (userStore.userInfo.userId || userStore.userInfo.userName))
+})
 
 // 退出登录
 const logout = () => {
     userStore.logout()
-    // 标记为未登录
-    isLogined.value = false
     showMessage('退出登录成功')
+    // 在首页、分类、标签页只刷新当前页面；其他页面跳转到登录页
+    const publicPrefixes = ['/', '/category', '/tag']
+    const currentPath = route.path || router.currentRoute.value.path
+    const isPublic = publicPrefixes.some(prefix => {
+        if (prefix === '/') return currentPath === '/'
+        return currentPath.startsWith(prefix)
+    })
+    if (isPublic) {
+        // 直接刷新当前页面，清除页面缓存/状态
+        location.reload()
+    } else {
+        router.push('/login')
+    }
 }
 
 // 处理下拉菜单命令
@@ -533,13 +552,11 @@ const handleCommand = (command) => {
     }
 }
 
-// 处理退出登录
+// 处理退出登录（展示确认对话框，确认后调用 logout）
 const handleLogout = () => {
-    // 触发模态框显示
-    const logoutModal = document.querySelector('[data-modal-target="popup-modal"]')
-    if (logoutModal) {
-        logoutModal.click()
-    }
+    showModel('是否确认要退出登录？').then(() => {
+        logout()
+    })
 }
 
 // 点击搜索框

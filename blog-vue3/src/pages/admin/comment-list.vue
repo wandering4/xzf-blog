@@ -20,28 +20,24 @@
             <!-- 分页列表 -->
             <el-table :data="tableData" border stripe v-loading="tableLoading" table-layout="auto">
                 <el-table-column type="index" label="序号" width="60" />
-                <el-table-column prop="avatar" label="头像" width="60">
+                <el-table-column label="用户" width="150">
                     <template #default="scope">
-                        <el-avatar :size="40" :src="scope.row.avatar" />
+                        <div class="flex items-center">
+                            <el-avatar :size="40" :src="scope.row.userInfo?.avatarUrl" />
+                            <span class="ml-2">{{ scope.row.userInfo?.name }}</span>
+                        </div>
                     </template>
                 </el-table-column>
-                <el-table-column prop="nickname" label="昵称" />
+                <el-table-column prop="articleInfo.title" label="文章标题" />
                 <el-table-column prop="content" label="评论内容" />
                 <el-table-column prop="createTime" label="发布时间" width="200" />
-                <el-table-column fixed="right" label="操作" width="120">
+                <el-table-column fixed="right" label="操作" width="80">
                     <template #default="scope">
-
-                        <el-tooltip class="box-item" effect="dark" content="详情" placement="bottom">
-                            <el-button size="small" :icon="Tickets" circle @click="showDetailDialog(scope.row)">
-                            </el-button>
-                        </el-tooltip>
-
                         <el-tooltip class="box-item" effect="dark" content="删除" placement="bottom">
                             <el-button type="danger" size="small" :icon="Delete" @click="deleteCommentSubmit(scope.row)"
                                 circle>
                             </el-button>
                         </el-tooltip>
-
                     </template>
                 </el-table-column>
             </el-table>
@@ -55,46 +51,13 @@
 
         </el-card>
 
-        <!-- 查看评论详情 -->
-        <el-dialog v-model="detailDialogVisible" title="评论详情" width="700">
-            <el-form :model="commentDetail" label-width="auto">
-                <el-form-item label="头像">
-                    <el-avatar :size="40" :src="commentDetail.avatar" />
-                </el-form-item>
-                <el-form-item label="昵称">
-                    <el-input v-model="commentDetail.nickname" disabled />
-                </el-form-item>
-
-                <el-form-item label="评论内容">
-                    <el-input type="textarea" v-model="commentDetail.content" disabled />
-                </el-form-item>
-                <el-form-item label="网站">
-                    <el-input v-model="commentDetail.website" disabled />
-                </el-form-item>
-                <el-form-item label="邮箱">
-                    <el-input v-model="commentDetail.mail" disabled />
-                </el-form-item>
-                <el-form-item label="发布时间">
-                    <el-input v-model="commentDetail.createTime" disabled />
-                </el-form-item>
-                <el-form-item label="原因">
-                    <el-input type="textarea" v-model="commentDetail.reason" disabled />
-                </el-form-item>
-            </el-form>
-            <template #footer>
-                <div class="dialog-footer">
-                    <el-button @click="detailDialogVisible = false">退出</el-button>
-                </div>
-            </template>
-        </el-dialog>
-
     </div>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue'
 import { getCommentPageList, deleteComment } from '@/api/admin/comment'
-import { Search, RefreshRight, Delete, Tickets } from '@element-plus/icons-vue'
+import { Search, RefreshRight, Delete } from '@element-plus/icons-vue'
 import moment from 'moment'
 import { showMessage, showModel } from '@/composables/util'
 
@@ -174,9 +137,9 @@ function getTableData() {
         .then((res) => {
             if (res.success == true) {
                 tableData.value = res.data
-                current.value = res.current
-                size.value = res.size
-                total.value = res.total
+                current.value = res.pageNo
+                size.value = res.pageSize
+                total.value = res.totalCount
             }
         })
         .finally(() => tableLoading.value = false) // 隐藏表格 loading

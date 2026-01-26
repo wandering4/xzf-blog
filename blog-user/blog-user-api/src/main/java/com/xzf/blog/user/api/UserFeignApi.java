@@ -15,7 +15,6 @@ import java.util.List;
 @FeignClient(name = ApiConstants.SERVICE_NAME)
 public interface UserFeignApi {
 
-
     /**
      * 用户注册
      *

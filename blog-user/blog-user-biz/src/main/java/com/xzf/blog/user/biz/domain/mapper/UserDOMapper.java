@@ -13,14 +13,6 @@ import java.util.Objects;
 public interface UserDOMapper extends BaseMapper<UserDO> {
 
     /**
-     * 批量查询用户信息
-     *
-     * @param ids
-     * @return
-     */
-    List<UserDO> selectByIds(@Param("ids") List<Long> ids);
-
-    /**
      * 根据手机号查询记录
      * @param phone
      * @return

@@ -3,10 +3,7 @@ package com.xzf.blog.article.biz.controller;
 import com.xzf.blog.article.biz.service.CategoryService;
 import com.xzf.blog.article.biz.service.TagService;
 import com.xzf.blog.article.dto.request.category.FindCategoryPageListReqVO;
-import com.xzf.blog.article.dto.request.tag.AddTagReqVO;
-import com.xzf.blog.article.dto.request.tag.DeleteTagReqVO;
-import com.xzf.blog.article.dto.request.tag.FindTagPageListReqVO;
-import com.xzf.blog.article.dto.request.tag.SearchTagReqVO;
+import com.xzf.blog.article.dto.request.tag.*;
 import com.xzf.blog.article.dto.response.SelectRspVO;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
@@ -38,7 +35,7 @@ public class TagController {
 
     @PostMapping("/list")
     @ApiOperationLog(description = "标签分页数据获取")
-    public PageResponse findTagPageList(@RequestBody @Validated FindTagPageListReqVO findTagPageListReqVO) {
+    public PageResponse<FindTagPageListRspVO> findTagPageList(@RequestBody @Validated FindTagPageListReqVO findTagPageListReqVO) {
         return tagService.findTagPageList(findTagPageListReqVO);
     }
 

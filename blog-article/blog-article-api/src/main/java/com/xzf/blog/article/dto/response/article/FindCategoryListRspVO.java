@@ -1,4 +1,4 @@
-package com.xzf.blog.article.biz.model.vo.article;
+package com.xzf.blog.article.dto.response.article;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

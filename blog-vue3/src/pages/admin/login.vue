@@ -2,7 +2,9 @@
     <!-- 使用 grid 网格布局，并指定列数为 2，高度占满全屏 -->
     <div class="grid grid-cols-2 h-screen">
         <!-- 默认占两列，order 用于指定排列顺序，md 用于适配非移动端（PC 端） -->
-        <div class="col-span-2 order-2 p-10 md:col-span-1 md:order-1 bg-slate-900">
+        <div class="col-span-2 order-2 p-10 md:col-span-1 md:order-1 bg-slate-900 relative">
+            <!-- 返回首页按钮（左半边左上） -->
+            <el-button class="absolute top-4 left-4 text-white" type="text" @click="goHome">返回首页</el-button>
             <!-- 指定为 flex 布局，并设置为屏幕垂直水平居中，高度为 100% -->
             <div
                 class="flex justify-center items-center h-full flex-col animate__animated animate__bounceInLeft animate__fast">
@@ -13,11 +15,13 @@
         </div>
         <div class="flex flex-col col-span-2 order-1 md:col-span-1 md:order-2 bg-white dark:bg-gray-800">
 
-            <!-- 黑夜白天开关 -->
-            <label class="switch ml-auto mt-4 mr-4">
-                <input type="checkbox" v-model="isLight" @click="toggleDark()">
-                <span class="slider"></span>
-            </label>
+            <!-- 顶部：黑夜白天开关 -->
+            <div class="flex justify-end items-center">
+                <label class="switch ml-auto mt-4 mr-4">
+                    <input type="checkbox" v-model="isLight" @click="toggleDark()">
+                    <span class="slider"></span>
+                </label>
+            </div>
 
             <!-- flex-col 用于指定子元素垂直排列 -->
             <div
@@ -76,6 +80,11 @@ const router = useRouter()
 // 登录按钮加载
 const loading = ref(false)
 
+// 返回首页
+const goHome = () => {
+    router.push('/')
+}
+
 // 表单引用
 const formRef = ref(null)
 // 表单验证规则
@@ -125,8 +134,8 @@ const onSubmit = () => {
                         // 提示登录成功
                         showMessage('登录成功')
 
-                        // 跳转到后台首页
-                        router.push('/admin/article/list')
+                        // 登录成功后跳转到首页
+                        router.push('/')
                     } else {
                         showMessage('获取用户信息失败', 'error')
                     }

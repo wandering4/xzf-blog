@@ -1,10 +1,13 @@
 package com.xzf.blog.article.biz.service;
 
-import com.xzf.blog.article.biz.model.vo.article.FindIndexArticlePageListRspVO;
+import com.xzf.blog.article.dto.response.article.FindIndexArticlePageListRspVO;
+import com.xzf.blog.article.dto.IdsRequest;
 import com.xzf.blog.article.dto.request.article.*;
 import com.xzf.blog.article.dto.response.article.FindArticleDetailRspVO;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
+
+import java.util.List;
 
 public interface ArticleService {
 
@@ -15,6 +18,8 @@ public interface ArticleService {
      * @return
      */
     PageResponse<FindIndexArticlePageListRspVO> findArticlePageList(FindIndexArticlePageListReqVO findIndexArticlePageListReqVO);
+
+    public Response<List<FindIndexArticlePageListRspVO>> getByIds(IdsRequest req);
 
     /**
      * 获取文章详情
@@ -50,6 +55,7 @@ public interface ArticleService {
 
     /**
      * 更新文章摘要
+     *
      * @param req
      * @return
      */
@@ -61,7 +67,9 @@ public interface ArticleService {
      * @param updateArticleIsTopReqVO
      * @return
      */
-    Response updateArticleIsTop(UpdateArticleIsTopReqVO updateArticleIsTopReqVO);
+    Response<?> updateArticleIsTop(UpdateArticleIsTopReqVO updateArticleIsTopReqVO);
 
+
+    PageResponse<FindIndexArticlePageListRspVO> findPersonalArticlePageList(FindIndexArticlePageListReqVO findIndexArticlePageListReqVO);
 
 }

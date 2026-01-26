@@ -1,4 +1,4 @@
-package com.xzf.blog.article.biz.model.vo.article;
+package com.xzf.blog.article.dto.response.article;
 
 import com.xzf.blog.article.dto.response.tag.FindTagListRspVO;
 import lombok.AllArgsConstructor;
@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data

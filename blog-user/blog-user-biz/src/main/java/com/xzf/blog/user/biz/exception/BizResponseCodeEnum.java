@@ -19,7 +19,7 @@ public enum BizResponseCodeEnum implements BaseExceptionInterface {
     VERIFICATION_CODE_ERROR("AUTH-20001", "验证码错误"),
     LOGIN_FAILURE("AUTH-20002","登录失败"),
     LOGIN_TYPE_ERROR("AUTH-20002", "登录类型错误"),
-    PHONE_OR_PASSWORD_ERROR("AUTH-20004", "手机号或密码错误"),
+    PASSWORD_ERROR("AUTH-20004", "密码错误"),
     LOGIN_FAIL("AUTH-20005", "登录失败"),
 
     ;

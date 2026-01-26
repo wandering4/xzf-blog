@@ -7,7 +7,7 @@ export function getTagList(data) {
 
 // 获取标签下文章列表
 export function getTagArticlePageList(data) {
-    return axios.post("/tag/article/list", data)
+    return axios.post("/article/list", data)
 }
 
 
