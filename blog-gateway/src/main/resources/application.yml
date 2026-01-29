@@ -1,5 +1,18 @@
 server:
   port: 8000 # 指定启动端口
+
+# 应用自定义配置
+application:
+  # 默认QPS限制
+  qps: 10
+  # 限流配置
+  rate-limit:
+    user-qps: 20      # 用户服务限流：20次/秒
+    comment-qps: 30   # 评论服务限流：30次/秒
+    article-qps: 50   # 文章服务限流：50次/秒
+    ai-qps: 10        # AI服务限流：10次/秒
+    file-qps: 15      # 文件服务限流：15次/秒
+
 spring:
   cloud:
     gateway:

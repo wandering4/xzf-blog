@@ -1,6 +1,7 @@
 package com.xzf.blog.comment.biz.domain.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -38,4 +39,9 @@ public interface CommentDOMapper extends BaseMapper<CommentDO> {
         return delete(wrapper);
     }
 
+    default long deleteByUserId(Long userId){
+        LambdaUpdateWrapper<CommentDO> wrapper = Wrappers.<CommentDO>lambdaUpdate()
+                .eq(CommentDO::getUserId, userId);
+        return delete(wrapper);
+    }
 }

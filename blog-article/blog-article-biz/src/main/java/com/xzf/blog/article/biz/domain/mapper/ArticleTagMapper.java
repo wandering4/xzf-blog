@@ -20,6 +20,11 @@ public interface ArticleTagMapper extends BaseMapper<ArticleTagDO> {
                 .eq(ArticleTagDO::getArticleId, articleId));
     }
 
+    default int deleteByArticleIds(List<Long> articleIds) {
+        return delete(Wrappers.<ArticleTagDO>lambdaQuery()
+                .in(ArticleTagDO::getArticleId, articleIds));
+    }
+
     /**
      * 根据文章 ID 来查询
      * @param articleId

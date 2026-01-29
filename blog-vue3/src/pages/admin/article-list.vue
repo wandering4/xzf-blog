@@ -242,19 +242,18 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { Search, RefreshRight, Check, Close } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
+import { Search, RefreshRight, Check, Close, EditPen, Edit, View, Promotion, Plus } from '@element-plus/icons-vue'
 import { getArticlePageList, deleteArticle, publishArticle, getArticleDetail, updateArticle, updateArticleIsTop } from '@/api/admin/article'
 import { uploadFile } from '@/api/admin/file'
 import { getCategorySelectList } from '@/api/admin/category'
 import { searchTags, getTagSelectList } from '@/api/admin/tag'
-import moment from 'moment'
 import { showMessage, showModel } from '@/composables/util'
 import { MdEditor } from 'md-editor-v3'
 import 'md-editor-v3/lib/style.css'
-import { useRouter } from 'vue-router'
+
 
 const router = useRouter()
-
 // 模糊搜索的文章标题
 const searchArticleTitle = ref('')
 // 日期
@@ -310,40 +309,49 @@ const reset = () => {
     searchArticleTitle.value = ''
 }
 
-// 表格加载 Loading
-const tableLoading = ref(false)
-// 表格数据
-const tableData = ref([])
 // 当前页码，给了一个默认值 1
 const current = ref(1)
-// 总数据量，给了个默认值 0
-const total = ref(0)
 // 每页显示的数据量，给了个默认值 10
 const size = ref(10)
+// 数据总量
+const total = ref(0)
+// 总页数
+const pages = ref(0)
+// 表格数据
+const tableData = ref([])
+// 表格加载状态
+const tableLoading = ref(false)
 
-
-// 获取分页数据
+// 获取表格数据
 function getTableData() {
-    // 显示表格 loading
     tableLoading.value = true
-    // 调用后台分页接口，并传入所需参数
-    getArticlePageList({ current: current.value, size: size.value, startDate: startDate.value, endDate: endDate.value, title: searchArticleTitle.value })
-        .then((res) => {
-            if (res.success == true) {
-                tableData.value = res.data
-                current.value = res.current
-                size.value = res.size
-                total.value = res.total
-            }
-        })
-        .finally(() => tableLoading.value = false) // 隐藏表格 loading
+
+    // 构建查询参数
+    const params = {
+        current: current.value,
+        size: size.value,
+        title: searchArticleTitle.value || null,
+        startCreateTime: pickDate.value && pickDate.value.length > 0 ? pickDate.value[0] : null,
+        endCreateTime: pickDate.value && pickDate.value.length > 0 ? pickDate.value[1] : null
+    }
+
+    getArticlePageList(params).then((res) => {
+        console.log(res)
+        if (res.success) {
+            tableData.value = res.data  // 直接使用data数组
+            current.value = res.pageNo
+            size.value = res.pageSize
+            total.value = res.totalCount
+            pages.value = res.totalPage
+        }
+    }).finally(() => tableLoading.value = false)
 }
-getTableData()
+
 
 // 每页展示数量变更事件
 const handleSizeChange = (chooseSize) => {
-    console.log('选择的页码' + chooseSize)
     size.value = chooseSize
+    current.value = 1
     getTableData()
 }
 
@@ -612,6 +620,8 @@ const handleIsTopChange = (row) => {
         showMessage(row.isTop ? '置顶成功' : "已取消置顶")
     })
 }
+
+getTableData()
 </script>
 
 <style scoped>

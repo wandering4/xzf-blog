@@ -1,7 +1,7 @@
 package com.xzf.blog.article.biz.service;
 
 import com.xzf.blog.article.dto.response.article.FindIndexArticlePageListRspVO;
-import com.xzf.blog.article.dto.IdsRequest;
+import com.xzf.blog.article.dto.request.IdsRequest;
 import com.xzf.blog.article.dto.request.article.*;
 import com.xzf.blog.article.dto.response.article.FindArticleDetailRspVO;
 import com.xzf.blog.framework.commons.response.PageResponse;

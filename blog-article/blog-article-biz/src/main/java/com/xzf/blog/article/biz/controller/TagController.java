@@ -7,6 +7,7 @@ import com.xzf.blog.article.dto.request.tag.*;
 import com.xzf.blog.article.dto.response.SelectRspVO;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
+import com.xzf.framework.biz.context.aspect.PreAuthorize;
 import com.xzf.framework.biz.operationlog.aspect.ApiOperationLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -41,7 +42,7 @@ public class TagController {
 
     @PostMapping("/select/list")
     @ApiOperationLog(description = "分类 Select 下拉列表数据获取")
-    public Response findTagSelectList() {
+    public Response<List<SelectRspVO>> findTagSelectList() {
         return tagService.findTagSelectList();
     }
 
@@ -49,14 +50,14 @@ public class TagController {
 
     @PostMapping("/add")
     @ApiOperationLog(description = "添加标签")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize(hasRoles = {"root"})
     public Response addTags(@RequestBody @Validated AddTagReqVO addTagReqVO) {
         return tagService.addTags(addTagReqVO);
     }
 
     @PostMapping("/delete")
     @ApiOperationLog(description = "删除标签")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize(hasRoles = {"root"})
     public Response deleteTag(@RequestBody @Validated DeleteTagReqVO deleteTagReqVO) {
         return tagService.deleteTag(deleteTagReqVO);
     }

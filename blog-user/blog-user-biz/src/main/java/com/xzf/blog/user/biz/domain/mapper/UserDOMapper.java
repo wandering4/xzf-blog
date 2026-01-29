@@ -19,13 +19,14 @@ public interface UserDOMapper extends BaseMapper<UserDO> {
      */
     UserDO selectByPhone(@Param("phone") String phone);
 
-    default Page<UserDO> selectPageList(Long current, Long size, String name){
+    default Page<UserDO> selectPageList(Long current, Long size, String name, Long userId) {
         // 分页对象(查询第几页、每页多少数据)
         Page<UserDO> page = new Page<>(current, size);
         // 构建查询条件
         LambdaQueryWrapper<UserDO> wrapper = Wrappers.<UserDO>lambdaQuery()
                 .like(Objects.nonNull(name) && !name.isEmpty(), UserDO::getUsername, name)
-                .orderByDesc(UserDO::getCreateTime); // 按创建时间倒叙
+                .ne(UserDO::getId, userId)
+                .orderByAsc(UserDO::getId); // 按创建时间倒叙
         return selectPage(page, wrapper);
     }
 }

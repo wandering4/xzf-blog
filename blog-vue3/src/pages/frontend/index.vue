@@ -46,6 +46,12 @@
                                     </svg>
                                     {{ article.createDate }}
 
+                                    <!-- 作者信息 -->
+                                    <span v-if="article.authorInfo" class="flex items-center ml-5">
+                                        <img class="inline w-4 h-4 mr-1.5 rounded-full object-cover" :src="article.authorInfo.avatarUrl" alt="作者头像" />
+                                        <span class="text-gray-400">{{ article.authorInfo.userName }}</span>
+                                    </span>
+
                                     <!-- 所属分类 -->
                                     <svg class="inline w-3 h-3 ml-5 mr-2 text-gray-400" aria-hidden="true"
                                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
@@ -131,6 +137,9 @@
     <!-- 返回顶部 -->
     <ScrollToTopButton></ScrollToTopButton>
 
+    <!-- AI 对话 -->
+    <AIChat></AIChat>
+
     <Footer></Footer>
 </template>
 
@@ -141,6 +150,7 @@ import Carousel from '@/layouts/frontend/components/Carousel.vue'
 import CategoryListCard from '@/layouts/frontend/components/CategoryListCard.vue'
 import TagListCard from '@/layouts/frontend/components/TagListCard.vue'
 import ScrollToTopButton from '@/layouts/frontend/components/ScrollToTopButton.vue'
+import AIChat from '@/layouts/frontend/components/AIChat.vue'
 import { initTooltips } from 'flowbite'
 import { onMounted, ref, computed } from 'vue'
 import { getArticlePageList } from '@/api/frontend/article'

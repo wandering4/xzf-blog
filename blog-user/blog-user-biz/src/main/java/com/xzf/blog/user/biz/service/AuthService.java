@@ -4,6 +4,8 @@ import com.xzf.blog.framework.commons.response.Response;
 import com.xzf.blog.user.biz.model.vo.request.SendVerificationCodeReqVO;
 import com.xzf.blog.user.biz.model.vo.request.UserLoginRequest;
 
+import javax.servlet.http.HttpServletResponse;
+
 public interface AuthService {
     /**
      * 登录与注册
@@ -31,4 +33,5 @@ public interface AuthService {
     Response<?> send(SendVerificationCodeReqVO sendVerificationCodeReqVO);
 
 
+    void getVerificationPicture(String pictureId, HttpServletResponse response);
 }

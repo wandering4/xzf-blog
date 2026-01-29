@@ -74,6 +74,12 @@
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>
 
+                <!-- 作者信息 -->
+                <div v-if="article.authorInfo" class="flex items-center">
+                    <img class="w-5 h-5 mr-1.5 rounded-full object-cover" :src="article.authorInfo.avatarUrl" alt="作者头像" />
+                    <span class="hover:text-gray-600 dark:hover:text-gray-300">{{ article.authorInfo.userName }}</span>
+                </div>
+
                 <!-- 分类 -->
                 <div class="flex items-center" data-tooltip-target="category-tooltip-bottom"
                     data-tooltip-placement="bottom">

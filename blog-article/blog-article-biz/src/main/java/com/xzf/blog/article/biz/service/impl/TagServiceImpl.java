@@ -17,12 +17,13 @@ import com.xzf.blog.framework.commons.exception.BizException;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,6 +37,8 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagDO> implements Tag
     private TagMapper tagMapper;
     @Autowired
     private ArticleTagMapper articleTagRelMapper;
+    @Value("${tag.limit:20}")
+    private int limit;
 
     /**
      * 添加标签集合
@@ -45,6 +48,10 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagDO> implements Tag
      */
     @Override
     public Response addTags(AddTagReqVO addTagReqVO) {
+        long count=tagMapper.selectCount(Wrappers.emptyWrapper());
+        if(count+addTagReqVO.getTags().size()>limit){
+            throw new BizException(BizResponseCodeEnum.TAG_EXCEED_LIMIT);
+        }
         // vo 转 do
         List<TagDO> tagDOS = addTagReqVO.getTags().stream()
                 .map(tagName -> TagDO.builder()
@@ -133,7 +140,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, TagDO> implements Tag
      * @return
      */
     @Override
-    public Response findTagSelectList() {
+    public Response<List<SelectRspVO>> findTagSelectList() {
         // 查询所有标签
         List<TagDO> tagDOS = tagMapper.selectList(Wrappers.emptyWrapper());
         // DO 转 VO

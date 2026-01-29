@@ -12,6 +12,7 @@ import com.xzf.blog.article.biz.domain.dataobject.ArticleDO;
 import com.xzf.blog.article.enums.ArticleStatusEnum;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -106,4 +107,9 @@ public interface ArticleMapper extends BaseMapper<ArticleDO> {
 
     int increaseViewCount(@Param("articleId") Long articleId, @Param("count") Integer count);
 
+    default List<ArticleDO> selectByUserId(Long userId){
+        LambdaQueryWrapper<ArticleDO> wrapper = Wrappers.<ArticleDO>lambdaQuery()
+                .eq(ArticleDO::getAuthorId, userId);
+        return selectList(wrapper);
+    }
 }

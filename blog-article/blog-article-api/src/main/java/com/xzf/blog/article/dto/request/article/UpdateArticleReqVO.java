@@ -5,9 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UpdateArticleReqVO {
+public class UpdateArticleReqVO{
 
     @NotNull(message = "文章 ID 不能为空")
     private Long id;
@@ -30,9 +30,12 @@ public class UpdateArticleReqVO {
     @NotBlank(message = "文章封面不能为空")
     private String cover;
 
+    private String summary;
+
     @NotNull(message = "文章分类不能为空")
     private Long categoryId;
 
     @NotEmpty(message = "文章标签不能为空")
     private List<String> tags;
+
 }

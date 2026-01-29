@@ -30,7 +30,7 @@
                                 d="M559.407407 512h-75.851851c-20.859259 0-37.925926-17.066667-37.925926-37.925926s17.066667-37.925926 37.925926-37.925926h75.851851c20.859259 0 37.925926 17.066667 37.925926 37.925926s-17.066667 37.925926-37.925926 37.925926z"
                                 fill="#F9D523" p-id="21577"></path>
                         </svg>
-                        分类
+                        热门分类
                         <span v-if="categories && categories.length > 0"
                             class="ml-2 text-gray-600 font-normal dark:text-gray-300">( {{ categories.length }} )</span>
                     </h2>
@@ -88,6 +88,12 @@
                                             d="M5 1v3m5-3v3m5-3v3M1 7h18M5 11h10M2 3h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" />
                                     </svg>
                                     {{ article.createDate }}
+
+                                    <!-- 作者信息 -->
+                                    <span v-if="article.authorInfo" class="flex items-center ml-5">
+                                        <img class="inline w-4 h-4 mr-1.5 rounded-full object-cover" :src="article.authorInfo.avatarUrl" alt="作者头像" />
+                                        <span class="text-gray-400">{{ article.authorInfo.userName }}</span>
+                                    </span>
 
                                     <!-- 所属分类 -->
                                     <svg class="inline w-3 h-3 ml-5 mr-2 text-gray-400" aria-hidden="true"
@@ -171,6 +177,10 @@
     <!-- 返回顶部 -->
     <ScrollToTopButton></ScrollToTopButton>
 
+    <!-- AI 对话 -->
+    <AIChat></AIChat>
+
+
     <Footer></Footer>
 </template>
 
@@ -181,6 +191,7 @@ import Carousel from '@/layouts/frontend/components/Carousel.vue'
 import TagListCard from '@/layouts/frontend/components/TagListCard.vue'
 import CategoryListCard from '@/layouts/frontend/components/CategoryListCard.vue'
 import ScrollToTopButton from '@/layouts/frontend/components/ScrollToTopButton.vue'
+import AIChat from '@/layouts/frontend/components/AIChat.vue'
 import { getCategoryList } from '@/api/frontend/category'
 import { getArticlePageList } from '@/api/frontend/article'
 import { ref, computed } from 'vue'
@@ -244,7 +255,7 @@ const goTagArticleListPage = (id, name) => {
 
 // 所有分类
 const categories = ref([])
-getCategoryList({}).then((res) => {
+getCategoryList({current:1,size:20}).then((res) => {
     if (res.success) {
         categories.value = res.data
     }

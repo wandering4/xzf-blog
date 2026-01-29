@@ -19,6 +19,11 @@ public interface ArticleCategoryMapper extends BaseMapper<ArticleCategoryDO> {
                 .eq(ArticleCategoryDO::getArticleId, articleId));
     }
 
+    default int deleteByArticleIds(List<Long> articleIds) {
+        return delete(Wrappers.<ArticleCategoryDO>lambdaQuery()
+                .in(ArticleCategoryDO::getArticleId, articleIds));
+    }
+
     /**
      * 根据文章 ID 查询
      * @param articleId

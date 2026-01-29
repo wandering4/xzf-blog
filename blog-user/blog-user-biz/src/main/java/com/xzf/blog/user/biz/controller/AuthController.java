@@ -7,12 +7,11 @@ import com.xzf.blog.user.biz.service.AuthService;
 import com.xzf.framework.biz.operationlog.aspect.ApiOperationLog;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotBlank;
 
 @Slf4j
 @RestController
@@ -21,6 +20,12 @@ public class AuthController {
 
     @Resource
     private AuthService authService;
+
+    @GetMapping("/verification/picture/get")
+    @ApiOperationLog(description = "获取验证图片")
+    public void getVerificationPicture(@NotBlank(message = "图片id不能为空") String pictureId, HttpServletResponse response) {
+        authService.getVerificationPicture(pictureId, response);
+    }
 
     @PostMapping("/verification/code/send")
     @ApiOperationLog(description = "发送短信验证码")

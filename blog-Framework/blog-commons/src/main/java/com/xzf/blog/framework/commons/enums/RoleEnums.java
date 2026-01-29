@@ -13,4 +13,13 @@ public enum RoleEnums {
     private Long id;
     private String name;
     private String desc;
+
+    public static RoleEnums getEnum(Long id) {
+        for (RoleEnums e : RoleEnums.values()) {
+            if (e.getId().equals(id)) {
+                return e;
+            }
+        }
+        return null;
+    }
 }

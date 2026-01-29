@@ -25,6 +25,11 @@
             <artifactId>blog-article-api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.xzf.blog.user</groupId>
+            <artifactId>blog-user-api</artifactId>
+        </dependency>
+
         <!-- 业务接口日志组件 -->
         <dependency>
             <groupId>com.xzf</groupId>

@@ -15,6 +15,12 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class SendVerificationCodeReqVO {
 
+    @NotBlank(message = "图片id不能为空")
+    private String pictureId;
+
+    @NotBlank(message = "图片结果不能为空")
+    private String pictureResult;
+
     @NotBlank(message = "手机号不能为空")
     @PhoneNumber
     private String phone;

@@ -2,7 +2,7 @@ package com.xzf.blog.comment.biz.rpc;
 
 import com.google.common.collect.Lists;
 import com.xzf.blog.article.api.ArticleFeignApi;
-import com.xzf.blog.article.dto.IdsRequest;
+import com.xzf.blog.article.dto.request.IdsRequest;
 import com.xzf.blog.article.dto.response.article.FindIndexArticlePageListRspVO;
 import com.xzf.blog.framework.commons.response.Response;
 import org.springframework.stereotype.Component;

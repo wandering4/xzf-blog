@@ -3,6 +3,7 @@ package com.xzf.blog.user.biz.service;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
 import com.xzf.blog.user.biz.model.vo.request.UpdatePasswordRequest;
+import com.xzf.blog.user.biz.model.vo.request.UpdateRoleRequest;
 import com.xzf.blog.user.biz.model.vo.request.UpdateUserInfoRequest;
 import com.xzf.blog.user.dto.req.*;
 import com.xzf.blog.user.dto.resp.FindUserByIdResponse;
@@ -66,4 +67,6 @@ public interface UserService {
     Response<LoginUserInfoResponse> getLoginUserInfo();
 
     PageResponse<?> findUserPage(FindUserPageRequest req);
+
+    Response<?> updateRole(UpdateRoleRequest req);
 }

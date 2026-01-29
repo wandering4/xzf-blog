@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.xzf.blog.article.biz.domain.dataobject.ArticleContentDO;
 
+import java.util.List;
+
 public interface ArticleContentMapper extends BaseMapper<ArticleContentDO> {
 
     /**
@@ -14,6 +16,11 @@ public interface ArticleContentMapper extends BaseMapper<ArticleContentDO> {
     default int deleteByArticleId(Long articleId) {
         return delete(Wrappers.<ArticleContentDO>lambdaQuery()
                 .eq(ArticleContentDO::getArticleId, articleId));
+    }
+
+    default int deleteByArticleIds(List<Long> articleIds){
+        return delete(Wrappers.<ArticleContentDO>lambdaQuery()
+                .in(ArticleContentDO::getArticleId, articleIds));
     }
 
     /**
@@ -35,5 +42,6 @@ public interface ArticleContentMapper extends BaseMapper<ArticleContentDO> {
                 Wrappers.<ArticleContentDO>lambdaQuery()
                         .eq(ArticleContentDO::getArticleId, articleContentDO.getArticleId()));
     }
+
 
 }

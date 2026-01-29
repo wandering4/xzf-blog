@@ -3,11 +3,11 @@ package com.xzf.blog.user.biz.controller;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
 import com.xzf.blog.user.biz.model.vo.request.UpdatePasswordRequest;
+import com.xzf.blog.user.biz.model.vo.request.UpdateRoleRequest;
 import com.xzf.blog.user.biz.model.vo.request.UpdateUserInfoRequest;
 import com.xzf.blog.user.biz.service.UserService;
 import com.xzf.blog.user.dto.req.*;
 import com.xzf.blog.user.dto.resp.FindUserByIdResponse;
-import com.xzf.blog.user.dto.resp.FindUserByPhoneRspDTO;
 import com.xzf.blog.user.dto.resp.LoginUserInfoResponse;
 import com.xzf.framework.biz.context.aspect.PreAuthorize;
 import com.xzf.framework.biz.operationlog.aspect.ApiOperationLog;
@@ -35,6 +35,13 @@ public class UserController {
         return userService.updatePassword(updatePasswordRequest);
     }
 
+    @PostMapping("/role/change")
+    @ApiOperationLog(description = "修改用戶角色")
+    @PreAuthorize(hasRoles = "root")
+    public Response<?> updateRole(@Validated @RequestBody UpdateRoleRequest req) {
+        return userService.updateRole(req);
+    }
+
     /**
      * 用户信息修改
      * @param updateUserInfoRequest
@@ -43,7 +50,7 @@ public class UserController {
     @PostMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiOperationLog(description = "用户信息修改")
     @PreAuthorize
-    public Response<?> updateUserInfo(@Validated UpdateUserInfoRequest updateUserInfoRequest) {
+    public Response<?> updateUserInfo(@Validated @RequestBody UpdateUserInfoRequest updateUserInfoRequest) {
         return userService.updateUserInfo(updateUserInfoRequest);
     }
 
@@ -55,7 +62,7 @@ public class UserController {
     @PostMapping(value = "/delete")
     @ApiOperationLog(description = "删除用户")
     @PreAuthorize(hasRoles = "root")
-    public Response<?> updateUserInfo(@Validated UserIdRequest req) {
+    public Response<?> updateUserInfo(@Validated @RequestBody UserIdRequest req) {
         return userService.deleteUser(req);
     }
 
@@ -64,12 +71,6 @@ public class UserController {
     @PreAuthorize(hasRoles = "root")
     public PageResponse<?> findUserPage(@Validated @RequestBody FindUserPageRequest req) {
         return userService.findUserPage(req);
-    }
-
-    @PostMapping("/findByPhone")
-    @ApiOperationLog(description = "手机号查询用户信息")
-    public Response<FindUserByPhoneRspDTO> findByPhone(@Validated @RequestBody FindUserByPhoneRequest findUserByPhoneRequest) {
-        return Response.success(userService.findByPhone(findUserByPhoneRequest));
     }
 
     @PostMapping("/findById")
@@ -86,7 +87,7 @@ public class UserController {
 
     @PostMapping("/userInfo")
     @ApiOperationLog(description = "查询当前用户登录信息")
-//    @PreAuthorize
+    @PreAuthorize
     public Response<LoginUserInfoResponse> getLoginUserInfo() {
         return userService.getLoginUserInfo();
     }

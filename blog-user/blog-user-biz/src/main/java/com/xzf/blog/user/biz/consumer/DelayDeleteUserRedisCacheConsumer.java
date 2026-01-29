@@ -1,6 +1,6 @@
 package com.xzf.blog.user.biz.consumer;
 
-import com.xzf.blog.user.biz.constant.MQConstants;
+import com.xzf.blog.user.constant.MQConstants;
 import com.xzf.blog.user.biz.constant.RedisKeyConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;

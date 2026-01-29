@@ -5,7 +5,6 @@ import com.xzf.blog.framework.commons.response.Response;
 import com.xzf.blog.user.constant.ApiConstants;
 import com.xzf.blog.user.dto.req.*;
 import com.xzf.blog.user.dto.resp.FindUserByIdResponse;
-import com.xzf.blog.user.dto.resp.FindUserByPhoneRspDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,15 +22,6 @@ public interface UserFeignApi {
      */
     @PostMapping(value = "/register")
     Response<Long> registerUser(@RequestBody RegisterUserRequest registerUserRequest);
-
-    /**
-     * 根据手机号查询用户信息
-     *
-     * @param findUserByPhoneRequest
-     * @return
-     */
-    @PostMapping(value = "/findByPhone")
-    Response<FindUserByPhoneRspDTO> findByPhone(@RequestBody FindUserByPhoneRequest findUserByPhoneRequest);
 
     /**
      * 更新密码

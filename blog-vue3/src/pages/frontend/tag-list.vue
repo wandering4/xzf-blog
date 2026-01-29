@@ -25,7 +25,7 @@
                                 d="M676.4032 445.5424c-62.208 0-112.8448-50.6368-112.8448-112.8448s50.6368-112.8448 112.8448-112.8448c62.208 0 112.8448 50.6368 112.8448 112.8448s-50.6368 112.8448-112.8448 112.8448z m0-164.1984c-28.3648 0-51.4048 23.04-51.4048 51.4048s23.04 51.4048 51.4048 51.4048c28.3648 0 51.4048-23.04 51.4048-51.4048s-23.0912-51.4048-51.4048-51.4048z"
                                 fill="#4F4F4F" p-id="13861"></path>
                         </svg>
-                        标签
+                        热门标签
                         <span class="ml-2 text-gray-600 font-normal dark:text-gray-300">( {{ tags.length }} )</span>
                     </h2>
                     <!-- 标签列表 -->
@@ -81,6 +81,12 @@
                                             d="M5 1v3m5-3v3m5-3v3M1 7h18M5 11h10M2 3h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" />
                                     </svg>
                                     {{ article.createDate }}
+
+                                    <!-- 作者信息 -->
+                                    <span v-if="article.authorInfo" class="flex items-center ml-5">
+                                        <img class="inline w-4 h-4 mr-1.5 rounded-full object-cover" :src="article.authorInfo.avatarUrl" alt="作者头像" />
+                                        <span class="text-gray-400">{{ article.authorInfo.userName }}</span>
+                                    </span>
 
                                     <!-- 所属分类 -->
                                     <svg class="inline w-3 h-3 ml-5 mr-2 text-gray-400" aria-hidden="true"
@@ -164,6 +170,10 @@
     <!-- 返回顶部 -->
     <ScrollToTopButton></ScrollToTopButton>
 
+    <!-- AI 对话 -->
+    <AIChat></AIChat>
+
+
     <Footer></Footer>
 </template>
 
@@ -173,6 +183,7 @@ import Footer from '@/layouts/frontend/components/Footer.vue'
 import Carousel from '@/layouts/frontend/components/Carousel.vue'
 import CategoryListCard from '@/layouts/frontend/components/CategoryListCard.vue'
 import ScrollToTopButton from '@/layouts/frontend/components/ScrollToTopButton.vue'
+import AIChat from '@/layouts/frontend/components/AIChat.vue'
 import { getTagList } from '@/api/frontend/tag'
 import { getArticlePageList } from '@/api/frontend/article'
 import { ref, computed } from 'vue'
@@ -236,7 +247,7 @@ const goTagArticleListPage = (id, name) => {
 
 // 所有标签
 const tags = ref([])
-getTagList({}).then((res) => {
+getTagList({current:1,size:20}).then((res) => {
     if (res.success) {
         tags.value = res.data
     }

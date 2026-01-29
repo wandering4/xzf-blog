@@ -26,28 +26,4 @@ public interface ArticleConvert {
     @Mapping(target = "isTop", expression = "java(bean.getIsTop() == 1 ? Boolean.TRUE : Boolean.FALSE)")
     FindIndexArticlePageListRspVO convertDO2VO(ArticleDO bean);
 
-    /**
-     * ArticleDO -> FindArchiveArticleRspVO
-     * @param bean
-     * @return
-     */
-//    @Mapping(target = "createDate", expression = "java(java.time.LocalDate.from(bean.getCreateTime()))")
-//    @Mapping(target = "createMonth", expression = "java(java.time.YearMonth.from(bean.getCreateTime()))")
-//    FindArchiveArticleRspVO convertDO2ArchiveArticleVO(ArticleDO bean);
-
-    /**
-     * ArticleDO -> FindCategoryArticlePageListRspVO
-     * @param bean
-     * @return
-     */
-//    @Mapping(target = "createDate", expression = "java(java.time.LocalDate.from(bean.getCreateTime()))")
-//    FindCategoryArticlePageListRspVO convertDO2CategoryArticleVO(ArticleDO bean);
-
-    /**
-     * ArticleDO -> FindTagArticlePageListRspVO
-     * @param bean
-     * @return
-     */
-//    @Mapping(target = "createDate", expression = "java(java.time.LocalDate.from(bean.getCreateTime()))")
-//    FindTagArticlePageListRspVO convertDO2TagArticleVO(ArticleDO bean);
 }

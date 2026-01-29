@@ -136,16 +136,18 @@ const shortcuts = [
     },
 ]
 
-// 表格加载 Loading
-const tableLoading = ref(false)
-// 表格数据
-const tableData = ref([])
 // 当前页码，给了一个默认值 1
 const current = ref(1)
-// 总数据量，给了个默认值 0
-const total = ref(0)
 // 每页显示的数据量，给了个默认值 10
 const size = ref(10)
+// 数据总量
+const total = ref(0)
+// 总页数
+const pages = ref(0)
+// 表格数据
+const tableData = ref([])
+// 表格加载状态
+const tableLoading = ref(false)
 
 
 // 获取分页数据
@@ -156,12 +158,12 @@ function getTableData() {
 
     getTagPageList({ current: current.value, size: size.value, startDate: startDate.value, endDate: endDate.value, name: searchTagName.value })
         .then((res) => {
-            if (res.success == true) {
-
-                tableData.value = res.data
-                current.value = res.current
-                size.value = res.size
-                total.value = res.total
+            if (res.success) {
+                tableData.value = res.data  // 直接使用data数组
+                current.value = res.pageNo
+                size.value = res.pageSize
+                total.value = res.totalCount
+                pages.value = res.totalPage
             }
         })
         .finally(() => tableLoading.value = false) // 隐藏表格 loading

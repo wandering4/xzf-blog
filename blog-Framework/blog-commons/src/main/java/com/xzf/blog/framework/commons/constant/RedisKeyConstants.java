@@ -1,6 +1,12 @@
 package com.xzf.blog.framework.commons.constant;
 
 public interface RedisKeyConstants {
+
+    /**
+     * 验证图片 KEY 前缀
+     */
+    String VERIFICATION_PICTURE_KEY_PREFIX = "verification_picture:";
+
     /**
      * 验证码 KEY 前缀
      */
@@ -26,6 +32,15 @@ public interface RedisKeyConstants {
      */
     String USER_INFO_KEY_PREFIX = "user:info:";
 
+    /**
+     * 构建验证图 KEY
+     *
+     * @param pictureId
+     * @return
+     */
+    public static String buildVerificationPictureKey(String pictureId) {
+        return VERIFICATION_PICTURE_KEY_PREFIX + pictureId;
+    }
 
     /**
      * 构建验证码 KEY

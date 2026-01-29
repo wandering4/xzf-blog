@@ -4,7 +4,7 @@
         <!-- 默认占两列，order 用于指定排列顺序，md 用于适配非移动端（PC 端） -->
         <div class="col-span-2 order-2 p-10 md:col-span-1 md:order-1 bg-slate-900 relative">
             <!-- 返回首页按钮（左半边左上） -->
-            <el-button class="absolute top-4 left-4 text-white" type="text" @click="goHome">返回首页</el-button>
+            <el-button class="absolute top-4 left-4 text-white" type="link" @click="goHome">返回首页</el-button>
             <!-- 指定为 flex 布局，并设置为屏幕垂直水平居中，高度为 100% -->
             <div
                 class="flex justify-center items-center h-full flex-col animate__animated animate__bounceInLeft animate__fast">
@@ -32,12 +32,20 @@
                 <div class="flex items-center justify-center mb-7 text-gray-400 space-x-2 dark:text-gray-500">
                     <!-- 左边横线，高度为 1px, 宽度为 16，背景色设置 -->
                     <span class="h-[1px] w-16 bg-gray-200 dark:bg-gray-700"></span>
-                    <span>账号密码登录</span>
+                    <span>{{ loginType === 'password' ? '账号密码登录' : '手机验证码登录' }}</span>
                     <!-- 右边横线 -->
                     <span class="h-[1px] w-16 bg-gray-200 dark:bg-gray-700"></span>
                 </div>
+
+                <!-- 切换登录方式按钮 -->
+                <div class="mb-5">
+                    <el-button type="primary" link @click="switchLoginType">
+                        {{ loginType === 'password' ? '使用手机验证码登录' : '使用账号密码登录' }}
+                    </el-button>
+                </div>
+
                 <!-- 引入 Element Plus 表单组件，移动端设置宽度为 5/6，PC 端设置为 2/5 -->
-                <el-form class="w-5/6 md:w-2/5" ref="formRef" :rules="rules" :model="form">
+                <el-form v-if="loginType === 'password'" class="w-5/6 md:w-2/5" ref="formRef" :rules="rules" :model="form">
                     <el-form-item prop="phone">
                         <!-- 输入框组件 -->
                         <el-input size="large" v-model="form.phone" placeholder="请输入手机号" :prefix-icon="User" clearable />
@@ -52,6 +60,30 @@
                         <el-button class="w-full mt-2" size="large" :loading="loading" type="primary" @click="onSubmit">登录</el-button>
                     </el-form-item>
                 </el-form>
+
+                <!-- 手机验证码登录表单 -->
+                <el-form v-else class="w-5/6 md:w-2/5" ref="phoneFormRef" :rules="phoneRules" :model="phoneForm">
+                    <el-form-item prop="phone">
+                        <el-input size="large" v-model="phoneForm.phone" placeholder="请输入手机号" :prefix-icon="User" clearable />
+                    </el-form-item>
+                    <el-form-item prop="pictureResult">
+                        <div class="flex w-full gap-2">
+                            <el-input size="large" v-model="phoneForm.pictureResult" placeholder="请输入图片验证码" />
+                            <img v-if="pictureUrl" :src="pictureUrl" @click="refreshPicture" class="h-12 cursor-pointer rounded border border-gray-300" alt="验证码" />
+                        </div>
+                    </el-form-item>
+                    <el-form-item prop="code">
+                        <div class="flex w-full gap-2">
+                            <el-input size="large" v-model="phoneForm.code" placeholder="请输入短信验证码" />
+                            <el-button size="large" type="primary" :disabled="codeBtnDisabled || !phoneForm.pictureResult" @click="sendCode">
+                                {{ codeCountdown > 0 ? `${codeCountdown}s后重发` : '获取验证码' }}
+                            </el-button>
+                        </div>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button class="w-full mt-2" size="large" :loading="loading" type="primary" @click="onPhoneSubmit">登录</el-button>
+                    </el-form-item>
+                </el-form>
             </div>
         </div>
     </div>
@@ -60,7 +92,7 @@
 <script setup>
 // 引入 Element Plus 中的用户、锁图标
 import { User, Lock } from '@element-plus/icons-vue'
-import { login, getUserInfoWithAuth } from '@/api/admin/user'
+import { login, getUserInfoWithAuth, getVerificationPicture, sendVerificationCode } from '@/api/admin/user'
 import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { showMessage} from '@/composables/util'
@@ -70,11 +102,30 @@ import { useDark, useToggle } from '@vueuse/core'
 
 const userStore = useUserStore()
 
+// 登录方式：'password' 账号密码登录，'phone' 手机验证码登录
+const loginType = ref('password')
+
 // 定义响应式的表单对象
 const form = reactive({
     phone: '17891997260',
     password: 'bb43181782'
 })
+
+// 手机验证码登录表单
+const phoneForm = reactive({
+    phone: '',
+    pictureResult: '',
+    code: ''
+})
+
+// 图片验证码相关
+const pictureId = ref('')
+const pictureUrl = ref('')
+const pictureLoading = ref(false)
+
+// 发送验证码按钮倒计时
+const codeCountdown = ref(0)
+const codeBtnDisabled = ref(false)
 
 const router = useRouter()
 // 登录按钮加载
@@ -87,6 +138,7 @@ const goHome = () => {
 
 // 表单引用
 const formRef = ref(null)
+const phoneFormRef = ref(null)
 // 表单验证规则
 const rules = {
     phone: [
@@ -105,6 +157,159 @@ const rules = {
     ]
 }
 
+// 手机验证码登录表单验证规则
+const phoneRules = {
+    phone: [
+        {
+            required: true,
+            message: '手机号不能为空',
+            trigger: 'blur'
+        }
+    ],
+    pictureResult: [
+        {
+            required: true,
+            message: '图片验证码不能为空',
+            trigger: 'blur'
+        }
+    ],
+    code: [
+        {
+            required: true,
+            message: '短信验证码不能为空',
+            trigger: 'blur'
+        }
+    ]
+}
+
+// 切换登录方式
+const switchLoginType = () => {
+    if (loginType.value === 'password') {
+        loginType.value = 'phone'
+        refreshPicture()
+        startPictureTimer()
+    } else {
+        loginType.value = 'password'
+        stopPictureTimer()
+    }
+}
+// 图片验证码自动刷新定时器
+let pictureTimer = null
+
+// 刷新图片验证码
+const refreshPicture = () => {
+    // 生成uuid
+    pictureId.value = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0
+        const v = c === 'x' ? r : (r & 0x3 | 0x8)
+        return v.toString(16)
+    })
+    pictureLoading.value = true
+    getVerificationPicture(pictureId.value).then(res => {
+        // 将blob转换为base64
+        const reader = new FileReader()
+        reader.onload = (e) => {
+            pictureUrl.value = e.target.result
+        }
+        reader.readAsDataURL(res)
+    }).catch(() => {
+        showMessage('获取验证码失败', 'error')
+    }).finally(() => {
+        pictureLoading.value = false
+    })
+}
+
+// 启动图片验证码自动刷新（55秒）
+const startPictureTimer = () => {
+    if (pictureTimer) {
+        clearInterval(pictureTimer)
+    }
+    pictureTimer = setInterval(() => {
+        if (loginType.value === 'phone') {
+            refreshPicture()
+        }
+    }, 55000)
+}
+
+// 停止图片验证码自动刷新
+const stopPictureTimer = () => {
+    if (pictureTimer) {
+        clearInterval(pictureTimer)
+        pictureTimer = null
+    }
+}
+
+// 发送短信验证码
+const sendCode = () => {
+    if (!phoneForm.phone) {
+        showMessage('请输入手机号', 'warning')
+        return
+    }
+    if (!phoneForm.pictureResult) {
+        showMessage('请输入图片验证码', 'warning')
+        return
+    }
+
+    sendVerificationCode(pictureId.value, phoneForm.pictureResult, phoneForm.phone).then(res => {
+        if (res.success === true) {
+            showMessage('验证码发送成功')
+            // 开始5分钟倒计时
+            codeCountdown.value = 300
+            codeBtnDisabled.value = true
+            const timer = setInterval(() => {
+                codeCountdown.value--
+                if (codeCountdown.value <= 0) {
+                    clearInterval(timer)
+                    codeBtnDisabled.value = false
+                }
+            }, 1000)
+        } else {
+            showMessage(res.message || '验证码发送失败', 'error')
+            refreshPicture()
+            phoneForm.pictureResult = ''
+        }
+    }).catch(() => {
+        showMessage('验证码发送失败', 'error')
+        refreshPicture()
+        phoneForm.pictureResult = ''
+    })
+}
+
+// 手机验证码登录
+const onPhoneSubmit = () => {
+    phoneFormRef.value.validate((valid) => {
+        if (!valid) {
+            console.log('表单验证不通过')
+            return false
+        }
+        loading.value = true
+        // 调用登录接口，type=1 表示手机验证码登录
+        login(phoneForm.phone, '', 1, phoneForm.code).then((res) => {
+            console.log(res)
+            if (res.success == true) {
+                let token = res.data
+                setToken(token)
+                getUserInfoWithAuth().then(userRes => {
+                    if (userRes.success == true) {
+                        userStore.setUserInfoDirect(userRes.data)
+                        showMessage('登录成功')
+                        router.push('/')
+                    } else {
+                        showMessage('获取用户信息失败', 'error')
+                    }
+                }).catch(() => {
+                    showMessage('获取用户信息失败', 'error')
+                })
+            } else {
+                let message = res.message
+                showMessage(message, 'error')
+            }
+        }).finally(() => {
+            loading.value = false
+        })
+    })
+}
+
 const onSubmit = () => {
     console.log('登录')
     // 先验证 form 表单字段
@@ -116,8 +321,8 @@ const onSubmit = () => {
         // 开始加载
         loading.value = true
 
-        // 调用登录接口
-        login(form.phone, form.password).then((res) => {
+        // 调用登录接口，type=2 表示账号密码登录
+        login(form.phone, form.password, 2).then((res) => {
             console.log(res)
             // 判断是否成功
             if (res.success == true) {
@@ -160,7 +365,11 @@ const onSubmit = () => {
 function onKeyUp(e) {
     console.log(e)
     if (e.key == 'Enter') {
-        onSubmit()
+        if (loginType.value === 'password') {
+            onSubmit()
+        } else {
+            onPhoneSubmit()
+        }
     }
 }
 
@@ -173,6 +382,7 @@ onMounted(() => {
 // 移除键盘监听
 onBeforeUnmount(() => {
     document.removeEventListener('keyup', onKeyUp)
+    stopPictureTimer()
 })
 
 // 是否是白天

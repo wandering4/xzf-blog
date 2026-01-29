@@ -11,6 +11,7 @@ import AdminCategoryList from '@/pages/admin/category-list.vue'
 import AdminTagList from '@/pages/admin/tag-list.vue'
 import AdminCommentList from '@/pages/admin/comment-list.vue'
 import AdminAdvertisementList from '@/pages/admin/advertisement-list.vue'
+import AdminUserList from '@/pages/admin/user-list.vue'
 import PersonalDashboard from '@/pages/personal/dashboard.vue'
 import PersonalBlogSettings from '@/pages/personal/blog-settings.vue'
 import PersonalArticleList from '@/pages/personal/article-list.vue'
@@ -115,6 +116,13 @@ const routes = [
                 component: AdminAdvertisementList,
                 meta: {
                     title: '广告图管理'
+                }
+            },
+            {
+                path: "/admin/user/list",
+                component: AdminUserList,
+                meta: {
+                    title: '用户管理'
                 }
             },
         ]

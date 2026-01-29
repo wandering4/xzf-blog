@@ -1,6 +1,6 @@
 package com.xzf.blog.user.biz.sms;
 
-import com.aliyun.dysmsapi20170525.Client;
+import com.aliyun.dypnsapi20170525.Client;
 import com.aliyun.teaopenapi.models.Config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -22,7 +22,9 @@ public class AliyunSmsClientConfig {
     @Bean
     public Client smsClient() {
         try {
+            com.aliyun.credentials.Client credential = new com.aliyun.credentials.Client();
             Config config = new Config()
+                    .setCredential(credential)
                     // 必填
                     .setAccessKeyId(aliyunSmsProperties.getAccessKeyId())
                     // 必填

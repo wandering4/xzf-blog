@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.alibaba.nacos.shaded.com.google.common.base.Preconditions;
+import com.wf.captcha.SpecCaptcha;
 import com.xzf.blog.framework.commons.constant.RedisKeyConstants;
 import com.xzf.blog.framework.commons.exception.BizException;
 import com.xzf.blog.framework.commons.response.Response;
@@ -30,6 +31,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -174,11 +178,45 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public void getVerificationPicture(String pictureId, HttpServletResponse response) {
+        String redisKey=RedisKeyConstants.buildVerificationPictureKey(pictureId);
+
+        SpecCaptcha captcha = new SpecCaptcha(130, 48, 4);
+        captcha.setFont(new Font("Verdana", Font.PLAIN, 32));
+        String result = captcha.text();
+        redisTemplate.opsForValue().set(redisKey, result, 5, TimeUnit.MINUTES);
+
+        // 输出图片
+        try {
+            response.setContentType("image/png");
+            response.setHeader("Pragma", "no-cache");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setDateHeader("Expires", 0);
+            captcha.out(response.getOutputStream());
+        } catch (IOException e) {
+            throw new BizException(BizResponseCodeEnum.VERIFICATION_PICTURE_GENERATE_FAIL);
+        }
+    }
+
+    @Override
     public Response<?> send(SendVerificationCodeReqVO sendVerificationCodeReqVO) {
         String phone = sendVerificationCodeReqVO.getPhone();
-        String key = RedisKeyConstants.buildVerificationCodeKey(phone);
+        String pictureId= sendVerificationCodeReqVO.getPictureId();
+        String userPicRes = sendVerificationCodeReqVO.getPictureResult();
 
-        boolean exist = redisTemplate.hasKey(key);
+        // 校验图片验证码
+        String pictureKey = RedisKeyConstants.buildVerificationPictureKey(pictureId);
+        String pictureRes = (String) redisTemplate.opsForValue().get(pictureKey);
+        if (StringUtils.isEmpty(pictureRes)) {
+            throw new BizException(BizResponseCodeEnum.VERIFICATION_PICTURE_NOT_EXIST);
+        }
+        if (!pictureRes.equalsIgnoreCase(userPicRes)) {
+            throw new BizException(BizResponseCodeEnum.VERIFICATION_PICTURE_ERROR);
+        }
+
+        // 校验之前的邮箱验证码
+        String codeKey = RedisKeyConstants.buildVerificationCodeKey(phone);
+        boolean exist = redisTemplate.hasKey(codeKey);
         if (exist) {
             //若之前的验证码未过期，则提示发送频繁
             throw new BizException(BizResponseCodeEnum.VERIFICATION_CODE_SEND_FREQUENTLY);
@@ -190,11 +228,11 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("-->手机号：{},已生成验证码：[{}]", phone, verificationCode);
 
-        //调用第三方短信发送服务
+        //调用第三方阿里云邮件发送服务
         threadPoolTaskExecutor.submit(() -> {
-            String signName = "阿里云短信测试";
-            String templateCode = "SMS_154950909";
-            String templateParam = String.format("{\"code\":\"%s\"}", verificationCode);
+            String signName = "速通互联验证码";
+            String templateCode = "100001";
+            String templateParam = String.format("{\"code\":\"%s\",\"min\":\"%d\"}", verificationCode, 5);
             aliyunSmsHelper.sendMessage(signName, templateCode, phone, templateParam);
         });
 
@@ -203,7 +241,8 @@ public class AuthServiceImpl implements AuthService {
 
 
         //验证码存储到redis,方便后面校验
-        redisTemplate.opsForValue().set(key, verificationCode, 3, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(codeKey, verificationCode, 5, TimeUnit.MINUTES);
+        redisTemplate.delete(pictureKey);
 
         return Response.success();
     }

@@ -8,8 +8,8 @@
                 <div class="flex gap-3">
                     <!-- 头像 -->
                     <div>
-                        <img v-if="commentStore.userInfo.avatar && commentStore.userInfo.avatar.length > 0"
-                            :src="commentStore.userInfo.avatar" class="w-10 h-10 rounded-full">
+                        <img v-if="userStore.userInfo.avatarUrl && userStore.userInfo.avatarUrl.length > 0"
+                            :src="userStore.userInfo.avatarUrl" class="w-10 h-10 rounded-full">
                         <svg v-else class="w-10 h-10 text-gray-400 dark:text-gray-400" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                             <path

@@ -17,7 +17,7 @@ import java.util.List;
 public class FindUsersByIdsReqDTO {
 
     @NotNull(message = "用户 ID 集合不能为空")
-    @Size(min = 1, max = 20, message = "用户 ID 集合大小必须大于等于 1, 小于等于 20")
+    @Size(min = 1, max = 50, message = "用户 ID 集合大小必须大于等于 1，小于等于 50")
     private List<Long> ids;
 
 }

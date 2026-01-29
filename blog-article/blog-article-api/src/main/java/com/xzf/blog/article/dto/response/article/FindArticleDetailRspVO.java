@@ -1,6 +1,7 @@
 package com.xzf.blog.article.dto.response.article;
 
 import com.xzf.blog.article.dto.response.tag.FindTagListRspVO;
+import com.xzf.blog.article.dto.vo.UserInfoVO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +19,10 @@ public class FindArticleDetailRspVO {
      * 文章标题
      */
     private String title;
+    /**
+     * 作者信息
+     */
+    private UserInfoVO authorInfo;
     /**
      * 文章正文（HTML）
      */

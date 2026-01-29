@@ -34,7 +34,7 @@ public interface TagService {
      * 查询标签 Select 列表数据
      * @return
      */
-    Response findTagSelectList();
+    Response<List<SelectRspVO>> findTagSelectList();
 
     Response<List<SelectRspVO>> searchTag(SearchTagReqVO req);
 }

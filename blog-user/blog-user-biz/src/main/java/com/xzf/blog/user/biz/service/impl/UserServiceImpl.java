@@ -4,13 +4,15 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.alibaba.nacos.shaded.com.google.common.base.Preconditions;
 import com.alibaba.nacos.shaded.com.google.common.collect.Lists;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xzf.blog.framework.commons.exception.BizException;
 import com.xzf.blog.framework.commons.response.PageResponse;
 import com.xzf.blog.framework.commons.response.Response;
 import com.xzf.blog.framework.commons.util.JsonUtils;
 import com.xzf.blog.framework.commons.util.ParamUtils;
-import com.xzf.blog.user.biz.constant.MQConstants;
+import com.xzf.blog.user.biz.model.vo.request.UpdateRoleRequest;
+import com.xzf.blog.user.constant.MQConstants;
 import com.xzf.blog.user.biz.constant.RedisKeyConstants;
 import com.xzf.blog.user.biz.convert.UserConvert;
 import com.xzf.blog.user.biz.domain.dataobject.RoleDO;
@@ -46,7 +48,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
@@ -451,6 +452,22 @@ public class UserServiceImpl implements UserService {
         // redis缓存
         String userInfoRedisKey = RedisKeyConstants.buildUserInfoKey(userId);
         redisTemplate.delete(userInfoRedisKey);
+
+        // 发送用户删除事件
+        Message<Long> message = MessageBuilder.withPayload(userId).build();
+        rocketMQTemplate.asyncSend(MQConstants.USER_DELETE, message,
+                new SendCallback() {
+                    @Override
+                    public void onSuccess(SendResult sendResult) {
+                        log.info("## 用户删除消息发送成功...");
+                    }
+
+                    @Override
+                    public void onException(Throwable e) {
+                        log.error("## 用户删除消息发送失败...", e);
+                    }
+                }
+        );
         return Response.success();
     }
 
@@ -470,13 +487,35 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Response<?> updateRole(UpdateRoleRequest req) {
+        Long userId = req.getUserId();
+        Long roleId = req.getRoleId();
+
+        RoleEnums role = RoleEnums.getEnum(roleId);
+        if (Objects.isNull(role)) {
+            throw new BizException(BizResponseCodeEnum.ROLE_NOT_FOUND);
+        }
+
+        LambdaUpdateWrapper<UserRoleDO> updateWrapper = new LambdaUpdateWrapper<UserRoleDO>()
+                .set(UserRoleDO::getRoleId, roleId)
+                .eq(UserRoleDO::getUserId, userId);
+        int update = userRoleDOMapper.update(updateWrapper);
+        if (update == 0) {
+            throw new BizException(BizResponseCodeEnum.USER_NOT_FOUND);
+        }
+        return Response.success();
+    }
+
+    @Override
     public PageResponse<FindUserPageListRspVO> findUserPage(FindUserPageRequest req) {
         Long current = req.getCurrent();
         Long size = req.getSize();
         String name = req.getName();
+        Long userId = LoginUserContextHolder.getUserId();
 
         // 查询用户表
-        Page<UserDO> commentDOPage = userDOMapper.selectPageList(current,size,name);
+        Page<UserDO> commentDOPage = userDOMapper.selectPageList(current, size, name, userId);
         List<UserDO> userDOs = commentDOPage.getRecords();
 
         // DO 转 VO
@@ -485,14 +524,26 @@ public class UserServiceImpl implements UserService {
             // 查询所有相关角色
             List<Long> userIds = userDOs.stream().map(UserDO::getId).toList();
             List<UserRoleDO> userRoleDOS = userRoleDOMapper.selectByUserIds(userIds);
-            List<Long> roleIds = userRoleDOS.stream().map(UserRoleDO::getRoleId).toList();
+            List<Long> roleIds = userRoleDOS.stream().distinct().map(UserRoleDO::getRoleId).toList();
             List<RoleDO> roles = roleDOMapper.selectBatchIds(roleIds);
 
+            // 构建 <角色id, 角色对象> 映射
+            Map<Long, RoleDO> roleMap = roles.stream()
+                    .collect(Collectors.toMap(
+                            RoleDO::getId,  // 使用角色ID作为key
+                            role -> role,   // 角色对象本身作为value
+                            (existing, replacement) -> existing  // 如果有重复key，保留现有的
+                    ));
             // 构建<用户id，角色>映射
-            Map<Long,RoleDO> roleMap = roles.stream().collect(Collectors.toMap(RoleDO::getId, p -> p));
+            Map<Long, RoleDO> userRoleMapSingle = userRoleDOS.stream()
+                    .collect(Collectors.toMap(
+                            UserRoleDO::getUserId,
+                            userRoleDO -> roleMap.get(userRoleDO.getRoleId()),
+                            (existing, replacement) -> existing  // 如果有重复用户ID，保留现有的角色
+                    ));
 
             vos = userDOs.stream()
-                    .map(userDO-> UserConvert.userDOtoPageVO(userDO,roleMap.get(userDO.getId())))
+                    .map(userDO-> UserConvert.userDOtoPageVO(userDO,userRoleMapSingle.get(userDO.getId())))
                     .toList();
         }
         return PageResponse.success(commentDOPage, vos);

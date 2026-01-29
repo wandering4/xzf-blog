@@ -68,6 +68,11 @@ const menus = [
         'icon': 'Picture',
         'path': '/admin/advertisement/list',
     },
+    {
+        'name': '用户管理',
+        'icon': 'User',
+        'path': '/admin/user/list',
+    },
 ]
 </script>
 

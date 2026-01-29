@@ -1,6 +1,7 @@
 package com.xzf.blog.article.dto.response.article;
 
 import com.xzf.blog.article.dto.response.tag.FindTagListRspVO;
+import com.xzf.blog.article.dto.vo.UserInfoVO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,6 +29,8 @@ public class FindIndexArticlePageListRspVO {
      * 文章标签
      */
     private List<FindTagListRspVO> tags;
+
+    private UserInfoVO authorInfo;
 
     /**
      * 是否置顶
