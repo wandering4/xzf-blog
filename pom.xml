@@ -22,7 +22,7 @@
 
     <properties>
         <!-- 项目版本号 -->
-        <revision>1.0-SNAPSHOT</revision>
+        <revision>2.0-SNAPSHOT</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- JDK 版本 -->
         <java.version>17</java.version>
