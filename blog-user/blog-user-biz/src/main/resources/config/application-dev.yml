@@ -72,3 +72,7 @@ rocketmq:
     group: blog_group
     pull-batch-size: 5 # 每次拉取的最大消息数
 
+aliyun: # 接入阿里云（发送短信使用）
+  sms:
+    endpoint: dypnsapi.aliyuncs.com
+

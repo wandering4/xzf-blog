@@ -34,7 +34,6 @@ public final class ParamUtils {
         return !pattern.matcher(nickname).find();
     }
 
-    // ============================== 校验小红书号 ==============================
     // 定义 ID 长度范围
     private static final int ID_MIN_LENGTH = 6;
     private static final int ID_MAX_LENGTH = 15;

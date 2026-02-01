@@ -2,8 +2,10 @@
 # 对象存储配置
 #=================================================================
 storage:
-  type: minio
+  type: aliyun
   minio:
     endpoint: http://127.0.0.1:9000
     accessKey: xzf040116
     secretKey: xzf040116
+  aliyun-oss:
+    endpoint: oss-cn-shanghai.aliyuncs.com

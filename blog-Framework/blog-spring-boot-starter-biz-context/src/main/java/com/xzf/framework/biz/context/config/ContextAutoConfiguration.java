@@ -14,14 +14,12 @@ public class ContextAutoConfiguration {
     @Bean
     public FilterRegistrationBean<HeaderUserId2ContextFilter> filterFilterRegistrationIdBean() {
         HeaderUserId2ContextFilter filter = new HeaderUserId2ContextFilter();
-        FilterRegistrationBean<HeaderUserId2ContextFilter> bean = new FilterRegistrationBean<>(filter);
-        return bean;
+        return new FilterRegistrationBean<>(filter);
     }
 
     @Bean
     public FilterRegistrationBean<HeaderUserRole2ContextFilter> filterFilterRegistrationRoleBean() {
         HeaderUserRole2ContextFilter filter = new HeaderUserRole2ContextFilter();
-        FilterRegistrationBean<HeaderUserRole2ContextFilter> bean = new FilterRegistrationBean<>(filter);
-        return bean;
+        return new FilterRegistrationBean<>(filter);
     }
 }

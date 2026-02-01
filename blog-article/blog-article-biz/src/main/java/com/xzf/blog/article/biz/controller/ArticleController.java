@@ -72,7 +72,6 @@ public class ArticleController {
 
     @PostMapping("/updateSummary")
     @ApiOperationLog(description = "更新摘要")
-    @PreAuthorize(hasRoles = "root")
     public Response<?> updateArticleSummary(@RequestBody @Validated UpdateArticleSummaryRequest req) {
         return articleService.updateArticleSummary(req);
     }

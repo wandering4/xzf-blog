@@ -7,18 +7,24 @@
             <!-- 标签集合 -->
             <div v-if="article.tags && article.tags.length > 0" class="mb-5">
                 <span @click="goTagArticleListPage(tag.id, tag.name)" v-for="(tag, index) in article.tags" :key="index"
-                    class="inline-block mb-1 cursor-pointer bg-green-100 text-green-800 text-sm font-medium me-2 
-                    px-2.5 py-0.5 rounded-md hover:bg-green-200 hover:text-green-900 
-                    dark:bg-green-900 dark:hover:bg-green-950 dark:text-green-300">
-                    # {{ tag.name }}
+                    class="inline-block mb-1 cursor-pointer bg-green-100 text-green-800 text-sm font-medium me-2
+                    px-3 py-1 rounded-full hover:bg-green-200 hover:text-green-900 hover:shadow-lg hover:shadow-green-500/30
+                    dark:bg-green-900/50 dark:hover:bg-green-800 dark:text-green-300 dark:hover:text-green-200
+                    transition-all duration-300 ease-out transform hover:-translate-y-0.5">
+                    <span class="mr-1">#</span>{{ tag.name }}
                 </span>
             </div>
             
             <!-- 文章标题 -->
-            <h1 class="font-bold text-4xl md:text-5xl mb-8 dark:text-white">{{ article.title }}</h1>
+            <h1 class="font-bold text-4xl md:text-5xl mb-8 dark:text-white
+                bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300
+                bg-clip-text text-transparent
+                drop-shadow-sm">
+                {{ article.title }}
+            </h1>
 
             <!-- Meta 信息 -->
-            <div class="flex gap-3 md:gap-6 text-gray-400 items-center text-sm">
+            <div class="flex gap-3 md:gap-6 text-gray-400 items-center text-sm flex-wrap">
                 <!-- 字数 -->
                 <div class="flex items-center" data-tooltip-target="word-tooltip-bottom" data-tooltip-placement="bottom">
                     <svg t="1701512226243" class="w-4 h-4 mr-1 icon" viewBox="0 0 1024 1024" version="1.1"
@@ -209,6 +215,9 @@
     <!-- 返回顶部 -->
     <ScrollToTopButton></ScrollToTopButton>
 
+    <!-- AI 对话 -->
+    <AIChat :articleId="route.params.articleId"></AIChat>
+
     <Footer></Footer>
 </template>
 
@@ -220,6 +229,7 @@ import TagListCard from '@/layouts/frontend/components/TagListCard.vue'
 import CategoryListCard from '@/layouts/frontend/components/CategoryListCard.vue'
 import ScrollToTopButton from '@/layouts/frontend/components/ScrollToTopButton.vue'
 import Toc from '@/layouts/frontend/components/Toc.vue'
+import AIChat from '@/layouts/frontend/components/AIChat.vue'
 import { getArticleDetail } from '@/api/frontend/article'
 import { useRoute, useRouter } from 'vue-router'
 import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
