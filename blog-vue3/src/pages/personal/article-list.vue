@@ -149,10 +149,6 @@
                         </el-icon>
                     </el-upload>
                 </el-form-item>
-                <el-form-item label="摘要" prop="summary">
-                    <!-- :rows="3" 指定 textarea 默认显示 3 行 -->
-                    <el-input v-model="updateArticleForm.summary" :rows="3" type="textarea" placeholder="请输入文章摘要" />
-                </el-form-item>
                 <el-form-item label="分类" prop="categoryId">
                     <el-select v-model="updateArticleForm.categoryId" clearable placeholder="---请选择---" size="large">
                         <el-option v-for="item in categories" :key="item.value" :label="item.label" :value="item.value" />
@@ -212,10 +208,6 @@
                             <Plus />
                         </el-icon>
                     </el-upload>
-                </el-form-item>
-                <el-form-item label="摘要" prop="summary">
-                    <!-- :rows="3" 指定 textarea 默认显示 3 行 -->
-                    <el-input v-model="form.summary" :rows="3" type="textarea" placeholder="请输入文章摘要" />
                 </el-form-item>
                 <el-form-item label="分类" prop="categoryId">
                     <el-select v-model="form.categoryId" clearable placeholder="---请选择---" size="large">
@@ -546,21 +538,19 @@ const publishArticleSubmit = () => {
 
 // 编辑器图片上传
 const onUploadImg = async (files, callback) => {
-    const res = await Promise.all(
-        files.map((file) => {
-            return new Promise((rev, rej) => {
-                console.log('==> 编辑器开始上传文件...')
-                let formData = new FormData()
-                formData.append("file", file);
-                uploadFile(formData).then((res) => {
-                    console.log(res)
-                    console.log('访问路径：' + res.data)
-                    // 调用 callback 函数，回显上传图片
-                    callback([res.data]);
-                })
-            });
-        })
-    );
+    for (const file of files) {
+        const formData = new FormData()
+        formData.append("file", file)
+        try {
+            const res = await uploadFile(formData)
+            console.log(res)
+            console.log('访问路径：' + res.data)
+            // 每个图片上传成功后立即回调
+            callback([res.data])
+        } catch (error) {
+            console.error('图片上传失败：', error)
+        }
+    }
 }
 
 // 根据用户输入的标签名称，远程模糊查询

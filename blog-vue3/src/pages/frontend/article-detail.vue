@@ -23,6 +23,27 @@
                 {{ article.title }}
             </h1>
 
+            <!-- AI 智能摘要 -->
+            <div v-if="article.summary" class="mb-8 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 
+                dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg border border-blue-100 
+                dark:border-blue-800/50">
+                <div class="flex items-center mb-2">
+                    <svg class="w-5 h-5 mr-2 text-blue-500 dark:text-blue-400" viewBox="0 0 24 24" 
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+                        stroke-linejoin="round">
+                        <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+                        <path d="M12 2a10 10 0 0 1 10 10"/>
+                        <circle cx="12" cy="12" r="6"/>
+                    </svg>
+                    <span class="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                        AI 智能摘要
+                    </span>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 text-base leading-relaxed">
+                    {{ article.summary }}
+                </p>
+            </div>
+
             <!-- Meta 信息 -->
             <div class="flex gap-3 md:gap-6 text-gray-400 items-center text-sm flex-wrap">
                 <!-- 字数 -->

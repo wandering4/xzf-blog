@@ -22,7 +22,7 @@
         <el-card shadow="never">
             <!-- 写文章按钮 -->
             <div class="mb-5">
-                <el-button type="primary" @click="isArticlePublishEditorShow = true">
+                <el-button type="primary" @click="isArticlePublishEditorShow = true" disabled>
                     <el-icon class="mr-1">
                         <EditPen />
                     </el-icon>
@@ -57,6 +57,17 @@
                             </span>
                         </div>
                         <span v-else class="text-gray-400">无标签</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="authorInfo" label="作者" width="150">
+                    <template #default="scope">
+                        <div v-if="scope.row.authorInfo" class="flex items-center gap-2">
+                            <el-avatar :size="28" :src="scope.row.authorInfo.avatarUrl">
+                                {{ scope.row.authorInfo.userName?.charAt(0) }}
+                            </el-avatar>
+                            <span>{{ scope.row.authorInfo.userName }}</span>
+                        </div>
+                        <span v-else class="text-gray-400">未知作者</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="isTop" label="是否置顶" width="100">
@@ -458,21 +469,19 @@ const handleUpdateCoverChange = (file) => {
 
 // 编辑器图片上传
 const onUploadImg = async (files, callback) => {
-    const res = await Promise.all(
-        files.map((file) => {
-            return new Promise((rev, rej) => {
-                console.log('==> 编辑器开始上传文件...')
-                let formData = new FormData()
-                formData.append("file", file);
-                uploadFile(formData).then((res) => {
-                    console.log(res)
-                    console.log('访问路径：' + res.data)
-                    // 调用 callback 函数，回显上传图片
-                    callback([res.data]);
-                })
-            });
-        })
-    );
+    for (const file of files) {
+        const formData = new FormData()
+        formData.append("file", file)
+        try {
+            const res = await uploadFile(formData)
+            console.log(res)
+            console.log('访问路径：' + res.data)
+            // 每个图片上传成功后立即回调
+            callback([res.data])
+        } catch (error) {
+            console.error('图片上传失败：', error)
+        }
+    }
 }
 
 // 文章分类

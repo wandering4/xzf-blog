@@ -24,6 +24,10 @@ public class FindArticleDetailRspVO {
      */
     private UserInfoVO authorInfo;
     /**
+     * 文章概要
+     */
+    private String summary;
+    /**
      * 文章正文（HTML）
      */
     private String content;

@@ -477,11 +477,12 @@ public class ArticleServiceImpl implements ArticleService {
             // DO 转 VO
             vo = FindArticleDetailRspVO.builder()
                     .title(articleDO.getTitle())
-                    .createTime(articleDO.getCreateTime())
+                    .summary(articleDO.getSummary())
                     .content(MarkdownHelper.convertMarkdown2Html(content))
                     .readNum(articleDO.getViewCount())
                     .totalWords(totalWords)
                     .readTime(MarkdownStatsUtil.calculateReadingTime(totalWords))
+                    .createTime(articleDO.getCreateTime())
                     .updateTime(articleDO.getUpdateTime())
                     .build();
 
@@ -618,7 +619,6 @@ public class ArticleServiceImpl implements ArticleService {
                 .id(articleId)
                 .title(req.getTitle())
                 .cover(req.getCover())
-                .summary(req.getSummary())
                 .updateTime(LocalDateTime.now())
                 .build();
         int count = articleMapper.updateById(articleDO);
