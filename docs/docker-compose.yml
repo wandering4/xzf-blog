@@ -1,6 +1,52 @@
 version: '3.8'
 
 services:
+  # RocketMQ 服务
+  namesrv:
+    image: apache/rocketmq:5.3.2
+    container_name: rmqnamesrv
+    ports:
+      - 9876:9876
+    networks:
+      - rocketmq
+    volumes:
+      - ./docker/rocketmq/namesrv/broker.conf:/home/rocketmq/rocketmq-5.3.2/conf/broker.conf
+    command: sh mqnamesrv
+
+  broker:
+    image: apache/rocketmq:5.3.2
+    container_name: rmqbroker
+    ports:
+      - 10909:10909
+      - 10911:10911
+      - 10912:10912
+    environment:
+      - NAMESRV_ADDR=rmqnamesrv:9876
+    depends_on:
+      - namesrv
+    networks:
+      - rocketmq
+    volumes:
+      - ./docker/rocketmq/broker/broker.conf:/home/rocketmq/rocketmq-5.3.2/conf/broker.conf
+    command: sh mqbroker -c /home/rocketmq/rocketmq-5.3.2/conf/broker.conf
+
+  proxy:
+    image: apache/rocketmq:5.3.2
+    container_name: rmqproxy
+    networks:
+      - rocketmq
+    depends_on:
+      - broker
+      - namesrv
+    ports:
+      - 8080:8080
+      - 8081:8081
+    restart: on-failure
+    environment:
+      - NAMESRV_ADDR=rmqnamesrv:9876
+    command: sh mqproxy
+
+  # Nacos 服务
   nacos:
     image: nacos/nacos-server:v2.3.2
     container_name: nacos
@@ -9,20 +55,45 @@ services:
       - "9848:9848"
       - "9849:9849"
     volumes:
-      - E:\docker\nacos\standalone\logs:/home/nacos/logs
-      - E:\docker\nacos\standalone\data:/home/nacos/data
+      - ./docker/nacos/standalone/logs:/home/nacos/logs
+      - ./docker/nacos/standalone/data:/home/nacos/data
     environment:
       - MODE=standalone
       - NACOS_AUTH_ENABLE=false
     restart: unless-stopped
 
+  # Redis 服务
   redis:
     image: redis:7.0-alpine
     container_name: redis
     ports:
       - "6379:6379"
     volumes:
-      - E:\docker\redis\conf:/usr/local/etc/redis
-      - E:\docker\redis\data:/data
+      - ./docker/redis/conf:/usr/local/etc/redis
+      - ./docker/redis/data:/data
     command: redis-server /usr/local/etc/redis/redis.conf
     restart: unless-stopped
+
+  # MySQL 8.0.21 服务
+  mysql:
+    image: mysql:8.0.21
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_ROOT_HOST=%
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+      - ./docker/mysql/conf:/etc/mysql/conf.d
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --explicit_defaults_for_timestamp=1
+    restart: unless-stopped
+
+# 网络配置
+networks:
+  rocketmq:
+    driver: bridge
