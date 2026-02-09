@@ -1,104 +1,138 @@
 <template>
-    <!-- 使用 grid 网格布局，并指定列数为 2，高度占满全屏 -->
-    <div class="grid grid-cols-2 h-screen">
-        <!-- 默认占两列，order 用于指定排列顺序，md 用于适配非移动端（PC 端） -->
-        <div class="col-span-2 order-2 p-10 md:col-span-1 md:order-1 bg-slate-900 relative">
-            <!-- 返回首页按钮（左半边左上） -->
-            <el-button class="absolute top-4 left-4 text-white" type="link" @click="goHome">返回首页</el-button>
-            <!-- 指定为 flex 布局，并设置为屏幕垂直水平居中，高度为 100% -->
-            <div
-                class="flex justify-center items-center h-full flex-col animate__animated animate__bounceInLeft animate__fast">
-                <h2 class="font-bold text-4xl mb-7 text-white">Weblog 博客登录</h2>
-                <!-- 指定图片宽度为父级元素的 1/2 -->
-                <img src="@/assets/developer.png" class="w-1/2">
-            </div>
+  <div class="login-page">
+    <!-- 背景图片 -->
+    <img src="@/assets/login-bg.png" alt="login background" class="login__bg">
+
+    <!-- 返回首页按钮 -->
+    <el-button class="back-home-btn" type="link" @click="goHome">
+      <i class="ri-arrow-left-line"></i> 返回首页
+    </el-button>
+
+    <!-- 登录表单卡片 -->
+    <div class="login__form-container">
+      <div class="login__form animate__animated animate__fadeInUp">
+        <h1 class="login__title">Login</h1>
+
+        <!-- 登录方式切换 -->
+        <div class="login__type-switch">
+          <span class="switch-line"></span>
+          <span class="switch-text">{{ loginType === 'password' ? '账号密码登录' : '手机验证码登录' }}</span>
+          <span class="switch-line"></span>
         </div>
-        <div class="flex flex-col col-span-2 order-1 md:col-span-1 md:order-2 bg-white dark:bg-gray-800">
 
-            <!-- 顶部：黑夜白天开关 -->
-            <div class="flex justify-end items-center">
-                <label class="switch ml-auto mt-4 mr-4">
-                    <input type="checkbox" v-model="isLight" @click="toggleDark()">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <!-- flex-col 用于指定子元素垂直排列 -->
-            <div
-                class="flex justify-center items-center h-full flex-col animate__animated animate__bounceInRight animate__fast">
-                <!-- 大标题，设置字体粗细、大小、下边距 -->
-                <h1 class="font-bold text-4xl mb-5 dark:text-white">欢迎回来</h1>
-                <!-- 设置 flex 布局，内容垂直水平居中，文字颜色，以及子内容水平方向 x 轴间距 -->
-                <div class="flex items-center justify-center mb-7 text-gray-400 space-x-2 dark:text-gray-500">
-                    <!-- 左边横线，高度为 1px, 宽度为 16，背景色设置 -->
-                    <span class="h-[1px] w-16 bg-gray-200 dark:bg-gray-700"></span>
-                    <span>{{ loginType === 'password' ? '账号密码登录' : '手机验证码登录' }}</span>
-                    <!-- 右边横线 -->
-                    <span class="h-[1px] w-16 bg-gray-200 dark:bg-gray-700"></span>
-                </div>
-
-                <!-- 切换登录方式按钮 -->
-                <div class="mb-5">
-                    <el-button type="primary" link @click="switchLoginType">
-                        {{ loginType === 'password' ? '使用手机验证码登录' : '使用账号密码登录' }}
-                    </el-button>
-                </div>
-
-                <!-- 引入 Element Plus 表单组件，移动端设置宽度为 5/6，PC 端设置为 2/5 -->
-                <el-form v-if="loginType === 'password'" class="w-5/6 md:w-2/5" ref="formRef" :rules="rules" :model="form">
-                    <el-form-item prop="phone">
-                        <!-- 输入框组件 -->
-                        <el-input size="large" v-model="form.phone" placeholder="请输入手机号" :prefix-icon="User" clearable />
-                    </el-form-item>
-                    <el-form-item prop="password">
-                        <!-- 密码框组件 -->
-                        <el-input size="large" type="password" v-model="form.password" placeholder="请输入密码"
-                            :prefix-icon="Lock" clearable show-password />
-                    </el-form-item>
-                    <el-form-item>
-                        <!-- 登录按钮，宽度设置为 100% -->
-                        <el-button class="w-full mt-2" size="large" :loading="loading" type="primary" @click="onSubmit">登录</el-button>
-                    </el-form-item>
-                </el-form>
-
-                <!-- 手机验证码登录表单 -->
-                <el-form v-else class="w-5/6 md:w-2/5" ref="phoneFormRef" :rules="phoneRules" :model="phoneForm">
-                    <el-form-item prop="phone">
-                        <el-input size="large" v-model="phoneForm.phone" placeholder="请输入手机号" :prefix-icon="User" clearable />
-                    </el-form-item>
-                    <el-form-item prop="pictureResult">
-                        <div class="flex w-full gap-2">
-                            <el-input size="large" v-model="phoneForm.pictureResult" placeholder="请输入图片验证码" />
-                            <img v-if="pictureUrl" :src="pictureUrl" @click="refreshPicture" class="h-12 cursor-pointer rounded border border-gray-300" alt="验证码" />
-                        </div>
-                    </el-form-item>
-                    <el-form-item prop="code">
-                        <div class="flex w-full gap-2">
-                            <el-input size="large" v-model="phoneForm.code" placeholder="请输入短信验证码" />
-                            <el-button size="large" type="primary" :disabled="codeBtnDisabled || !phoneForm.pictureResult" @click="sendCode">
-                                {{ codeCountdown > 0 ? `${codeCountdown}s后重发` : '获取验证码' }}
-                            </el-button>
-                        </div>
-                    </el-form-item>
-                    <el-form-item>
-                        <el-button class="w-full mt-2" size="large" :loading="loading" type="primary" @click="onPhoneSubmit">登录</el-button>
-                    </el-form-item>
-                </el-form>
-            </div>
+        <div class="login__type-btn">
+          <el-button type="primary" link @click="switchLoginType">
+            {{ loginType === 'password' ? '使用手机验证码登录' : '使用账号密码登录' }}
+          </el-button>
         </div>
+
+        <!-- 账号密码登录表单 -->
+        <el-form v-if="loginType === 'password'" class="login__form-content" ref="formRef" :rules="rules" :model="form">
+          <!-- 手机号输入框 -->
+          <div class="login__box">
+            <i class="ri-user-3-line login__icon"></i>
+            <div class="login__box-input">
+              <el-input
+                class="login__input"
+                v-model="form.phone"
+                placeholder=" "
+                id="phone-input"
+                clearable
+              />
+              <label for="phone-input" class="login__label">手机号</label>
+            </div>
+          </div>
+
+          <!-- 密码输入框 -->
+          <div class="login__box">
+            <i class="ri-lock-2-line login__icon"></i>
+            <div class="login__box-input">
+              <el-input
+                class="login__input"
+                v-model="form.password"
+                placeholder=" "
+                type="password"
+                id="password-input"
+                show-password
+                clearable
+              />
+              <label for="password-input" class="login__label">密码</label>
+            </div>
+          </div>
+
+          <el-form-item class="login__submit">
+            <el-button class="login__button" :loading="loading" type="primary" @click="onSubmit">登录</el-button>
+          </el-form-item>
+        </el-form>
+
+        <!-- 手机验证码登录表单 -->
+        <el-form v-else class="login__form-content" ref="phoneFormRef" :rules="phoneRules" :model="phoneForm">
+          <!-- 手机号输入框 -->
+          <div class="login__box">
+            <i class="ri-user-3-line login__icon"></i>
+            <div class="login__box-input">
+              <el-input
+                class="login__input"
+                v-model="phoneForm.phone"
+                placeholder=" "
+                id="phone-code-input"
+                clearable
+              />
+              <label for="phone-code-input" class="login__label">手机号</label>
+            </div>
+          </div>
+
+          <!-- 图片验证码 -->
+          <div class="login__box">
+            <i class="ri-image-line login__icon"></i>
+            <div class="login__box-input login__box-input-flex">
+              <el-input
+                class="login__input login__pic-input"
+                v-model="phoneForm.pictureResult"
+                placeholder=" "
+                id="pic-input"
+              />
+              <label for="pic-input" class="login__label">图片验证码</label>
+              <img v-if="pictureUrl" :src="pictureUrl" @click="refreshPicture" class="login__captcha" alt="验证码" />
+            </div>
+          </div>
+
+          <!-- 短信验证码 -->
+          <div class="login__box">
+            <i class="ri-message-3-line login__icon"></i>
+            <div class="login__box-input login__box-input-flex">
+              <el-input
+                class="login__input login__code-input"
+                v-model="phoneForm.code"
+                placeholder=" "
+                id="code-input"
+              />
+              <label for="code-input" class="login__label">短信验证码</label>
+              <el-button class="login__code-btn" size="large" type="primary" :disabled="codeBtnDisabled || !phoneForm.pictureResult" @click="sendCode">
+                {{ codeCountdown > 0 ? `${codeCountdown}s` : '获取验证码' }}
+              </el-button>
+            </div>
+          </div>
+
+          <el-form-item class="login__submit">
+            <el-button class="login__button" :loading="loading" type="primary" @click="onPhoneSubmit">登录</el-button>
+          </el-form-item>
+        </el-form>
+
+        <!-- 暗色模式固定 -->
+      </div>
     </div>
+  </div>
 </template>
 
 <script setup>
-// 引入 Element Plus 中的用户、锁图标
-import { User, Lock } from '@element-plus/icons-vue'
+// 引入 Remix Icons 图标
 import { login, getUserInfoWithAuth, getVerificationPicture, sendVerificationCode } from '@/api/admin/user'
 import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { showMessage} from '@/composables/util'
+import { showMessage } from '@/composables/util'
 import { setToken } from '@/composables/cookie'
 import { useUserStore } from '@/stores/user'
-import { useDark, useToggle } from '@vueuse/core'
 
 const userStore = useUserStore()
 
@@ -108,7 +142,7 @@ const loginType = ref('password')
 // 定义响应式的表单对象
 const form = reactive({
     phone: '17891997260',
-    password: 'bb43181782'
+    password: ''
 })
 
 // 手机验证码登录表单
@@ -384,77 +418,327 @@ onBeforeUnmount(() => {
     document.removeEventListener('keyup', onKeyUp)
     stopPictureTimer()
 })
-
-// 是否是白天
-const isLight = ref(true)
-const isDark = useDark({
-  onChanged(dark) {
-    // update the dom, call the API or something
-    console.log('onchange:' + dark)
-    if (dark) {
-        // 给 body 添加 class="dark"
-        document.documentElement.classList.add('dark');
-        // 设置 switch 的值
-        isLight.value = false
-    } else {
-        // 移除 body 中添加 class="dark"
-        document.documentElement.classList.remove('dark');
-        isLight.value = true
-    }
-  },
-})
-const toggleDark = useToggle(isDark)
 </script>
 
 <style scoped>
-/* The switch - the box around the slider */
-.switch {
-  font-size: 14px;
+/*=============== GOOGLE FONTS ===============*/
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap");
+
+/*=============== LOGIN PAGE - 暗色主题 ===============*/
+.login-page {
   position: relative;
-  display: inline-block;
-  width: 3.5em;
-  height: 2em;
+  height: 100vh;
+  display: grid;
+  align-items: center;
+  font-family: "Poppins", sans-serif;
+  background-color: #1a1a2e;
 }
 
-/* Hide default HTML checkbox */
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-/* The slider */
-.slider {
-  --background: #28096b;
+.login__bg {
   position: absolute;
-  cursor: pointer;
-  top: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+/* 返回首页按钮 */
+.back-home-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  color: #fff !important;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.back-home-btn:hover {
+  text-decoration: underline;
+}
+
+/* 表单容器 */
+.login__form-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-inline: 1.5rem;
+}
+
+/* 登录表单卡片 */
+.login__form {
+  background-color: hsla(0, 0%, 10%, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  padding: 2.5rem 2rem;
+  border-radius: 1rem;
+  backdrop-filter: blur(10px);
+  width: 100%;
+  max-width: 420px;
+  transition: all 0.3s ease;
+}
+
+.login__form:hover {
+  background-color: hsla(0, 0%, 10%, 0.25);
+  border-color: rgba(255, 255, 255, 1);
+}
+
+/* 标题 */
+.login__title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 登录方式切换文字 */
+.login__type-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.switch-line {
+  width: 50px;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.switch-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.875rem;
+}
+
+/* 切换登录方式按钮 */
+.login__type-btn {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.login__type-btn .el-button--primary {
+  color: #ffd700 !important;
+  font-size: 0.875rem;
+}
+
+.login__type-btn .el-button--primary:hover {
+  text-decoration: underline;
+}
+
+/* 表单内容 */
+.login__form-content {
+  display: grid;
+  row-gap: 1.25rem;
+}
+
+/* 输入框容器 */
+.login__box {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  align-items: center;
+  column-gap: 0.75rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+  padding-bottom: 5px;
+  transition: border-color 0.3s ease;
+}
+
+.login__box:focus-within {
+  border-color: #ffd700;
+}
+
+.login__icon {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.login__box-input {
+  position: relative;
+}
+
+.login__box-input-flex {
+  display: flex;
+  align-items: center;
+}
+
+.login__input {
+  width: 100%;
+  padding: 8px 0;
+  background: none;
+  color: #fff;
+  font-size: 1rem;
+  font-family: "Poppins", sans-serif;
+  position: relative;
+  z-index: 1;
+}
+
+.login__input::placeholder {
+  color: transparent;
+}
+
+.login__label {
+  position: absolute;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: var(--background);
-  transition: .5s;
-  border-radius: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  font-size: 1rem;
 }
 
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 1.4em;
-  width: 1.4em;
-  border-radius: 50%;
-  left: 10%;
-  bottom: 15%;
-  box-shadow: inset 8px -4px 0px 0px #fff000;
-  background: var(--background);
-  transition: .5s;
+/* 输入框聚焦或非空时上移标签 */
+.login__input:focus + .login__label,
+.login__input:not(:placeholder-shown) + .login__label {
+  top: -5px;
+  font-size: 0.75rem;
 }
 
-input:checked + .slider {
-  background-color: #522ba7;
+/* 图片验证码输入框 */
+.login__pic-input {
+  flex: 1;
 }
 
-input:checked + .slider:before {
-  transform: translateX(100%);
-  box-shadow: inset 15px -4px 0px 15px #fff000;
-}</style>
+/* 验证码图片 */
+.login__captcha {
+  width: 80px;
+  height: 36px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: border-color 0.3s ease;
+}
+
+.login__captcha:hover {
+  border-color: #ffd700;
+}
+
+/* 短信验证码输入框 */
+.login__code-input {
+  flex: 1;
+}
+
+/* 获取验证码按钮 */
+.login__code-btn {
+  padding: 8px 12px !important;
+  margin-left: 10px;
+  font-size: 0.75rem !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.95) !important;
+  color: #333 !important;
+  border-radius: 6px !important;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.login__code-btn:hover:not(:disabled) {
+  background-color: #fff !important;
+  transform: scale(1.05);
+}
+
+.login__code-btn:disabled {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #999 !important;
+}
+
+/* 登录按钮 */
+.login__submit {
+  margin-bottom: 0;
+  margin-top: 10px;
+}
+
+.login__button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 8px;
+  background-color: #409EFF;
+  font-weight: 500;
+  font-size: 1rem;
+  font-family: "Poppins", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  color: #fff;
+}
+
+.login__button:hover {
+  background-color: #66b1ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+}
+
+/* Element Plus 输入框样式覆盖 */
+.login__input :deep(.el-input__wrapper) {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.login__input :deep(.el-input__inner) {
+  background: transparent !important;
+  color: #fff !important;
+  font-family: "Poppins", sans-serif;
+  font-size: 1rem !important;
+  padding: 0 !important;
+  height: auto !important;
+}
+
+.login__input :deep(.el-input__prefix),
+.login__input :deep(.el-input__suffix) {
+  display: none;
+}
+
+.login__input :deep(.el-form-item__error) {
+  color: #ff6b6b;
+}
+
+/*=============== RESPONSIVE ===============*/
+@media screen and (min-width: 576px) {
+  .login__form-container {
+    justify-content: center;
+  }
+
+  .login__form {
+    width: 400px;
+    padding: 3rem 2.5rem;
+  }
+
+  .login__title {
+    font-size: 1.75rem;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  .login__form {
+    width: 420px;
+    padding: 3.5rem 3rem;
+  }
+}
+
+/*=============== ANIMATIONS ===============*/
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate__fadeInUp {
+  animation: fadeInUp 0.6s ease-out;
+}
+</style>

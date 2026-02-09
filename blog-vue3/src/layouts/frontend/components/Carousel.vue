@@ -46,14 +46,6 @@ import { getPictureList } from '@/api/frontend/advertisement'
 
 // 轮播图片数据（从广告接口动态加载，保留默认占位作为兜底）
 const images = ref([
-    {
-        url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=300&fit=crop&crop=face',
-        title: '技术分享'
-    },
-    {
-        url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&h=300&fit=crop',
-        title: '学习笔记'
-    }
 ])
 
 // 当前显示的图片索引
