@@ -47,7 +47,7 @@ public class UserController {
      * @param updateUserInfoRequest
      * @return
      */
-    @PostMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/update")
     @ApiOperationLog(description = "用户信息修改")
     @PreAuthorize
     public Response<?> updateUserInfo(@Validated @RequestBody UpdateUserInfoRequest updateUserInfoRequest) {

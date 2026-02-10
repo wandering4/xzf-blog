@@ -95,23 +95,20 @@ public class UserServiceImpl implements UserService {
     public Response<?> updateUserInfo(UpdateUserInfoRequest updateUserInfoRequest) {
         // 被更新的用户 ID
         Long userId = LoginUserContextHolder.getUserId();
-
-        UserDO userDO = new UserDO();
-        //获取当前用户id
-        userDO.setId(userId);
+        UserDO userDO = userDOMapper.selectById(userId);
 
         boolean needUpdate = false;
 
         // 头像
         String avatarUrl = updateUserInfoRequest.getAvatarUrl();
-        if (ObjectUtils.isNotEmpty(avatarUrl)) {
+        if (ObjectUtils.isNotEmpty(avatarUrl) && !avatarUrl.equals(userDO.getAvatarUrl())) {
             userDO.setAvatarUrl(avatarUrl);
             needUpdate = true;
         }
 
         // 昵称
         String nickname = updateUserInfoRequest.getNickname();
-        if (StringUtils.isNotBlank(nickname)) {
+        if (StringUtils.isNotBlank(nickname) && !nickname.equals(userDO.getUsername())) {
             Preconditions.checkArgument(ParamUtils.checkNickname(nickname), BizResponseCodeEnum.NICK_NAME_VALID_FAIL.getErrorMessage());
             userDO.setUsername(nickname);
             needUpdate = true;
@@ -120,7 +117,7 @@ public class UserServiceImpl implements UserService {
 
         // 个人简介
         String introduction = updateUserInfoRequest.getIntroduction();
-        if (StringUtils.isNotBlank(introduction)) {
+        if (StringUtils.isNotBlank(introduction) && !introduction.equals(userDO.getIntroduction())) {
             Preconditions.checkArgument(ParamUtils.checkLength(introduction, 100), BizResponseCodeEnum.INTRODUCTION_VALID_FAIL.getErrorMessage());
             userDO.setIntroduction(introduction);
             needUpdate = true;
@@ -140,7 +137,6 @@ public class UserServiceImpl implements UserService {
 
         }
         return Response.success();
-
 
     }
 

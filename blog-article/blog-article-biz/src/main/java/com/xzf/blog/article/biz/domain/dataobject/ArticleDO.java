@@ -1,6 +1,7 @@
 package com.xzf.blog.article.biz.domain.dataobject;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.xzf.blog.framework.commons.domain.dataobject.BaseDO;
@@ -30,6 +31,7 @@ public class ArticleDO  extends BaseDO {
 
     private Integer isTop;
 
+    @TableField("summary")
     private String summary;
 
 

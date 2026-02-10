@@ -112,14 +112,15 @@ const onSubmit = () => {
         // 显示保存按钮 loading
         btnLoading.value = true
 
-        // 创建 FormData 对象来发送文件和数据
-        const submitData = new FormData()
-        submitData.append('nickname', form.nickname)
-        submitData.append('introduction', form.introduction)
+        // 创建 JSON 对象来发送数据
+        const submitData = {
+            nickname: form.nickname,
+            introduction: form.introduction,
+        }
 
         // 如果有头像URL，则添加
         if (form.avatarUrl) {
-            submitData.append('avatarUrl', form.avatarUrl)
+            submitData.avatarUrl = form.avatarUrl
         }
 
         updateBlogSettings(submitData).then((res) => {
@@ -133,10 +134,12 @@ const onSubmit = () => {
 
             // 重新渲染页面中的信息
             initBlogSettings()
+            // 刷新 store 中的用户信息
+            userStore.setUserInfo()
             showMessage('保存成功')
         }).finally(() => btnLoading.value = false) // 隐藏保存按钮 loading
-        })
-    }
+    })
+}
 
 </script>
 

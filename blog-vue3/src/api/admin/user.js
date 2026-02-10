@@ -36,9 +36,9 @@ export function sendVerificationCode(pictureId, pictureResult, phone) {
 
 // 更新用户信息 (头像、昵称、性别、个人介绍)
 export function updateBlogSettings(data) {
-    return axios.post("/user/update", data, {}, {
+    return axios.post("/user/update", data, {
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Content-Type': 'application/json',
         }
     })
 }
