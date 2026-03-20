@@ -54,6 +54,7 @@
         <commonmark.version>0.20.0</commonmark.version>
 
         <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
+        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
 
         <!--@Deprecated-->
         <aliyun-sdk-oss.version>3.17.4</aliyun-sdk-oss.version>
@@ -351,6 +352,14 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <useModulePath>false</useModulePath>
+                </configuration>
+            </plugin>
             <!-- 统一 revision 版本, 解决子模块打包无法解析 ${revision} 版本号问题 -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

@@ -39,6 +39,7 @@
     <lombok.version>1.18.30</lombok.version>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <rocketmq-client.version>4.9.4</rocketmq-client.version>
+    <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
     <commonmark.version>0.20.0</commonmark.version>
     <druid.version>1.2.18</druid.version>
     <redisson.version>3.18.1</redisson.version>
@@ -288,6 +289,13 @@
       </plugins>
     </pluginManagement>
     <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
+        <configuration>
+          <useModulePath>false</useModulePath>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>

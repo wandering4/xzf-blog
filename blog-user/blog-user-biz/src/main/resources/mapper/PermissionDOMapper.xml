@@ -167,7 +167,6 @@
     from permission
     where status = 0
       and type = 3
-      and is_deleted = 0
   </select>
 
 </mapper>
