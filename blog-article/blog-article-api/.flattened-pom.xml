@@ -5,11 +5,11 @@
   <parent>
     <groupId>com.xzf</groupId>
     <artifactId>blog-article</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>2.0-SNAPSHOT</version>
   </parent>
   <groupId>com.xzf.blog.article</groupId>
   <artifactId>blog-article-api</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>2.0-SNAPSHOT</version>
   <name>blog-article-api</name>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

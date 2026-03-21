@@ -42,7 +42,20 @@
           <img :src="robotImage" alt="AI" class="w-8 h-8 rounded-full object-cover border-2 border-white" />
           <h2 class="text-lg font-bold">AI 智能助手</h2>
         </div>
-        <span class="text-xs bg-white/20 px-2 py-1 rounded-full">在线</span>
+        <div class="flex items-center space-x-2">
+          <button
+            @click="startNewConversation"
+            :disabled="isAILoading"
+            class="flex items-center space-x-1 text-xs bg-white/20 hover:bg-white/30 px-2.5 py-1 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="开启新对话"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <span>新对话</span>
+          </button>
+          <span class="text-xs bg-white/20 px-2 py-1 rounded-full">在线</span>
+        </div>
       </div>
 
       <!-- 消息内容区域 -->
@@ -103,7 +116,7 @@
 <script setup>
 import { ref, onMounted, nextTick, defineProps } from 'vue'
 import robotImage from '@/assets/robot.jpg'
-import { getArticlePageList, getPersonalArticlePageList } from '@/api/frontend/ai'
+import { getArticlePageList, AGENT_CHAT_URL } from '@/api/frontend/ai'
 
 const props = defineProps({
   articleId: {
@@ -121,26 +134,53 @@ const isAILoading = ref(false)
 // 模拟用户头像，实际项目中可能从用户信息中获取
 const userAvatar = ref(null)
 
-// 获取或生成 conversationKey
-function getConversationKey() {
-  let key = localStorage.getItem('ai_conversation_key')
-  if (!key) {
-    // 使用浏览器原生 API 生成 UUID
-    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-        key = crypto.randomUUID()
-    } else {
-        // 降级方案：简单生成
-        key = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    }
-    localStorage.setItem('ai_conversation_key', key)
+// ========== Cookie 工具方法 ==========
+const COOKIE_NAME = 'ai_conversation_key'
+
+function setCookie(name, value, days = 365) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString()
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`
+}
+
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]*)'))
+  return match ? decodeURIComponent(match[1]) : null
+}
+
+// ========== conversationKey 管理 ==========
+function generateUUID() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID()
   }
+  // 降级方案
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  })
+}
+
+function getOrCreateConversationKey() {
+  // 优先从 cookie 读取，兼容迁移：也尝试从 localStorage 读取旧数据
+  let key = getCookie(COOKIE_NAME) || localStorage.getItem(COOKIE_NAME)
+  if (!key) {
+    key = generateUUID()
+  }
+  // 统一写入 cookie 持久化（清理旧 localStorage）
+  setCookie(COOKIE_NAME, key)
+  localStorage.removeItem(COOKIE_NAME)
   return key
 }
 
-const conversationKey = getConversationKey()
+const conversationKey = ref(getOrCreateConversationKey())
+
+// 开启新对话
+const startNewConversation = () => {
+  if (isAILoading.value) return
+  const newKey = generateUUID()
+  setCookie(COOKIE_NAME, newKey)
+  conversationKey.value = newKey
+  messages.value = []
+}
 
 const toggleChat = () => {
   isOpen.value = !isOpen.value
@@ -158,20 +198,14 @@ const scrollToBottom = () => {
 }
 
 const getHistory = () => {
-  getArticlePageList(1, 20, conversationKey).then(res => {
+  getArticlePageList(1, 20, conversationKey.value).then(res => {
     if (res.success && res.data) {
-      // 转换历史数据格式
-      messages.value = res.data.map(item => {
+      // 后端分页接口按时间倒序返回，需反转为正序（oldest → newest）
+      const historyData = [...res.data].reverse()
+      // 转换历史数据格式（后端已存纯文本 content，无需 JSON.parse）
+      messages.value = historyData.map(item => {
          if (item.type === 'USER_MESSAGE') {
-             try {
-                 const contentObj = JSON.parse(item.content)
-                 return {
-                     type: 'USER',
-                     content: contentObj.message
-                 }
-             } catch (e) {
-                 return { type: 'USER', content: item.content }
-             }
+             return { type: 'USER', content: item.content }
          } else {
              return { type: 'AI', content: item.content }
          }
@@ -206,13 +240,13 @@ const sendMessage = async () => {
     // 构造 payload
     const payload = {
       articleId: props.articleId || null,
-      conversationKey: conversationKey,
+      conversationKey: conversationKey.value,
       message: content
     }
 
     const token = localStorage.getItem('token')
 
-    const fetchRes = await fetch(`/api/ai/chat/stream/chat`, {
+    const fetchRes = await fetch(AGENT_CHAT_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

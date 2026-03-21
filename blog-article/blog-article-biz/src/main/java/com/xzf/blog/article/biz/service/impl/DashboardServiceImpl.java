@@ -39,7 +39,7 @@ public class DashboardServiceImpl implements DashboardService {
     public Response<FindDashboardStatisticsInfoRspVO> findDashboardStatistics() {
         Long userId = LoginUserContextHolder.getUserId();
         // 查询文章总数
-        Long articleTotalCount = articleMapper.selectCount(Wrappers.<ArticleDO>lambdaQuery().eq(ArticleDO::getAuthorId, userId));
+        Long articleTotalCount = articleMapper.selectCount(Wrappers.<ArticleDO>lambdaQuery().eq(userId != null, ArticleDO::getAuthorId, userId));
 
         // 查询分类总数
         Long categoryTotalCount = categoryMapper.selectCount(Wrappers.emptyWrapper());

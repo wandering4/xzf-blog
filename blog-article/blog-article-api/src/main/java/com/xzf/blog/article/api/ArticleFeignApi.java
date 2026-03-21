@@ -3,7 +3,9 @@ package com.xzf.blog.article.api;
 import com.xzf.blog.article.constants.ApiConstants;
 import com.xzf.blog.article.dto.request.IdsRequest;
 import com.xzf.blog.article.dto.request.article.UpdateArticleSummaryRequest;
+import com.xzf.blog.article.dto.response.SelectRspVO;
 import com.xzf.blog.article.dto.response.article.FindIndexArticlePageListRspVO;
+import com.xzf.blog.article.dto.response.dashboard.FindDashboardStatisticsInfoRspVO;
 import com.xzf.blog.framework.commons.response.Response;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,4 +22,12 @@ public interface ArticleFeignApi {
     @PostMapping("/getByIds")
     public Response<List<FindIndexArticlePageListRspVO>> getByIds(@RequestBody IdsRequest req);
 
+    @PostMapping("/dashboard/statistics")
+    Response<FindDashboardStatisticsInfoRspVO> getDashboardStatistics();
+
+    @PostMapping("/tag/select/list")
+    Response<List<SelectRspVO>> findTagSelectList();
+
+    @PostMapping("/category/select/list")
+    Response<List<SelectRspVO>> findCategorySelectList();
 }
