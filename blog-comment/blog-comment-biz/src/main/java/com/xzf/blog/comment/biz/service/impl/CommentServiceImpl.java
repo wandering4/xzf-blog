@@ -102,6 +102,9 @@ public class CommentServiceImpl implements CommentService {
         Page<CommentDO> commentDOPage = commentDOMapper.selectPageList(current, size, articleId, userId, req.getStartDate(), req.getEndDate());
 
         List<CommentDO> commentDOS = commentDOPage.getRecords();
+        if (CollectionUtils.isEmpty(commentDOS)) {
+            return PageResponse.success(commentDOPage, Collections.emptyList());
+        }
 
         List<Long> articleIds = commentDOS.stream().map(CommentDO::getArticleId).toList();
         List<Long> userIds = commentDOS.stream().map(CommentDO::getUserId).toList();

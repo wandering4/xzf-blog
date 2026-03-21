@@ -14,6 +14,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,5 +43,11 @@ class UserRpcServiceTest {
         when(userFeignApi.findByIds(any())).thenReturn(Response.fail("E", "fail"));
 
         assertThat(userRpcService.getByIds(List.of(1L))).isEmpty();
+    }
+
+    @Test
+    void getByIdsShouldReturnEmptyListWithoutFeignCallWhenIdsAreEmpty() {
+        assertThat(userRpcService.getByIds(List.of())).isEmpty();
+        verifyNoInteractions(userFeignApi);
     }
 }

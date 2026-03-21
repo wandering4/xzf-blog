@@ -6,6 +6,7 @@ import com.xzf.blog.user.api.UserFeignApi;
 import com.xzf.blog.user.dto.req.FindUsersByIdsReqDTO;
 import com.xzf.blog.user.dto.resp.FindUserByIdResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -17,6 +18,9 @@ public class UserRpcService {
     private UserFeignApi userFeignApi;
 
     public List<FindUserByIdResponse> getByIds(List<Long> userIds) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return Lists.newArrayList();
+        }
         Response<List<FindUserByIdResponse>> userResponse = userFeignApi.findByIds(FindUsersByIdsReqDTO.builder()
                 .ids(userIds)
                 .build());

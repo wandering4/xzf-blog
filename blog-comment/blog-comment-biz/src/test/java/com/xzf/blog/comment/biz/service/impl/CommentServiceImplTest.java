@@ -1,5 +1,6 @@
 package com.xzf.blog.comment.biz.service.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xzf.blog.article.dto.response.article.FindIndexArticlePageListRspVO;
 import com.xzf.blog.comment.biz.domain.dataobject.CommentDO;
 import com.xzf.blog.comment.biz.domain.mapper.CommentDOMapper;
@@ -33,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -130,5 +132,22 @@ class CommentServiceImplTest {
         assertThat(response.getData().getCommentCountItems()).hasSize(3);
         assertThat(response.getData().getCommentCountItems().get(1).getCount()).isZero();
         verify(commentDOMapper).count(List.of(1L, 2L, 3L));
+    }
+
+    @Test
+    void findCommentPageListShouldReturnEmptyPageWithoutRpcCallsWhenNoCommentsExist() {
+        Page<CommentDO> emptyPage = new Page<>(1, 10, 0);
+        emptyPage.setRecords(Collections.emptyList());
+        when(commentDOMapper.selectPageList(1L, 10L, 10L, null, null, null)).thenReturn(emptyPage);
+
+        var response = commentService.findCommentPageList(com.xzf.blog.comment.dto.request.CommentPageRequest.builder()
+                .current(1L)
+                .size(10L)
+                .articleId(10L)
+                .build());
+
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.getData()).isEmpty();
+        verifyNoInteractions(articleRpcService, userRpcService);
     }
 }

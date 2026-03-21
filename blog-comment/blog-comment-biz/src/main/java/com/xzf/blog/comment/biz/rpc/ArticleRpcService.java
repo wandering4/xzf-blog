@@ -6,6 +6,7 @@ import com.xzf.blog.article.dto.request.IdsRequest;
 import com.xzf.blog.article.dto.response.article.FindIndexArticlePageListRspVO;
 import com.xzf.blog.framework.commons.response.Response;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -17,6 +18,9 @@ public class ArticleRpcService {
     private ArticleFeignApi articleFeignApi;
 
     public List<FindIndexArticlePageListRspVO> getByIds(List<Long> articleIds) {
+        if (CollectionUtils.isEmpty(articleIds)) {
+            return Lists.newArrayList();
+        }
         Response<List<FindIndexArticlePageListRspVO>> articleResp = articleFeignApi.getByIds(IdsRequest.builder()
                 .ids(articleIds).
                 build());
